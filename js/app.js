@@ -22,6 +22,7 @@ const S = {
   price: null, prevPrice: null, offset: 0, offsetSamples: [], offsetMode: 'auto',
   spot: null, spotAt: 0, feed: null, raw: [], dayRaw: [], ticks: [], dayHigh: null, dayLow: null,
 };
+window.__AITD_GOLD = S;   // debug handle (like __AITD_GVP): feed, offset, raw bars
 
 /* ---------------- time helpers ---------------- */
 function tzParts(tz, d=new Date()){
@@ -145,7 +146,7 @@ function sampleOffset(){            // gold-api.com (~30 s lag) is only the back
    (polled every 5 s) is compared with the feed price and shift candles, header price, zone distances and the Volume Profile by
    median(feed − OANDA) of the last 9 samples. gold-api.com is the second reference; until the first sample arrives
    a per-source static offset (measured 29 Oct 2026 01:00–01:10 Thai) is used, so the first paint is already close. */
-const STATIC_OFF = { binance: 7.5, okx: 7.8, bitget: 4.0 };
+const STATIC_OFF = { binidx: 4.6, bitget: 4.0, binance: 7.5, okx: 7.8 };   // feed − OANDA, measured 29 Oct 2026 01:00–01:40 Thai
 const REF_URL = 'https://scanner.tradingview.com/symbol?symbol=OANDA:XAUUSD&fields=close';
 S.ref = null; S.refAt = 0; S.refSamples = []; S.offSrc = ''; S.refPrevPoll = 0;
 const median = (a) => { const x = [...a].sort((p,q)=>p-q), n = x.length; return n%2 ? x[(n-1)/2] : (x[n/2-1]+x[n/2])/2; };
@@ -173,8 +174,13 @@ async function pollRef(){
     if (!f || !f.adjust || S.offsetMode!=='auto'){ S.refAt = t1; return; }
     if (!changed && S.refSamples.length){ S.refAt = t1; return; }   // same snapshot as last time: nothing new to measure
     const fp = feedPriceIn(prevPoll, t1); if (fp == null) return;
+    // the OANDA snapshot can be 10–20 s old: while price is running (news) that lag would bias the offset, so skip
+    const recent = S.ticks.filter(k=>k[0] >= t1 - 20000).map(k=>k[1]);
+    if (recent.length && Math.max(...recent) - Math.min(...recent) > 1.5){ S.refAt = t1; return; }
     S.refAt = t1; S.refSamples.push(fp - p); if (S.refSamples.length > 9) S.refSamples.shift();
-    setOffset(median(S.refSamples), 'OANDA');
+    // index − OANDA basis is steady (p10–p90 ≈ ±0.6): keep the live value within ±1.2 of the measured one
+    const st = f && STATIC_OFF[f.name], m = median(S.refSamples);
+    setOffset(st != null ? Math.min(st + 1.2, Math.max(st - 1.2, m)) : m, 'OANDA');
   }catch(e){ /* blocked / offline: gold-api or static offset stays */ }
 }
 
@@ -211,6 +217,8 @@ function bitgetIndex(symbol, label, adjust){
       const end = (Math.floor(Date.now()/1000/s)+1)*s*1000;
       const res = await Promise.all(Array.from({length:pages}, (_,k)=>
         bgGet(`history-index-candles?symbol=${symbol}&productType=USDT-FUTURES&granularity=${BG_TF[base]}&limit=200&endTime=${end - k*200*s*1000}`)));
+      // history-index-candles lags a bar or two (no forming bar): the recent ones come from candles?kLineType=index
+      try{ res.push(await bgGet(`candles?symbol=${symbol}&productType=usdt-futures&granularity=${BG_TF[base]}&limit=5&kLineType=index`)); }catch(e){}
       const m = new Map();
       for (const page of res) for (const k of page||[]) m.set(+k[0]/1000, {time:+k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]});
       let raw = [...m.values()].sort((a,b)=>a.time-b.time).filter(b=>!spotClosed(b.time*1000));
@@ -275,7 +283,7 @@ const Feeds = {
     }
   },
   binance: {
-    name:'binance', label:'Binance XAUUSDT', adjust:true,
+    name:'binance', label:'Binance XAUUSDT perp', adjust:true,
     async history(tf, limit=500){
       const j = await fetchJSON(`https://fapi.binance.com/fapi/v1/klines?symbol=XAUUSDT&interval=${TF[tf].bn}&limit=${limit}`);
       return j.map(k=>({time:k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]}));
@@ -313,8 +321,36 @@ const Feeds = {
     }
   },
   bitget: bitgetIndex('XAUUSDT', 'Bitget XAUUSDT index (สำรอง)', true),
+  /* Binance XAUUSDT *index* (not the perp): the price index Binance builds from several gold venues. It follows spot
+     bar-for-bar — FOMC 29 Oct 01:00 M15 high: OKX spot index 4045.98, MT5 4045.91, Binance index 4049.57−offset ≈ 4045.0,
+     while the Binance perp spiked to 4064.39−offset ≈ 4056.9 (the "ห้าสิบกว่า" wick). Reachable from Thailand; the
+     constant USDT premium (~+$4.6) is removed by the live OANDA offset like the other backup feeds. */
+  binidx: {
+    name:'binidx', label:'Binance XAUUSDT index', adjust:true, ticks:true,
+    async history(tf, bars=500){
+      const base = tf==='240' ? '60' : tf, need = tf==='240' ? 900 : bars;
+      const j = await fetchJSON(`https://fapi.binance.com/fapi/v1/indexPriceKlines?pair=XAUUSDT&interval=${TF[base].bn}&limit=${Math.min(1500, need)}`, 4000);
+      if (!Array.isArray(j)) throw new Error('binance idx '+(j && j.code));
+      let raw = j.map(k=>({time:k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]})).filter(b=>!spotClosed(b.time*1000));
+      if (tf==='240') raw = aggregate(raw, '240');               // broker-anchored H4 like the other feeds
+      return raw;
+    },
+    stream(tf, onTick){                                          // markPrice@1s carries the index price ("i") every second
+      let ws, closed=false, retry=0, poll;
+      const startPoll = () => { if (poll) return; poll = setInterval(async()=>{ try{ const d = await fetchJSON('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=XAUUSDT', 3000); onTick(+d.indexPrice, +d.time || Date.now()); }catch(e){} }, 2000); };
+      const open = () => {
+        try{ ws = new WebSocket('wss://fstream.binance.com/market/ws/xauusdt@markPrice@1s'); }catch(e){ startPoll(); return; }
+        ws.onmessage = (m)=>{ retry=0; if (poll){ clearInterval(poll); poll=null; } const d = JSON.parse(m.data); if (d && d.i) onTick(+d.i, +d.E || Date.now()); };
+        ws.onclose = ()=>{ if (closed) return; retry++; startPoll(); setTimeout(open, Math.min(15000, 1000*retry)); };
+      };
+      open();
+      return () => { closed=true; try{ ws.close(); }catch(e){} clearInterval(poll); };
+    }
+  },
 };
-const ORDER = (qs.get('feed') ? [qs.get('feed')] : ['okxidx','binance','bitget','okx']).filter(f=>Feeds[f]);
+/* spot index first, then the two USDT *indices* (smooth like spot), the perps last: their trade prints spike on news
+   (FOMC 29 Oct 01:00: Binance perp M15 high +$10 above spot even after the offset), so they are only a last resort */
+const ORDER = (qs.get('feed') ? [qs.get('feed')] : ['okxidx','binidx','bitget','binance','okx']).filter(f=>Feeds[f]);
 
 /* ---------------- Lightweight chart ---------------- */
 let chart, cs, e20, e50, zoneLines = [], stopStream = null;
@@ -372,7 +408,20 @@ function onIndexTick(p, ms){
 }
 /* every 60 s re-read the newest bars from REST (exact OHLC incl. ticks the browser missed) */
 async function resyncTail(){
-  const f = S.feed; if (!f || f.name!=='okxidx' || !S.raw.length) return;
+  const f = S.feed; if (!f || !S.raw.length) return;
+  if (f.name==='binidx' || f.name==='bitget'){                // index backups: re-read the last few bars (not H4: needs 900 H1 bars)
+    if (S.tf==='240') return;
+    try{
+      const tf = S.tf, bars = (await f.history(tf, 3)).slice(-3);
+      if (tf!==S.tf || f!==S.feed) return;
+      for (const b of bars){ const i = S.raw.findIndex(x=>x.time===b.time);
+        if (i<0){ if (b.time > S.raw[S.raw.length-1].time) S.raw.push(b); continue; }
+        if (i===S.raw.length-1){ b.close = S.raw[i].close; b.high=Math.max(b.high,b.close); b.low=Math.min(b.low,b.close); } S.raw[i] = b; }
+      const d2 = S.raw.map(adj); cs.setData(d2); e20.setData(ema(d2,20)); e50.setData(ema(d2,50)); drawZones();
+    }catch(e){}
+    return;
+  }
+  if (f.name!=='okxidx') return;
   try{
     const tf = S.tf, base = tf==='240' ? '60' : tf, s = TF[base].s, need = tf==='240' ? 5 : 3;
     const d = await okxGet(`${OKX}index-candles?instId=XAU-USD&bar=${TF[base].okx}&limit=${need}`, 1);
@@ -514,6 +563,7 @@ async function loadOpt(){ try{ S.opt = await getJSON('options_levels.json'); }ca
 
 async function loadFeed(){
   if (stopStream){ stopStream(); stopStream=null; }
+  const keep = S.feed && S.feed.adjust ? {name:S.feed.name, ref:S.refSamples, gapi:S.offsetSamples, off:S.offset, src:S.offSrc} : null;   // offset belongs to the feed, not the TF
   S.raw = []; S.ticks = []; S.offsetSamples = []; S.refSamples = []; S.ref = null; S.refPrevPoll = 0; S.offset = 0; S.offSrc = ''; $('lwStatus').textContent = 'กำลังโหลด…';
   const tfAtStart = S.tf;
   const won = await raceFeeds(ORDER, (n)=>withTimeout(Feeds[n].history(S.tf), 6000));
@@ -524,6 +574,7 @@ async function loadFeed(){
       S.feed = f; S.raw = hist; window.AITD_LIB.okxSlow = won.name!=='okxidx';   // NAS skips waiting for OKX too
       { const lb = hist[hist.length-1]; S.ticks.push([Math.min(Date.now(), (lb.time + TF[S.tf].s)*1000), lb.close]); }   // stamped at bar end: Bitget's index history lags ~1 bar, so a stale close must not be paired with a live OANDA quote
       S.offset = f.adjust ? (STATIC_OFF[f.name] ?? 0) : 0; S.offSrc = f.adjust ? 'static' : '';   // refined by pollRef() within ~1 s
+      if (keep && keep.name===f.name && keep.src!=='static'){ S.refSamples = keep.ref; S.offsetSamples = keep.gapi; S.offset = keep.off; S.offSrc = keep.src; }
       redrawAll(); chart.timeScale().scrollToRealTime(); GVP.realign();   // VP shift follows the chart source
       stopStream = f.stream(S.tf, f.adjust && !f.ticks ? onBar : onIndexTick);
       S.lastTickAt = Date.now(); if (f.adjust) pollRef();

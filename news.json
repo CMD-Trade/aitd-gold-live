@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-28T21:54:19+07:00",
+ "generated_at": "2026-10-29T03:06:17+07:00",
  "note": "หัวข้อข่าวและลิงก์จาก RSS สาธารณะเท่านั้น · หมวดและ ทองบวก/ทองลบ/กลาง ติดอัตโนมัติจากคำในหัวข้อ (keyword) ไม่ใช่บทวิเคราะห์",
  "sources": [
   {
@@ -7,7 +7,7 @@
    "name": "Google News (gold)",
    "ok": true,
    "parsed": 100,
-   "fresh": 45,
+   "fresh": 53,
    "used": 10
   },
   {
@@ -15,15 +15,15 @@
    "name": "Google News ไทย (ราคาทอง)",
    "ok": true,
    "parsed": 100,
-   "fresh": 91,
+   "fresh": 93,
    "used": 8
   },
   {
    "id": "gn_fed",
    "name": "Google News (Fed)",
    "ok": true,
-   "parsed": 80,
-   "fresh": 38,
+   "parsed": 100,
+   "fresh": 33,
    "used": 5
   },
   {
@@ -31,15 +31,15 @@
    "name": "Reuters (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 18,
+   "fresh": 17,
    "used": 5
   },
   {
    "id": "gn_kitco",
    "name": "Kitco (via Google News)",
    "ok": true,
-   "parsed": 81,
-   "fresh": 22,
+   "parsed": 100,
+   "fresh": 23,
    "used": 4
   },
   {
@@ -47,7 +47,7 @@
    "name": "FXStreet (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 70,
+   "fresh": 69,
    "used": 4
   },
   {
@@ -69,7 +69,7 @@
    "name": "investingLive (ForexLive) RSS",
    "ok": true,
    "parsed": 25,
-   "fresh": 9,
+   "fresh": 6,
    "used": 4
   },
   {
@@ -85,11 +85,327 @@
    "name": "Federal Reserve press",
    "ok": true,
    "parsed": 15,
-   "fresh": 0,
-   "used": 0
+   "fresh": 1,
+   "used": 1
   }
  ],
  "items": [
+  {
+   "title": "Why did the Fed hold off on raising interest rates? Warsh says it’s because an ‘information rich’ period is coming.",
+   "source": "MarketWatch",
+   "link": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxQeU5HMzA2MkNZb2VTbnlRUDhOR0ZNRHdrQy0yQTRTVG5fSWh4VWlUakdUT091eWVjVGpURmxkNVdVV0hRRWdjeEpxYm01VjRLcXFnR0Z3M1F6emM2V0NkSWg0bXRJMklNS2pfMl9mUVlMUDN2S29FckZnSkRoM0ZDTFdkSnBzR3NwcVphMDZhOE9fX2FhOFo0OVBEZk1zS0tnemNnZGFHbkd1TUFGWFRCQkt3aEhsT1BGcGozQ1V3OEpTU3hOeHlwTWh3WXUzMzlKRXVrS0pSU1AxbnRUaWJKcm1CX01oVmR2?oc=5",
+   "published": "2026-10-29T02:56+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed holds rates steady as a governor and president dissent together for the first time since 1992",
+   "source": "Fortune",
+   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNOFJMUDA1UWY0NlpyWjR4TWVLM0NXTVpPdFNwRUVLWWNUUVpwM2xHU1hmaFdxUHVXYTBEVE9LMnJWRl9leVV0R3ZnVU01Y0hUcTI3V0xfX0pfbVF6aTYwRHEzblloS21hTFRrSHZFdDBSVHdRNmpURGZPR0JsVmtmcFlvdWhJb2xNZFF5YVBHMUIyaThjUnc1RA?oc=5",
+   "published": "2026-10-29T02:50+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Federal Reserve keeps rates unchanged despite elevated inflation",
+   "source": "AP News",
+   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQdmpNR3hXT3B1c2RacHY4TFZnNjlfaTY2c0tXMXZjSWE5Z2JCZlNDZTE0dGRQYjNEejl5ZXFILTNPQ05pX0NyRWpwNW1YVzdpREhYblpHWTZMZkkzNFZnVTZ1NWV4M3FtR0VMUmRNTjczY1NGaTEtSFptWEY0NF9RZ1otWWdjMTZDYXE3SHRWM0NhdEtyczFDeXFYT3RWVF9DTmdGTHdGWHR1QQ?oc=5",
+   "published": "2026-10-29T02:47+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed Keeps Interest Rates Flat as Warsh Offers No Guidance, Suggests Fewer Meetings",
+   "source": "TradingView",
+   "link": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxPMGtUWjFlS0g4NTV5ZmYxZHBDYlFhTVBESGtuUWdyWmVmdERjU3FCZldnOFczNXNpVGtMa3dwVU81MVRMZkpYam8wbnhlMzVmLVpscG91WGpFYm5WcXZ5VVgyVElRVFFyYmw2MWNyWUFYVTVsSkxHbVdybUhCRnAwaElQcVByaFB4bkd6MHRCU093N0M2YXY5NVRRdUZHWXU3TFFjOWxGdGdJMTl1UzhXVEhGdUVYM0U5LXN1RUtNV21XMTN2WnJNRzRKLVFKbGJpdFZxeEV6VHlWdHM?oc=5",
+   "published": "2026-10-29T02:45+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed votes in split decision to hold interest rates steady despite sticky inflation",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxNTFNHanJ3MTBjVnBzMDd2NTFYRTR1azVJNmdJbXpiYm8wd0phUHZfcVNBWE1ySUwtSnJsVldzdGxoMXZTd09FR1pPV1EwV2N2YkROMVcxUENTRTNVd2NfQUdiM3JReWNhTTdDVjNMZ1diU0NxSEN2M1l1THVaNUo3emVBU0pSRHFZWE1JcHY1VkliTU9SRjB2VDdlTUJVSHZod1ZnZW1SeW53MWIyNDNDSWk5WW5IczBETFdjakhzdVNXNVdzNFFQTEtmQzNBek5wWmZjLWRxSmI2N09DZTJn?oc=5",
+   "published": "2026-10-29T02:39+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "VIEW FOMC holds rates steady, markets rise modestly",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNR3M1cWh6azZyTHVTWV9qanQ0LXVsVHVNRzdLeUlSbEx3aVYta0xwa3VPODBoc1JvUEZMRVNGQ045ZkZZajVCTmhzZGdPcmFOaHhJelg0OHRIMjQyZnlXemdNbU42cWFhS3dQaExlT3RtLWpiTmxlVUMtYzZ4dHhYNGdFc1FtRlJ4SUtZQlFjWUE3N2JqNUtHdHctdUFtWWZBd1E?oc=5",
+   "published": "2026-10-29T02:35+07:00",
+   "feed": "gn_reuters",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed leaves rates unchanged as it awaits 'accumulation of more information'",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPaU93czlpTHJXMTJGby0yOGppZGVlVkZzZW4tNC11WTcwVk1yQUZHTVMza0dTLURMRi0tTUtYTHhITkI2OVBWN2k0anZCN2liNnlyNFpaTmFTaWlFTHItWmtBXzh1VWhkRjZBNjVDejQxOGNUTW1HWWRBUzNjbGdKUDV0MlFSWXRsaWQwMXpWQXI?oc=5",
+   "published": "2026-10-29T02:35+07:00",
+   "feed": "gn_reuters",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "The before and after. A look at the changes in forex, rates, stocks through the FOMC decision and press conference.",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/central-banks/the-before-and-after-a-look-at-the-changes-in-forex-rates-stocks-through-the-fomc-decision-and-press-conference/",
+   "published": "2026-10-29T02:21+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Precious Metals Prices Canada | Gold, Silver, Platinum, Palladium, Rhodium in CAD",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBqalFQMEJZcTRGQUUtck45dzl5MEtzYmFhZURNVVU1NnFwcXZuNG9MQnhoenNBc28yV2RHU18wM3BuT3RpRnJPQ0FKbkNzMmlLbWxUUmduQjdPUFpGSkt3?oc=5",
+   "published": "2026-10-29T02:20+07:00",
+   "feed": "gn_kitco",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Wall Street mostly rises as Fed holds key rate steady, deferring next likely hike to December",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxPQVNrQUVwN1c3SjBCODU1TXUwRy1hQ2lIQUxFZkJ3dGhXa0NZalhVTFFoeTU4MlB3VDRwWE1QRktITG5FZnd1eUVDTjRUankwRGgzRkRKTGdwZDVDbWUyTWVKNlRKVld5RVdaTllzZkVhdXUzNkZUOU5RWWNOQVJTY2xuaDJZZXlybC05LXRmTmpPb2RvVlliLWxBUXZVRldXU3kyY2pWb1ZmZlFNUU1KMmN4aV9wMk9Lai01YXcza0JqdDQ?oc=5",
+   "published": "2026-10-29T02:10+07:00",
+   "feed": "gn_reuters",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed's Warsh: There is no soft inflation target",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQdmhKVUllVDVRbjAwVHdiejBYQmxjVEM4dzIxbGdqOEYxcXA4V2NxLTFaSkIwWkV3ZHNmRmJxTzN0eFNPcmh0Ri1qU0VHODV0SUNzR0VIZ09jREZwNTBEeFBfNFFEb2duX1JfUHFoamdrU0RvNHlrTlcwWTc2ODJCZEZKZEhFYjlkV0RTdE5lUjBYOU1mU3htTmN3MlhreHR6UTVuQnVZXzFLZkdlMklQS0RlZlpWZnhOTnMzbDN3?oc=5",
+   "published": "2026-10-29T02:04+07:00",
+   "feed": "gn_fxstreet",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed Chairman Kevin Warsh: More information will help determine appropriate policy steps",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/central-banks/fed-chairman-kevin-warsh-more-information-will-help-determine-appropriate-policy-steps/",
+   "published": "2026-10-29T01:34+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed day playbook: A trader's guide to gold price action",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOUkxqZUxkSUgwVngwRkl4cnRTVGd2SUp4bnJxeUt1aElMRlo0d3o4aFpNVk9MSENWWFVTNUxfRTVhRkFkSVRFQWNrQ0lDeEk2am11OWxOV1NyTUwwblBVUmZSem9CdFRFcElqWVRLVjRKaDJuOElYaEwyQ05TN050dEtIaC15clVMbmlVd00zMGN6WXM?oc=5",
+   "published": "2026-10-29T01:31+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold price edges lower ahead of Fed rate decision, Warsh comments",
+   "source": "Mining.com",
+   "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNMi05RU1Bcmd0cGFIX1BUOFMzUUFXNkY0Sl9icTg1MnZ3TG14WThBXzlEOHFJSG1Dcl9IV05hMlVHbll2NXFXdWJ0N1ZPNzBIY3N6UWdmZUNTaWR0RDF4c3VGTVo0c1NNRWhFeDNuNkgxOTJISmJDQWhsVmc0QzBuaV90RWIzdEFWaktNMG5HZ1ltX29PeHVB?oc=5",
+   "published": "2026-10-29T01:29+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "Gold (XAUUSD), Silver, Platinum Forecasts – Gold Pulls Back As Traders Prepare For Fed Decision",
+   "source": "FXEmpire",
+   "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxPaU1mUVJWc1I2amtZUC0zaFMzaGp1SzFsVjBrRy1rZ3NLcUc3RVVKMHl2a0RvNENwdy04OFFNNkxwaWY0SHd3ZTFNQ1VXVC1iTEl5eS1vd0F4M2ZfOW9IU1dOZmF4SHJtX183cXBHeW9TQy1FOEp1RnJndDd1QjRZNld4b2N4UUFpT3F6UHJzZ0l3YllHdzNyZ3RnY3BlX3dFdzI4OWxDOS1sUzlOT1FJSHpqLUdQVWl3cm9UVjZ1NVZIOFZmTVlCSVgzazBQT3hxWGYtTUxzcXFaQQ?oc=5",
+   "published": "2026-10-29T01:15+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "The full statement from the October 2026 FOMC rate decision",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/central-banks/the-full-statement-from-the-october-2026-fomc-rate-decision/",
+   "published": "2026-10-29T01:02+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold price drops to $4,035/oz as Fed votes 10-2 in favor of rate hold",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPTkVadUVFNW9aUUZEM1BhNnZBQ0k3M004YUdlemlZbldkZmN2ZXRaWjNnalI0VzZ3aC0tTERhWWxRR1RWZTlpaGZvTnFndnJxUEk1OUgyU3lKWkE3SVZFeUJNX2NCTWZ3WDA5TS01VTd0dmVIVFJ5akl0UHR4b3BVUzVnbVR4Sl90clRuY3FNdGF4Zmx3SnNpWVU5WHFVRGhqMFE?oc=5",
+   "published": "2026-10-29T01:01+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "FOMC decision Oct 28: Rates left unchanged",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/central-banks/fomc-decision-oct-28/",
+   "published": "2026-10-29T01:00+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Federal Reserve issues FOMC statement",
+   "source": "Federal Reserve press",
+   "link": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm",
+   "published": "2026-10-29T01:00+07:00",
+   "feed": "fed",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Galantas Gold at Emerging Growth Conference 97: Chile pivot takes shape",
+   "source": "Investing.com UK",
+   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxQdzcybndNSlFLQ29JVmM3NTl6U3VoQVJ5eDNXNWNBeFprbGxkV1JwYnRUV3FPX3Z0N01LSkl4U1JWYm9qSEpPQWZLR2ZjTHV1MUhQajgwSVMwS3RjS1h0d1BVcDdGN1FuVGluYklVazBXWFlnNm9Xa1NINXI0eWxJZnZwSEVHNm9nRnlQb3VlX1VBR3Y1QmFSM3VWeFhESmtkUDlfbHlfRWVweUZlYkFkTGpYcE1VbDRvTV9ta1N1UzMyLUR5QTdVdjZMUQ?oc=5",
+   "published": "2026-10-29T00:44+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold slips toward $4,000 as Oil above $100 clouds Fed rate outlook",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOU3JTdmtHTC16RXZVLWJaNGhBNXhmZDdhcEdhZ01RcTF1RTNsM0JfcURhY3VGWlR5UThMN0I1S0JNRWNtenF3dk1qSE1LYWM2MC10cm9xa1l6TDVyWFR5bG5kTHVHbHc1VXNWRmlIMnpRcnhLU2tydHhBcjhLbVpaelpHRVB2aHlCTXFFX09rQ3lnQXUwQ1lZR1VTS0p4VlJNaTVqaHhyLTRkeDQ?oc=5",
+   "published": "2026-10-29T00:32+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "Federal Reserve: Guidance and yield curve pricing – Rabobank",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQNTBobXBDUEg1dnY1c1oxOEU1RlA0X0VmSEJ4S1djUHZsZVdKZGYyeVZQZVh0YXFmWENiYzdQSmNEdWM0cmEzMVV5WU1vMFg2cjhiLThNUm51RnRvMk53eVlkOTA3M1o3d2xmYng3NjkzRnFhbDJQN2JxQWtUdl9FN0tDMDNuVjZ2SGVQRzNESVJCNFRHNU54c3R1SXdUUWN4U1E?oc=5",
+   "published": "2026-10-28T23:56+07:00",
+   "feed": "gn_fxstreet",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "ดอลลาร์/บอนด์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "‘ราคาทองโลก’ ร่วงแรง! เกือบหลุด 4,000 ดอลลาร์ กังวลเงินเฟ้อ-สงครามอิหร่าน",
+   "source": "The Bangkok Insight",
+   "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTFB4bE9RaFhneW9yQ0pfY1hkQmFKNTB2SGZqZjNVZGVuMFotTzhxTG9ucTRuSkZpamRZNTNDb2VmcFBkNUpobjdCeHU0bXBXcmEyX0tBV1pGYzhFZUZYVnNYVTZMOHhwVnZsa0M4UXZocm5WRDRpelhPMA?oc=5",
+   "published": "2026-10-28T23:33+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "เงินเฟ้อ",
+    "ดอลลาร์/บอนด์",
+    "ภูมิรัฐศาสตร์"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "Kinross Gold earnings in focus after production guidance cut By Investing.com",
+   "source": "Investing.com Nigeria",
+   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPTl9iblpZLUxkeEptdHl2NkhIZzlzQWs1OEpRZnRqaWZHWld5TGNwU0ZmNFFZOTBZNnpWejBPUEJSUnhleDlQQ0VNTVEwT0RNWFJqbnpma1htb1laQWxZRGxGR2gtQkdIdzZLc1VCS1FjUkhrSEYwSDBOMXhWX1VZT0ZOVlowYUxYNGlsNWRSOHhDSFpDZ2JVQXc3RlNmM0FEN3hCQXlpZUduT0hwSXM2aFVWem9rNl9aeGJ4OU93?oc=5",
+   "published": "2026-10-28T23:28+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "AngloGold Ashanti: The Dividend Survives $4,000 Gold, The Share Price Doesn't (NYSE:AU)",
+   "source": "Seeking Alpha",
+   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOVGFUV0c5ellJdWptNjN4c25YOW9jMk9hMHU3dW95TzczejRieHRTeDFNX2tSWXIwZ1R1WmJGX1lZWDFaN1h1bFdza05qLWJGTlc4SVhxejBNS0RBYjZURXRfQnhoaTJzdWEzb1diNUdpMjY0TmtRRWpnMTV5WHdlbU50WUViaWlNVXppUkxiTEt0UnFyQVZFNXVjVG9KWWY1MU9iRHJZSUZMTmtYUVV2TlJoTQ?oc=5",
+   "published": "2026-10-28T23:16+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold stalls its recovery as markets brace for Fed interest rate decision",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPSldnRWZXaXlGU0JoeTFCdEdLRFR3cURrdlg3SjhwQ3UxcjMtY2lYQjJFOVhlUUxDVF9mSjdESWZBbVZFS1ZVaXI1VTF1VW1faUFOZDBpN1ZOR19lc3VYSHZ3REEtQ25zQnh5VmRSekZoSHplNW1SYk5kZzh5eXNxVTVyTE5LUUhuampjaDV6U20yeWc1ZmZlajl0eTJnSllmQVphTA?oc=5",
+   "published": "2026-10-28T23:07+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold prices could fall to $3,900, silver to $50 as Fed tightening pressures precious metals – Sucden Financial",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPWnF0bG92emZOM0VGZEhBbjRnLXkwTGpvbm9mU3ZHcXBqeVpkUmMxb2cxcVd6UWc1dENEMUtXaGphakxjTmtQY3lBVUFsZDdRY3E0UHBna1BYdl9QajFQLXJndzl5ZUttaWtISTZIbGhORE1kMGJ4UVZfQ19Ya1FHZVkxTU1rRXZiVEdvMUtBdGl5Q0ZMWFZRcEQwTGRkT09VbmQ5MjI0TEs1V0NXZUZ5eldURXBpenpr?oc=5",
+   "published": "2026-10-28T23:05+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "ราคาทองย่อตัว ราคาน้ำมันพุ่งกดดันตลาด",
+   "source": "RYT9",
+   "link": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE1BTjNVQ3RwUnBLdm95UldLN2NmUVdGMkN5cU1vd2ZnRXZ3QjFSZUhXdXkzV0s5OGxZZXltel8tRFpfNE9WMDY2aC1B?oc=5",
+   "published": "2026-10-28T21:54+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
   {
    "title": "ราคาทองย่อตัว ราคาน้ำมันพุ่งกดดันตลาด : อินโฟเควสท์",
    "source": "สำนักข่าวอินโฟเควสท์",
@@ -111,322 +427,6 @@
     "Fed/ดอกเบี้ย"
    ],
    "lean": "กลาง"
-  },
-  {
-   "title": "Current price of gold as of October 28, 2026",
-   "source": "Fortune",
-   "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBQa2I0dGY4OGxPWTg1aDhfbDZuYmJtMWQxdE1QaTFya3N1elZJanNzMjM2LXJ1REpCZHpYa1JZZzJVOGE3N2dpb2JVcGVwN3NWNzBMVnVaTVN3bmdKTklfSzhjLXVPOTMxZDIzR3BB?oc=5",
-   "published": "2026-10-28T21:14+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "U.S. Federal Reserve Expected To Hold Interest Rates Steady",
-   "source": "TradingView",
-   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNMm52Z09NVnY5Ukt4Q1VuZWtiSWk3UkNFTTFzSmRQblEwNlpTV256bExXR1BNel9nREtKZFdGZklsX1RNZjVDM05nYmtuaEJPd3ZYSUZjNHhXWXJpWjdQQUJ4eUNsb3JqSGF4VTc3anp4M3F0cXhLR2Qwc20xdzljUWxobmtCYWNENFoyUmxIV3pNRll4WlFxNXRuSDBZWFpfTlNkMzM4RlYwaDBBeDRUY3pqRTlsMFNNV2c?oc=5",
-   "published": "2026-10-28T21:08+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold stalls its recovery as markets brace for Fed interest rate decision",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPSldnRWZXaXlGU0JoeTFCdEdLRFR3cURrdlg3SjhwQ3UxcjMtY2lYQjJFOVhlUUxDVF9mSjdESWZBbVZFS1ZVaXI1VTF1VW1faUFOZDBpN1ZOR19lc3VYSHZ3REEtQ25zQnh5VmRSekZoSHplNW1SYk5kZzh5eXNxVTVyTE5LUUhuampjaDV6U20yeWc1ZmZlajl0eTJnSllmQVphTA?oc=5",
-   "published": "2026-10-28T21:05+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Fed expected to leave interest rates unchanged in October",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQdmhKVUllVDVRbjAwVHdiejBYQmxjVEM4dzIxbGdqOEYxcXA4V2NxLTFaSkIwWkV3ZHNmRmJxTzN0eFNPcmh0Ri1qU0VHODV0SUNzR0VIZ09jREZwNTBEeFBfNFFEb2duX1JfUHFoamdrU0RvNHlrTlcwWTc2ODJCZEZKZEhFYjlkV0RTdE5lUjBYOU1mU3htTmN3MlhreHR6UTVuQnVZXzFLZkdlMklQS0RlZlpWZnhOTnMzbDN3?oc=5",
-   "published": "2026-10-28T21:00+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold Price Forecast: $4,096–$4,125 Zone Sets the Tone After Fed Decision",
-   "source": "FXEmpire",
-   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOSUY3RWlHbmg1RVl5SFIzOGJpZnkxZWVEQkcxRlVvTkd1MVRoQ2tEVW5uRzh0eEVvUmdNTHJLZ2s4cEhiUXZITWRkeThreEZDS3ExbWdkUkMtMk8taVpZMkRuQXMxS1JzSjNxanVfanRZRFpPNzhpQURSZWZaSnYzdkhJa0d1MldYSHFQOXlsdTdnRTJObG83VTlERHBZTEtwZHk2OVdtaHIzcWFiMUxlUi1mS0g0cXRrZHc?oc=5",
-   "published": "2026-10-28T20:49+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "US Dollar: AI relief and hawkish Fed support – ING",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQMXo3elc0UURTczVlZ2JNZHVmTmh2NklqbG03YkQzXzNIUFNXVFJscXNLRGpta1h4azF1bldlZG4zOGZIWDZBcGNFX3AzcUNZVENEU1p5VVo1aXpJS1hYRU1hWXdObmlDUnFicjlXMXNybHZNVlYxYU9VZ0swdUY0c2VlR01SZTdEODdLLVFtS3hTbzMy?oc=5",
-   "published": "2026-10-28T20:47+07:00",
-   "feed": "gn_fxstreet",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "ดอลลาร์/บอนด์",
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "ทองลบ"
-  },
-  {
-   "title": "Gold price at CAD$5,684/oz after Bank of Canada raises 25 bps, sees growth slowing in Q4 before rebounding in 2028",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPSGxPSDR3YmNvd0xKLTg2UnU0VHJpd3hfUHFiejFvNDVQdGw4ZjF2Nl9WVkdFdUFjT0oxbHRxRnRoYmZQRG5hbzdIbGY5c0Y1NkdRZEo2aWlEQ2dQR1E5LVVVb3AwcE9GRjVJWmpvZ2xUb1NBR2JsTkFLOElMMVl3TGc2REZfVzRsblNxZi16aGlac2c0cndYVkF6X0didlVnV0tQTlJLTi1jdXhfb3phamZ4ZjA2VzQyZ1dtVnVR?oc=5",
-   "published": "2026-10-28T20:45+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "US stocks hold steady as the countdown ticks to a Federal Reserve decision on interest rates",
-   "source": "AP News",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOWjdOaHZoX3J6U1JBZU92Q1VkV2F0OFI0WUo5b2l0UHh5WXVNWDZHVElxNktfMUh0WEh6REdiVXZxWlNHdm1hV2RBMHE1TnZjamY4dDA5VWZlMjhDV3I0Z1I4MDh4WDJnbG9fRVBZZW1FZHZCaHVPRUhMc29Fa0ZDNVJ5X3NYVFUteDhlVXNtVzN0cHc?oc=5",
-   "published": "2026-10-28T20:45+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "S&P 500, Nasdaq open higher as SK Hynix lifts chips; Fed in focus",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxPQVNrQUVwN1c3SjBCODU1TXUwRy1hQ2lIQUxFZkJ3dGhXa0NZalhVTFFoeTU4MlB3VDRwWE1QRktITG5FZnd1eUVDTjRUankwRGgzRkRKTGdwZDVDbWUyTWVKNlRKVld5RVdaTllzZkVhdXUzNkZUOU5RWWNOQVJTY2xuaDJZZXlybC05LXRmTmpPb2RvVlliLWxBUXZVRldXU3kyY2pWb1ZmZlFNUU1KMmN4aV9wMk9Lai01YXcza0JqdDQ?oc=5",
-   "published": "2026-10-28T20:35+07:00",
-   "feed": "gn_reuters",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold slips on higher oil prices ahead of Fed decision",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQNUpNRHNTVTl3VlUyYkQyREstclhqc1JzWGNKZVBqY2dldnJGY2tDZTFiUVFXa0djNkdWZDhkS21RUXh1eXlObVVHY3o3NmhobzRmbVlCYjJieXZyRzVEaXpQazg3b1lZNG96djFhSGFZU0I1Y0hwUXJIbW5wejZ2Y3E5NDkwT3pTRzRLejYwaVZUanVxR3NYa3c1bGt4d0k?oc=5",
-   "published": "2026-10-28T20:24+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold recovery stalls as Saudi refinery attack claims lift crude, silver retreats - Kitco AM Report",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPMXhYeE1vbUlIYms3WVJXamR3S0VwRTRwSG0tNS1CUVRrOHBPQjlPV20tdU9EMmJzSXJzMFI2c29wcTVrMXVPQzFYaExfV01ZeEtWMlRaREdwd29OZVp3MVFyV2NSLTRvQUYxTDhiZmFhS1lsOW5fWWU3b0kxT3ZqTTVTY0hoTlY3bm1SQ1dZUWJsbzdWcGFYdE5COWpiMjNkeFAzLWFVOWZKV0VmemtCUFh4aw?oc=5",
-   "published": "2026-10-28T20:07+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold Price Forecast: XAU/USD Holds Above $4,039 as Oil Jumps Before Fed Decision",
-   "source": "FXLeaders",
-   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQdmJCOXg4VFN2cFkwaWR0VjkteHZTRThkRXBjMkRsVWk4dXEwMnNFdWxHWUNRNy1KNnE2b3VvOG53eXBiRElvck83QTFzQmFRUUlVNGdyWURCenJNUlhCUzdPMWZlYkdQUTlnSnU3OHR0elp0MXJSRy1RaFRYVEllS2FiUVdMMTJIOTZSXzlxMF9vTWlQdzMwY2FBX3RPcDdkS2ttcXpRTy1OWEtzZ0w4MWFLWHcxcDFuZUh0bw?oc=5",
-   "published": "2026-10-28T20:00+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "ทองราคาผงาด คืนนี้ประชุม FED ชี้ชะตา",
-   "source": "InterGold",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE10djJmQmVLdlJzMU9EeGZxWmRGWFIzLVRCbkhqSVlZZVF0NllzR3RQOEtfLXFFQkY1X2xSZmV5aC1PQWNjeXFUc3R2bE1yQmotaFgtMnI2aU8tTFBjb3dmdk1KRnEtUnM?oc=5",
-   "published": "2026-10-28T19:33+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Fed officials not aligned on weight of financial conditions",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOZDVJc3BaeUw5dnlFa2JrcmJQcFBnclc2alpNZTdST3BGSThJOFkyYmFUNGdTVFlWc2xheVdoZ0JJTzlISEVUQjdqVVZTQThuYTUxWXU3UGUyOVpjQm9CdTZHdXNNSUVfdlJ0TldocXJWQkdxVUhOX3JxNFV4dGZhM3Jsa0pTeWRvM3owdUgtZ2lJcTYwZjQzOEFQWjdhSlc0Rmt2UFVCRGlvQQ?oc=5",
-   "published": "2026-10-28T19:29+07:00",
-   "feed": "gn_reuters",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Fed likely to go into wait-and-see mode on rates",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPaU93czlpTHJXMTJGby0yOGppZGVlVkZzZW4tNC11WTcwVk1yQUZHTVMza0dTLURMRi0tTUtYTHhITkI2OVBWN2k0anZCN2liNnlyNFpaTmFTaWlFTHItWmtBXzh1VWhkRjZBNjVDejQxOGNUTW1HWWRBUzNjbGdKUDV0MlFSWXRsaWQwMXpWQXI?oc=5",
-   "published": "2026-10-28T19:28+07:00",
-   "feed": "gn_reuters",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Morning Kickstart: Dollar mixed ahead of Fed, BoC and Big Tech earnings",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/technical-analysis/morning-kickstart-dollar-mixed-ahead-of-fed-boc-and-big-tech-earnings/",
-   "published": "2026-10-28T19:20+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "XAU/USD Elliott Wave forecast accuracy: Capturing over 1460 points lower",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPN01lSG5PTEtCZEFtYl83TWV5QXFvMm0wRWxHalBPblpzMGFOOVQwX0hGR1NQLWl1VlAwN09wQUpfaVZubjZHbjFfU0JueDYzUUg3UThoYkpwVV9iSXZ5aDdieGpEY3hqNDg4dE5waEdaaGljTk1pNVNYSjZBblg3NUZqRElIT3JEck5XZVIyMHV5ZEhISzVmT2JPM3o0UE9KM09vU1RmN0lwSnNGV1ZuUlRSMnYtak4tUFE?oc=5",
-   "published": "2026-10-28T19:08+07:00",
-   "feed": "gn_fxstreet",
-   "tags": [
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "investingLive European session wrap: Stocks tread cautiously as Fed decision and big tech earnings loom",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/news/investinglive-european-fx-news-wrap-28-oct/",
-   "published": "2026-10-28T19:08+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "EUR/USD nears key 1.1067 swing level ahead of Fed and ECB decisions. What's next?",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/forex/eur-usd-nears-key-1-1067-swing-level-ahead-of-fed-and-ecb-decisions-what-s-next/",
-   "published": "2026-10-28T18:58+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "ธนาคารกลาง"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold Spot Prices | Silver Prices | Platinum & Palladium",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE1UZW9OY3B0aUpxd0RPZEJjSHhJXzZzd1lZSTZyOHgtMU96OU1fVlpCcENYQ0R4Ylp3OTc5YzdtMzZsdVVJOWNHOEYzVEdZbkdrTHp5VGRR?oc=5",
-   "published": "2026-10-28T18:37+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "อัปเดตราคาทองวันนี้ 28 ต.ค. 69 ผันผวนทั้งหมด 11 ครั้ง ปิดตลาดปรับขึ้น 800 บาท",
-   "source": "Thairath.co.th",
-   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1GbG9TQWZoaWUyb3RHbExvU1k1ckRVc1VRZncyTl9FQ2U2bkhmbmRPRWUya3pidndPdDVueUFDa3VSaU5RT01QM1VxLUhhTm80NEV1QzFabXdtSkE?oc=5",
-   "published": "2026-10-28T18:20+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ราคาทองไทย"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Zcash extends gains as geopolitical fears ease ahead of the FOMC decision. What's next?",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/cryptocurrency/zcash-extends-gains-as-geopolitical-fears-ease-ahead-of-the-fomc-decision-what-s-next/",
-   "published": "2026-10-28T18:18+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "ภูมิรัฐศาสตร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold (XAUUSD) & Silver Price Forecast: Oil Rebound Revives Hike Fears, Can Gold Hold $4,015?",
-   "source": "FXEmpire",
-   "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOdEZNYVlQMWNWdUx1dnVoY0U2U1NWeUV1N1pCZm9hcTRsMjE2STFxeFp0U3ZHd2EwV3R3MmpBVVpaZHhRNlpxOHZqTG9GQ1RKQzBuWF9zRzhkNlBwZHo3dFo0SFdQbG45M250ZUt4UVdLTnRtY1BNdUxZMkZwZm5YSHQzaTNKVTNYZ3BmMGZ2VExmOVY4WTk4VGpZUmFiREpzd1dlV1hSQ1lKVWxjTko3Qm8zbVkzbm5XbUt0RWtULTI3d09Ea0ZFYUJjN3JRVGM?oc=5",
-   "published": "2026-10-28T18:12+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "ทองวันนี้ปิดตลาดย่อตัว 100 บาท แต่เทียบวานนี้ยังพุ่ง 800 บาท จับตาผลประชุมเฟดคืนนี้ ลุ้นทิศทางราคาทองโลก",
-   "source": "วารสารการเงินธนาคาร",
-   "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1oTGwzeWZBQl9fMG1DcGJmcVlIWG1VWi1pQ2JCYWxFWnZZcjlycTc1cGRpc293RzBnX2pTN1ZGNXdsVUNpRGc1SkRaaXNhdHVIUEozSA?oc=5",
-   "published": "2026-10-28T18:11+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold price today, Wednesday, October 28, 2026: Gold prices remain below $4,100 ahead of the Fed rate decision",
-   "source": "Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxPQm51ZUp6UGU0ZzV3eXJESFRZdVEydS0zd2k0aDMwUXlUbXp3anhMMC1Jb1VwYi1wX0JMdlc1a3JCT2RINW5zY3lDTDNJX2tEWThWMzgyanFSUGkzZW1ETm50UTAxZVlCU3oyTURocENiMl9LT2phcjBsbV80RTlhRUhvYXJHSXdvOF84UGpjSU9PdnRxWFlOWHZFQUhURkpfUTVDQXZlNkFqUm9RMk9LRHJVOGZyTThxUXc0U2FDVzlRUURQN2xNSDNEYk1ZeWlwaW1qbng4cDVlNEh4OUc5bm1mbzE3dXlrdzZLaFk2TDNfUXB3R0pwMDFPa3dPQmJXWWVGb2hLT1lGRmM?oc=5",
-   "published": "2026-10-28T18:07+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold demand gains traction as market enters key festive & wedding season",
-   "source": "The Economic Times",
-   "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxQT3ctWU8tb0RxdE1aeWhRcVdTcWRHYlgycFNiXzlmMnFEMkwxTjQzQktTQ1JrdVBJQmpYc00xUDlDNFlTUjE5X0F0X1hMaV96Z2U0OVQxSkRoQWhnUDF6Y2lJTDZpaXVFWEFpMm9qand5Y2Z0Qm5xX1hKaUplNDJwMzV5dlZUaUdkWEdsNUtHWHJ0R3VtTjlLNDJsbF9lb0lZcXFrcWtsYVotV3BweklBWVp3RTUwdGVJcnByTkwtdUpoalBJRkxiR0N0UzdCUWVNRDhFVFp0eHdkLU1yR0ZUa3R5Qlphb0ZtZUZCcmlxbFVmSnJmWHdDcjZ0eURwNEUtMWNOQnAyaFR0YlnSAZACQVVfeXFMTkFCaHdtTXh5MUdabEg0S3ZvM1d2b3ZqZUR1ZV94Wmt2cmhQVHRld3NCbzRNX2JvdlFzeF9IWWdJRlF4bC1FZUVKVFBKWldQU19OanlzdUlfZW5NaXlna25FeEFOU2lVZ2k4a2w1dlhnVkdMNHhqYV9LOWxadlVCaG81QW53ZTl6ajVCTC1yVUVxNEwwVWlTZktyZXJvNURDcDVCUWl3a3JiamtUYll0WjRqNjA4MHJ2TC1IdVRyU0p3dEhGVjZnUlFXbVdkbXVmOU5rZzRHX2pZNTZLbTUwbjE2WXZPTDdzQmQ1T3V6NlpnUDJoc1c4UmJsdnBhMzVhZkFLVmVwSEljZ3ZTM2ZNREI?oc=5",
-   "published": "2026-10-28T17:57+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "XAUUSD Risk & Lot Sizing Blueprint: How to Survive Gold Volatili for OANDA:XAUUSD by luqmansaqib87",
-   "source": "TradingView",
-   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQSW5VOThaVzRIT3NicHJtQ0VFU3RFQWlEbG9TQmJ2Q3NXNEM5RVFtc0pFaGNwNjBmMF84SFhGRzNqVmczMjR2R011aEZ6Q256TnpyZktVNVlxUnk0cFVoOVY0ZGxfUElFdUJyRE5WQUNuMWh1NHBQQnNQNVluQWZsV3VhOEVrd19JWXl5Vk51TllGcWMzQXZlT0xNaXRULW1QN1htSzdDVm4tZ3hWLW01Q0R3?oc=5",
-   "published": "2026-10-28T17:51+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold Price Forecast: Rebound at Risk as Treasury Yields Remain Near 5%",
-   "source": "FXEmpire",
-   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOSWlmRl9tQ05iVkNKNUZrN0lzeTlTUFdVRWFRSlVGR0pxYjgyVHBQbGd6UGdXemNrOE9zR2JkYTdZUUt0bVNWR0lJSkhwVzhWM2w5WTl4Z2VEZUpkTG1HWUhWWU1iQVFtQ01vZm1DbE9lOXhUbS1WLU9sbTN1b0Frc0k4anlDRkoycWw4ZlcxYXktRGp5SU9qbTBtaE55cHJ6eDc4S2Zic1QwZEdjckhkWmRxNVFpZ1lDdkNsa1AzdVVBdmptSlE?oc=5",
-   "published": "2026-10-28T17:47+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ดอลลาร์/บอนด์",
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "ทองบวก"
   }
  ],
  "_format": "items: {title (original), source, link, published (ISO +07:00), feed, tags[Thai], lean: ทองบวก|ทองลบ|กลาง}"

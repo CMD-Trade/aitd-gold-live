@@ -17,9 +17,12 @@ a{color:var(--gold2)}
 .brand-mark{display:block;height:44px;width:auto;flex:none}
 .brand-name{margin:0;display:flex;align-items:center;gap:7px;font-size:inherit;line-height:1}
 .brand-word{display:block;height:22px;width:auto}
-.brand-name b{font-size:16px}
+@font-face{font-family:"AiTD Brand";src:url(../fonts/syncopate-700-goldlive.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap}
+.brand-name{align-items:baseline;gap:9px}
+.brand-name b{font-family:"AiTD Brand",Syncopate,"Michroma","Arial Black",sans-serif;font-weight:700;font-size:29px;line-height:1;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;background:linear-gradient(180deg,#faeaa0 0%,#f2c66c 22%,#ecb85e 60%,#e9ad4e 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand-txt small{margin-top:4px;letter-spacing:.4px}
-@media(max-width:520px){.brand{gap:8px}.brand-mark{height:36px}.brand-word{height:18px}.brand-name b{font-size:14px}.brand-txt small{font-size:10.5px}}
+@media(max-width:520px){.brand{gap:8px}.brand-mark{height:36px}.brand-word{height:18px}.brand-name{gap:7px}.brand-name b{font-size:19px}.brand-txt small{font-size:10.5px}}
+@media(max-width:370px){.brand-mark{height:32px}.brand-word{height:16px}.brand-name{gap:5px}.brand-name b{font-size:16px}}
 .clock{text-align:right}
 #clock{font-family:var(--mono);font-size:18px;color:var(--gold2)}
 .tv-tape{min-height:46px;border-bottom:1px solid var(--line)}

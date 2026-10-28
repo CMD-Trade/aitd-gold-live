@@ -14,6 +14,12 @@ a{color:var(--gold2)}
 .brand b{font-size:17px;letter-spacing:.3px;background:linear-gradient(90deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand small,.clock small{display:block;color:var(--mut);font-size:11.5px}
 .logo{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(135deg,#3a2e0e,#1a1508);color:var(--gold);border:1px solid #4a3b12}
+.brand-mark{display:block;height:44px;width:auto;flex:none}
+.brand-name{margin:0;display:flex;align-items:center;gap:7px;font-size:inherit;line-height:1}
+.brand-word{display:block;height:22px;width:auto}
+.brand-name b{font-size:16px}
+.brand-txt small{margin-top:4px;letter-spacing:.4px}
+@media(max-width:520px){.brand{gap:8px}.brand-mark{height:36px}.brand-word{height:18px}.brand-name b{font-size:14px}.brand-txt small{font-size:10.5px}}
 .clock{text-align:right}
 #clock{font-family:var(--mono);font-size:18px;color:var(--gold2)}
 .tv-tape{min-height:46px;border-bottom:1px solid var(--line)}

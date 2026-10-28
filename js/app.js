@@ -510,6 +510,7 @@ function renderFeedInfo(){
   if (S.spot) t += ` · เทียบ gold-api ${fmt(S.spot)} (อัปเดตช้า ~30 วิ, ${spotAge}s ก่อน${S.price!=null && f && f.name!=='gold-api' ? `, ต่าง ${sgn(S.price-S.spot)}` : ''})`;
   if (spotClosed(Date.now())) t += ' · ตลาดทอง spot ปิดอยู่ กราฟหยุดที่ราคาปิดล่าสุด';
   $('feedInfo').textContent = t;
+  const src = $('feedSrc'); if (src) src.textContent = f ? `· ${f.label}` : '';
 }
 
 /* ---------------- zones panel ---------------- */

@@ -30,22 +30,6 @@
 <div class="tv-tape" id="tape"></div>
 
 <main>
-  <!-- PRICE -->
-  <section class="card price-card">
-    <div class="price-row">
-      <div>
-        <div class="label">XAUUSD <span id="feedBadge" class="badge">กำลังเชื่อมต่อ…</span></div>
-        <div class="price" id="price">—</div>
-        <div class="chg" id="chg">—</div>
-      </div>
-      <div class="hl">
-        <div><span class="label">สูงสุดวันนี้</span><b id="dayHigh">—</b></div>
-        <div><span class="label">ต่ำสุดวันนี้</span><b id="dayLow">—</b></div>
-        <div><span class="label">ช่วงวัน</span><b id="dayRange">—</b></div>
-      </div>
-    </div>
-    <div class="sub" id="feedInfo">—</div>
-  </section>
 
   <!-- PRE-TRADE CHECKLIST (localStorage only) -->
   <section class="card check-card" id="checkCard">
@@ -80,7 +64,14 @@
   <!-- CHARTS: gold + NAS100 side by side on wide screens, NAS stacked right under gold on mobile -->
   <div class="chart-pair">
   <!-- CHART -->
-  <section class="card chart-card">
+  <section class="card chart-card gold-card" id="goldCard">
+    <!-- gold price header: same layout/classes as the NAS100 header so the two cards line up -->
+    <div class="nas-top">
+      <div class="nas-title"><b>XAUUSD</b> <span id="feedBadge" class="badge">กำลังเชื่อมต่อ…</span> <span class="hdr-src" id="feedSrc"></span>
+        <div class="nas-px"><span class="nas-price" id="price">—</span> <span class="chg" id="chg"></span></div>
+        <div class="nas-hl"><span class="label">สูง / ต่ำวันนี้ (ตั้งแต่ 17:00 NY)</span> <b><span id="dayHigh">—</span> / <span id="dayLow">—</span></b> <span class="label">· ช่วง</span> <b id="dayRange">—</b></div>
+      </div>
+    </div>
     <div class="chart-head">
       <div class="tabs" role="tablist">
         <button class="tab active" data-view="zone">กราฟ + โซน</button>
@@ -111,6 +102,7 @@
       <span class="vpinfo" id="vpInfo">กำลังโหลด…</span>
     </div>
     <div class="sub vp-note">Volume Profile = ปริมาณซื้อขายของ <b>OKX XAU-USDT perp</b> (หน่วย oz) แปลงเป็นราคา spot ด้วยส่วนต่าง perp − ดัชนี XAU-USD ณ ตอนนี้ · กระจาย volume ของแต่ละแท่งเท่า ๆ กันในช่วง High–Low (ช่องละ $1) · <b>เป็นค่าประมาณ ไม่ใช่ volume ของ CME/COMEX หรือโบรกเกอร์</b> · อัปเดตทุก 1 นาที</div>
+    <div class="sub" id="feedInfo">—</div>
     <div class="sub" id="chartNote">โซนจาก zones.json · เส้น EMA20/50 คำนวณจากแท่งเทียนบนกราฟ</div>
   </section>
 

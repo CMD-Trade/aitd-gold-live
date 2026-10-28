@@ -40,6 +40,29 @@ function marketClosed(now=new Date()){
   const ny = tzParts('America/New_York', now);
   return ny.wd==='Sat' || (ny.wd==='Fri' && ny.h>=17) || (ny.wd==='Sun' && ny.h<18);
 }
+/* Spot gold (OANDA / MT5) is shut Fri 17:00 → Sun 18:00 New York and 17:00–18:00 NY every day.
+   The OKX index keeps printing then, so those bars/ticks are dropped to look like a broker chart. */
+const NYF = new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hourCycle:'h23',weekday:'short',hour:'2-digit'});
+function spotClosed(ms){
+  let wd='', h=0; for (const x of NYF.formatToParts(new Date(ms))){ if(x.type==='weekday') wd=x.value; else if(x.type==='hour') h=+x.value; }
+  return wd==='Sat' || (wd==='Fri' && h>=17) || (wd==='Sun' && h<18) || h===17;
+}
+/* H4 buckets anchored to the 17:00 New York session open (04:00/08:00/12:00… Thai in US summer time,
+   05:00/09:00/13:00… in winter) — same as TradingView OANDA:XAUUSD and MT5 brokers on GMT+2/+3 servers. */
+const _dsCache = new Map();
+function h4Start(t){
+  const hk = Math.floor(t/3600); let ds = _dsCache.get(hk);
+  if (ds===undefined){ ds = dayStartMs(new Date(t*1000+1000))/1000; _dsCache.set(hk, ds); if(_dsCache.size>5000) _dsCache.clear(); }
+  return ds + Math.floor((t-ds)/14400)*14400;
+}
+const bucketStart = (t, tf) => tf==='240' ? h4Start(t) : Math.floor(t/TF[tf].s)*TF[tf].s;
+function aggregate(bars, tf){
+  const out = [];
+  for (const b of bars){ const t = bucketStart(b.time, tf), l = out[out.length-1];
+    if (l && l.time===t){ l.high=Math.max(l.high,b.high); l.low=Math.min(l.low,b.low); l.close=b.close; }
+    else out.push({time:t, open:b.open, high:b.high, low:b.low, close:b.close}); }
+  return out;
+}
 
 /* ---------------- data files ---------------- */
 async function getJSON(url){ const r = await fetch(url + (url.includes('?')?'&':'?') + 'v=' + Date.now(), {cache:'no-store'}); if(!r.ok) throw new Error(url+' '+r.status); return r.json(); }
@@ -100,7 +123,7 @@ async function pollSpot(){
   renderFeedInfo();
 }
 function sampleOffset(){
-  if (!S.feed || S.feed.name==='gold-api' || !S.ticks.length || S.offsetMode!=='auto') return;
+  if (!S.feed || !S.feed.adjust || !S.ticks.length || S.offsetMode!=='auto') return;
   // feed price closest in time to the spot quote's timestamp
   let best = null; for (const k of S.ticks){ if(!best || Math.abs(k[0]-S.spotAt) < Math.abs(best[0]-S.spotAt)) best = k; }
   if (!best || Math.abs(best[0]-S.spotAt) > 120000) best = S.ticks[S.ticks.length-1];
@@ -110,12 +133,53 @@ function sampleOffset(){
 }
 
 /* ---------------- live candle feeds ---------------- */
-const TF = { '1':{bn:'1m',okx:'1m',s:60}, '5':{bn:'5m',okx:'5m',s:300}, '15':{bn:'15m',okx:'15m',s:900}, '60':{bn:'1h',okx:'1H',s:3600}, '240':{bn:'4h',okx:'4Hutc',s:14400} };
+const TF = { '1':{bn:'1m',okx:'1m',s:60}, '5':{bn:'5m',okx:'5m',s:300}, '15':{bn:'15m',okx:'15m',s:900}, '60':{bn:'1h',okx:'1H',s:3600}, '240':{bn:'4h',okx:'4H',s:14400} };
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]);
 
+const OKX = 'https://www.okx.com/api/v5/market/';
+async function okxGet(url, tries=3){
+  for (let i=0;;i++){
+    try{ const r = await fetch(url, {cache:'no-store'}); const j = await r.json();
+      if (j.code==='0') return j.data; if (j.code!=='50011' || i>=tries-1) throw new Error('okx '+j.code+' '+j.msg); }
+    catch(e){ if (i>=tries-1) throw e; }
+    await new Promise(r=>setTimeout(r, 400*(i+1)));          // 50011 = rate limit
+  }
+}
 const Feeds = {
+  /* PRIMARY: OKX index XAU-USD = spot gold in USD aggregated from spot venues (CORS *, no key).
+     Tracks Dukascopy/OANDA spot within ~$0.2-0.4, so no perp→spot offset is needed. */
+  okxidx: {
+    name:'okxidx', label:'OKX XAU/USD spot index', adjust:false,
+    async history(tf, bars=500){
+      const base = tf==='240' ? '60' : tf, s = TF[base].s;
+      const need = tf==='240' ? 900 : bars, pages = Math.ceil(need/100);
+      const end = (Math.floor(Date.now()/1000/s)+1)*s*1000;
+      const res = await Promise.all(Array.from({length:pages}, (_,k)=>
+        okxGet(`${OKX}history-index-candles?instId=XAU-USD&bar=${TF[base].okx}&limit=100&after=${end - k*100*s*1000}`)));
+      const m = new Map();
+      for (const page of res) for (const k of page) m.set(+k[0]/1000, {time:+k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]});
+      let raw = [...m.values()].sort((a,b)=>a.time-b.time).filter(b=>!spotClosed(b.time*1000));
+      if (tf==='240') raw = aggregate(raw, '240');
+      return raw;
+    },
+    stream(tf, onTick){
+      let ws, closed=false, retry=0, ping, poll, last=0;
+      const tick = (px, ts) => { if (isFinite(px) && px>0){ last=Date.now(); onTick(px, ts||Date.now()); } };
+      const startPoll = () => { if (poll) return; poll = setInterval(async()=>{ try{ const d = await okxGet(`${OKX}index-tickers?instId=XAU-USD`,1); tick(+d[0].idxPx, +d[0].ts); }catch(e){} }, 2000); };
+      const stopPoll = () => { if (poll){ clearInterval(poll); poll=null; } };
+      const open = () => {
+        try{ ws = new WebSocket('wss://ws.okx.com/ws/v5/public'); }catch(e){ startPoll(); return; }
+        ws.onopen = ()=>{ ws.send(JSON.stringify({op:'subscribe', args:[{channel:'index-tickers', instId:'XAU-USD'}]})); clearInterval(ping); ping = setInterval(()=>{ try{ws.send('ping')}catch(e){} }, 20000); };
+        ws.onmessage = (m)=>{ if (m.data==='pong') return; const j = JSON.parse(m.data); if (j.data && j.data[0]){ retry=0; stopPoll(); tick(+j.data[0].idxPx, +j.data[0].ts); } };
+        ws.onclose = ()=>{ clearInterval(ping); if (closed) return; startPoll(); setTimeout(open, Math.min(15000, 1000*(++retry))); };
+      };
+      open();
+      const wd = setInterval(()=>{ if (Date.now()-last > 10000) startPoll(); }, 5000);   // WS silent → REST
+      return () => { closed=true; clearInterval(ping); clearInterval(wd); stopPoll(); try{ws.close()}catch(e){} };
+    }
+  },
   binance: {
-    name:'binance', label:'Binance XAUUSDT', 
+    name:'binance', label:'Binance XAUUSDT', adjust:true,
     async history(tf, limit=500){
       const r = await fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=XAUUSDT&interval=${TF[tf].bn}&limit=${limit}`);
       if(!r.ok) throw new Error('binance '+r.status);
@@ -134,7 +198,7 @@ const Feeds = {
     }
   },
   okx: {
-    name:'okx', label:'OKX XAU-USDT-SWAP',
+    name:'okx', label:'OKX XAU-USDT-SWAP', adjust:true,
     async history(tf, limit=300){
       const r = await fetch(`https://www.okx.com/api/v5/market/candles?instId=XAU-USDT-SWAP&bar=${TF[tf].okx}&limit=${Math.min(limit,300)}`);
       const j = await r.json(); if (j.code!=='0') throw new Error('okx '+j.msg);
@@ -154,7 +218,7 @@ const Feeds = {
     }
   },
 };
-const ORDER = (qs.get('feed') ? [qs.get('feed')] : ['binance','okx']).filter(f=>Feeds[f]);
+const ORDER = (qs.get('feed') ? [qs.get('feed')] : ['okxidx','binance','okx']).filter(f=>Feeds[f]);
 
 /* ---------------- Lightweight chart ---------------- */
 let chart, cs, e20, e50, zoneLines = [], stopStream = null;
@@ -176,7 +240,7 @@ function initChart(){
   new ResizeObserver(()=>requestAnimationFrame(drawZones)).observe($('zoneView'));
   setInterval(drawZones, 400);   // autoscale changes on ticks
 }
-const adj = (b) => ({time:b.time + TH_OFF, open:b.open-S.offset, high:b.high-S.offset, low:b.low-S.offset, close:b.close-S.offset});
+const adj = (b) => ({time:b.time + TH_OFF, open:b.open-S.offset, high:b.high-S.offset, low:b.low-S.offset, close:b.close-S.offset});   // S.offset is 0 for the spot index
 function ema(data, n){ const k=2/(n+1); let e=null; return data.map(b=>{ e = e===null ? b.close : b.close*k + e*(1-k); return {time:b.time, value:e}; }); }
 function redrawAll(){
   if(!cs) return;
@@ -197,6 +261,34 @@ function onBar(b){
   trackDay(b.close - S.offset);
   setPrice(b.close - S.offset);
   S.lastTickAt = Date.now();
+}
+function onIndexTick(p, ms){
+  if (!cs || !S.raw.length || spotClosed(ms)) return;          // broker market shut: keep last close
+  const t = bucketStart(Math.floor(ms/1000), S.tf), last = S.raw[S.raw.length-1];
+  if (t < last.time) return;
+  if (t === last.time){ last.high=Math.max(last.high,p); last.low=Math.min(last.low,p); last.close=p; }
+  else { S.raw.push({time:t, open:p, high:p, low:p, close:p}); if (S.raw.length>1500) S.raw.shift(); }
+  cs.update(adj(S.raw[S.raw.length-1]));
+  const d = S.raw.slice(-300).map(adj); const x20 = ema(d,20), x50 = ema(d,50);
+  e20.update(x20[x20.length-1]); e50.update(x50[x50.length-1]);
+  trackDay(p); setPrice(p); S.lastTickAt = Date.now();
+}
+/* every 60 s re-read the newest bars from REST (exact OHLC incl. ticks the browser missed) */
+async function resyncTail(){
+  const f = S.feed; if (!f || f.name!=='okxidx' || !S.raw.length) return;
+  try{
+    const tf = S.tf, base = tf==='240' ? '60' : tf, s = TF[base].s, need = tf==='240' ? 5 : 3;
+    const d = await okxGet(`${OKX}index-candles?instId=XAU-USD&bar=${TF[base].okx}&limit=${need}`, 1);
+    let bars = d.map(k=>({time:+k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]})).reverse().filter(b=>!spotClosed(b.time*1000));
+    if (tf==='240'){ const cur = S.raw[S.raw.length-1].time; bars = aggregate(bars.filter(b=>h4Start(b.time)>=cur), '240'); }
+    if (tf!==S.tf || f!==S.feed) return;
+    for (const b of bars){
+      const i = S.raw.findIndex(x=>x.time===b.time);
+      if (i>=0){ if (i===S.raw.length-1){ b.close = S.raw[i].close; b.high=Math.max(b.high,b.close); b.low=Math.min(b.low,b.close); } S.raw[i] = b; }
+      else if (b.time > S.raw[S.raw.length-1].time) S.raw.push(b);
+    }
+    const d2 = S.raw.map(adj); cs.setData(d2); e20.setData(ema(d2,20)); e50.setData(ema(d2,50)); drawZones();
+  }catch(e){}
 }
 function onSpotOnlyTick(p, at){
   if (!cs) return;
@@ -235,17 +327,20 @@ function drawZones(){
 
 async function loadFeed(){
   if (stopStream){ stopStream(); stopStream=null; }
-  S.raw = []; S.ticks = []; S.offsetSamples = []; $('lwStatus').textContent = 'กำลังโหลด…';
+  S.raw = []; S.ticks = []; S.offsetSamples = []; S.offset = 0; $('lwStatus').textContent = 'กำลังโหลด…';
   for (const name of ORDER){
     try{
       const f = Feeds[name];
-      const hist = await withTimeout(f.history(S.tf), 6000);
+      const tfAtStart = S.tf;
+      const hist = await withTimeout(f.history(S.tf), 8000);
+      if (tfAtStart !== S.tf) return;                       // user switched TF meanwhile
       if (!hist.length) throw new Error('empty');
       S.feed = f; S.raw = hist;
       S.ticks.push([Date.now(), hist[hist.length-1].close]);
-      if (S.spot && S.offsetMode==='auto'){ S.offset = hist[hist.length-1].close - S.spot; S.offsetSamples=[S.offset]; }
+      S.offset = 0;
+      if (f.adjust && S.spot && S.offsetMode==='auto'){ S.offset = hist[hist.length-1].close - S.spot; S.offsetSamples=[S.offset]; }
       redrawAll(); chart.timeScale().scrollToRealTime();
-      stopStream = f.stream(S.tf, onBar);
+      stopStream = f.stream(S.tf, f.adjust ? onBar : onIndexTick);
       loadDay(f);
       $('lwStatus').textContent = '';
       renderFeedInfo(); return;
@@ -253,7 +348,7 @@ async function loadFeed(){
   }
   // fallback: spot polling only (+ static seed for M15)
   S.feed = {name:'gold-api', label:'gold-api.com (spot)'}; S.offset = 0;
-  if (S.tf==='15'){ try{ const s = await getJSON('candles_seed.json'); S.raw = s.candles.map(c=>({...c, time:c.time})); }catch(e){} }
+  if (['15','60','240'].includes(S.tf)){ try{ const s = await getJSON('candles_seed.json'); const c = s.candles.map(c=>({...c})); S.raw = S.tf==='15' ? c : aggregate(c, S.tf); }catch(e){} }
   redrawAll(); if (S.spot) onSpotOnlyTick(S.spot, Date.now());
   $('lwStatus').textContent = 'โหมดสำรอง: อัปเดตจาก spot ทุก ~30 วิ';
   renderFeedInfo();
@@ -291,9 +386,10 @@ function renderFeedInfo(){
   else { b.className = 'badge ' + (stale?'warn':'live'); b.textContent = stale ? 'รอข้อมูล' : 'LIVE'; }
   const spotAge = S.spotAt ? Math.round((Date.now()-S.spotAt)/1000) : null;
   let t = f ? `ราคาจาก ${f.label}` : '';
-  if (f && f.name!=='gold-api') t += ` ปรับฐาน ${S.offset>=0?'−':'+'}${fmt(Math.abs(S.offset))} ให้ตรง spot`;
-  if (S.spot) t += ` · spot อ้างอิง ${fmt(S.spot)} (gold-api, ${spotAge}s ก่อน)`;
-  if (marketClosed()) t += ' · ตลาดทอง spot ปิด ราคา perp อาจวิ่งต่างจากโบรก';
+  if (f && f.adjust) t += ` ปรับฐาน ${S.offset>=0?'−':'+'}${fmt(Math.abs(S.offset))} ให้ตรง spot`;
+  if (f && f.name==='okxidx') t += ' (ราคา spot USD ไม่ต้องปรับฐาน)';
+  if (S.spot) t += ` · เทียบ gold-api ${fmt(S.spot)} (อัปเดตช้า ~30 วิ, ${spotAge}s ก่อน${S.price!=null && f && f.name!=='gold-api' ? `, ต่าง ${sgn(S.price-S.spot)}` : ''})`;
+  if (spotClosed(Date.now())) t += ' · ตลาดทอง spot ปิดอยู่ กราฟหยุดที่ราคาปิดล่าสุด';
   $('feedInfo').textContent = t;
 }
 
@@ -433,6 +529,7 @@ async function main(){
   await loadFeed();
   setInterval(renderFeedInfo, 2000);
   setInterval(()=>{ if(S.feed && S.feed.name!=='gold-api') loadDay(S.feed); }, 5*60000);
+  setInterval(resyncTail, 60000);
   loadTape(); renderZones(); renderCalc();
   // reload data files every 10 min (daily update script)
   setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); }catch(e){} }, 600000);

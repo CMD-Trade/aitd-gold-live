@@ -121,19 +121,61 @@ async function pollSpot(){
       const isNew = at !== S.spotAt;
       S.spot = +j.price; S.spotAt = at;
       if (isNew) sampleOffset();
-      if (!S.feed || S.feed.name==='gold-api') onSpotOnlyTick(S.spot, at);
+      if ((!S.feed || S.feed.name==='gold-api') && !refFresh()) onSpotOnlyTick(S.spot, at);
     }
   }catch(e){ /* keep last */ }
   renderFeedInfo();
 }
-function sampleOffset(){
-  if (!S.feed || !S.feed.adjust || !S.ticks.length || S.offsetMode!=='auto') return;
+function sampleOffset(){            // gold-api.com (~30 s lag) is only the backup reference when the OANDA quote is unreachable
+  if (!S.feed || !S.feed.adjust || !S.ticks.length || S.offsetMode!=='auto' || refFresh()) return;
+  if (Date.now() - S.spotAt > 120000) return;                    // stale quote (market shut / API stuck)
   // feed price closest in time to the spot quote's timestamp
   let best = null; for (const k of S.ticks){ if(!best || Math.abs(k[0]-S.spotAt) < Math.abs(best[0]-S.spotAt)) best = k; }
   if (!best || Math.abs(best[0]-S.spotAt) > 120000) best = S.ticks[S.ticks.length-1];
   S.offsetSamples.push(best[1] - S.spot); if (S.offsetSamples.length > 15) S.offsetSamples.shift();
-  const a = [...S.offsetSamples].sort((x,y)=>x-y), med = a[Math.floor(a.length/2)];
-  if (Math.abs(med - S.offset) >= 0.05){ S.offset = med; redrawAll(); }
+  if (S.offSrc==='static' && S.offsetSamples.length < 3) return;   // gold-api is noisy: need 3 samples before it overrides the static offset
+  // gold-api lags spot by up to ~30 s, so on its own it can be $2–3 off in a fast market: keep it within ±$1.5 of the measured static offset
+  const st = STATIC_OFF[S.feed.name], m = median(S.offsetSamples);
+  setOffset(st==null ? m : Math.min(st+1.5, Math.max(st-1.5, m)), 'gold-api');
+}
+
+/* ---------------- OANDA spot reference (TradingView quote endpoint, CORS ok, no key) ----------------
+   The backup feeds are not spot: Binance/OKX XAUUSDT perps are quoted in USDT (+ funding basis) and the Bitget
+   XAUUSDT index is built from tokenised gold, so they sit ~$4–8 above OANDA / MT5. Every new OANDA:XAUUSD quote
+   (polled every 5 s) is compared with the feed price and shift candles, header price, zone distances and the Volume Profile by
+   median(feed − OANDA) of the last 9 samples. gold-api.com is the second reference; until the first sample arrives
+   a per-source static offset (measured 29 Oct 2026 01:00–01:10 Thai) is used, so the first paint is already close. */
+const STATIC_OFF = { binance: 7.5, okx: 7.8, bitget: 4.0 };
+const REF_URL = 'https://scanner.tradingview.com/symbol?symbol=OANDA:XAUUSD&fields=close';
+S.ref = null; S.refAt = 0; S.refSamples = []; S.offSrc = ''; S.refPrevPoll = 0;
+const median = (a) => { const x = [...a].sort((p,q)=>p-q), n = x.length; return n%2 ? x[(n-1)/2] : (x[n/2-1]+x[n/2])/2; };
+const refFresh = () => S.refSamples.length > 0 && Date.now() - S.refAt < 60000;
+/* the quote endpoint refreshes only every ~10–20 s, so a sample is taken only when the OANDA price changes, paired with
+   the mean feed price since the previous poll (the quote was snapped somewhere in that window) */
+function feedPriceIn(a, b){
+  const v = S.ticks.filter(k=>k[0]>=a && k[0]<=b).map(k=>k[1]);
+  if (v.length) return v.reduce((x,y)=>x+y,0)/v.length;
+  const last = S.ticks[S.ticks.length-1];                       // no tick in the window: last price if still recent
+  return last && b - last[0] <= 15000 ? last[1] : null;
+}
+function setOffset(v, src){
+  if (!isFinite(v)) return; S.offSrc = src;
+  if (Math.abs(v - S.offset) >= 0.05){ S.offset = v; redrawAll(); try{ GVP.realign(); }catch(e){} }
+}
+async function pollRef(){
+  if (spotClosed(Date.now())) return;                            // OANDA quote frozen while the market is shut
+  try{
+    const t0 = Date.now(), j = await fetchJSON(REF_URL, 4000), t1 = Date.now(), p = j && +j.close;
+    if (!(p > 500)) return;
+    const prevPoll = S.refPrevPoll || t0 - 5000, changed = p !== S.ref; S.refPrevPoll = t1;
+    const f = S.feed; S.ref = p;
+    if (f && f.name==='gold-api'){ S.refAt = t1; S.refSamples = [0]; onSpotOnlyTick(p, t1); return; }   // spot-only mode: OANDA is faster than gold-api
+    if (!f || !f.adjust || S.offsetMode!=='auto'){ S.refAt = t1; return; }
+    if (!changed && S.refSamples.length){ S.refAt = t1; return; }   // same snapshot as last time: nothing new to measure
+    const fp = feedPriceIn(prevPoll, t1); if (fp == null) return;
+    S.refAt = t1; S.refSamples.push(fp - p); if (S.refSamples.length > 9) S.refSamples.shift();
+    setOffset(median(S.refSamples), 'OANDA');
+  }catch(e){ /* blocked / offline: gold-api or static offset stays */ }
 }
 
 /* ---------------- live candle feeds ---------------- */
@@ -472,30 +514,28 @@ async function loadOpt(){ try{ S.opt = await getJSON('options_levels.json'); }ca
 
 async function loadFeed(){
   if (stopStream){ stopStream(); stopStream=null; }
-  S.raw = []; S.ticks = []; S.offsetSamples = []; S.offset = 0; $('lwStatus').textContent = 'กำลังโหลด…';
+  S.raw = []; S.ticks = []; S.offsetSamples = []; S.refSamples = []; S.ref = null; S.refPrevPoll = 0; S.offset = 0; S.offSrc = ''; $('lwStatus').textContent = 'กำลังโหลด…';
   const tfAtStart = S.tf;
   const won = await raceFeeds(ORDER, (n)=>withTimeout(Feeds[n].history(S.tf), 6000));
   if (tfAtStart !== S.tf) return;                           // user switched TF meanwhile
   if (won){
     try{
       const f = Feeds[won.name], hist = won.hist;
-      if (f.adjust && !S.spot) await Promise.race([spotP, new Promise(r=>setTimeout(r,1500))]);
       S.feed = f; S.raw = hist; window.AITD_LIB.okxSlow = won.name!=='okxidx';   // NAS skips waiting for OKX too
-      S.ticks.push([Date.now(), hist[hist.length-1].close]);
-      S.offset = 0;
-      if (f.adjust && S.spot && S.offsetMode==='auto'){ S.offset = hist[hist.length-1].close - S.spot; S.offsetSamples=[S.offset]; }
+      { const lb = hist[hist.length-1]; S.ticks.push([Math.min(Date.now(), (lb.time + TF[S.tf].s)*1000), lb.close]); }   // stamped at bar end: Bitget's index history lags ~1 bar, so a stale close must not be paired with a live OANDA quote
+      S.offset = f.adjust ? (STATIC_OFF[f.name] ?? 0) : 0; S.offSrc = f.adjust ? 'static' : '';   // refined by pollRef() within ~1 s
       redrawAll(); chart.timeScale().scrollToRealTime(); GVP.realign();   // VP shift follows the chart source
       stopStream = f.stream(S.tf, f.adjust && !f.ticks ? onBar : onIndexTick);
-      S.lastTickAt = Date.now();
+      S.lastTickAt = Date.now(); if (f.adjust) pollRef();
       setTimeout(()=>loadDay(f), 1500);                     // after first paint, not in the startup burst
-      $('lwStatus').textContent = won.name==='okxidx' ? '' : 'สำรอง: '+f.label;
+      $('lwStatus').textContent = won.name==='okxidx' ? '' : 'สำรอง: '+f.label+' (ปรับให้ตรง OANDA)';
       renderFeedInfo(); goldReady(); return;
     }catch(e){ console.warn('feed fail', won.name, e); }
   }
   // fallback: spot polling only (+ static seed for M15)
   S.feed = {name:'gold-api', label:'gold-api.com (spot)'}; S.offset = 0;
   if (['15','30','60','240'].includes(S.tf)){ try{ const s = await getJSON('candles_seed.json'); const c = s.candles.map(c=>({...c})); S.raw = S.tf==='15' ? c : aggregate(c, S.tf); }catch(e){} }
-  redrawAll(); GVP.realign(); if (S.spot) onSpotOnlyTick(S.spot, Date.now());
+  redrawAll(); GVP.realign(); if (S.spot) onSpotOnlyTick(S.spot, Date.now()); pollRef();
   $('lwStatus').textContent = 'โหมดสำรอง: อัปเดตจาก spot ทุก ~30 วิ';
   renderFeedInfo(); goldReady();
 }
@@ -534,8 +574,9 @@ function renderFeedInfo(){
   else { b.className = 'badge ' + (stale?'warn':'live'); b.textContent = stale ? 'รอข้อมูล' : 'LIVE'; }
   const spotAge = S.spotAt ? Math.round((Date.now()-S.spotAt)/1000) : null;
   let t = f ? `ราคาจาก ${f.label}` : '';
-  if (f && f.adjust) t += ` ปรับฐาน ${S.offset>=0?'−':'+'}${fmt(Math.abs(S.offset))} ให้ตรง spot`;
+  if (f && f.adjust) t += ` ปรับฐาน ${S.offset>=0?'−':'+'}${fmt(Math.abs(S.offset))} ให้ตรง ${S.offSrc==='OANDA' ? `OANDA (วัดสด ${S.refSamples.length} ครั้ง)` : S.offSrc==='gold-api' ? 'spot (gold-api)' : 'spot (ค่าประมาณ รอวัดสด)'}`;
   if (f && f.name==='okxidx') t += ' (ราคา spot USD ไม่ต้องปรับฐาน)';
+  if (S.ref && S.refAt && f && f.name!=='gold-api') t += ` · OANDA ${fmt(S.ref)} (${Math.round((Date.now()-S.refAt)/1000)}s ก่อน${S.price!=null ? `, ต่าง ${sgn(S.price-S.ref)}` : ''})`;
   if (S.spot) t += ` · เทียบ gold-api ${fmt(S.spot)} (อัปเดตช้า ~30 วิ, ${spotAge}s ก่อน${S.price!=null && f && f.name!=='gold-api' ? `, ต่าง ${sgn(S.price-S.spot)}` : ''})`;
   if (spotClosed(Date.now())) t += ' · ตลาดทอง spot ปิดอยู่ กราฟหยุดที่ราคาปิดล่าสุด';
   $('feedInfo').textContent = t;
@@ -1033,7 +1074,7 @@ async function main(){
   renderGuard(); setInterval(renderChecklist, 30000);   // checklist expiry
   WIDGETS.calendar(document.querySelector('[data-widget=calendar]'));   // load first: avoids a TradingView CDN 403 seen when it loads after other TV widgets
   initChart(); setView(S.view); loadOpt(); loadNews();
-  spotP = pollSpot(); setInterval(pollSpot, 15000);        // runs alongside the candle load (was awaited first)
+  spotP = pollSpot(); setInterval(pollSpot, 15000); setInterval(pollRef, 5000);   // OANDA reference        // runs alongside the candle load (was awaited first)
   window.AITD_GOLD_READY.then(()=>GVP.start(1500));   // volume profile after both charts have painted (all sources in parallel)
   setInterval(renderNews, 60000);                                           // relative times
   await loadFeed();

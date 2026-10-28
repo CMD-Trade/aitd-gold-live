@@ -124,6 +124,8 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 .opt-body{display:grid;grid-template-columns:1fr;gap:10px}
 @media(min-width:860px){.opt-body{grid-template-columns:1fr 1fr}}
 .oexp{background:#171c26;border-radius:12px;padding:10px 12px}
+.oexp.dead{opacity:.55}
+.oroll{display:flex;gap:8px;align-items:center}
 .oexp h4{margin:0 0 6px;font-size:13.5px;color:var(--txt);display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
 .oexp h4 small{color:var(--mut);font-weight:400;font-size:12px}
 .ostats{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mut);margin-bottom:6px}

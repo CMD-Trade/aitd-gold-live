@@ -387,6 +387,28 @@ const OPT_STYLE = {
   gld:  {call:'#b388ff', put:'#2ec4b6', mp:'#ffd54f', ls:2, w:1, tag:'GLD'},     // dashed
   shfe: {call:'#e0b3ff', put:'#7fe3d6', mp:'#ffb74d', ls:1, w:1, tag:'SH'},      // dotted, lighter
 };
+/* expiry clock: GLD options stop at 16:00 New York on the expiry date; SHFE au options ≈ 15:00 Beijing on the 5th-last
+   weekday of the month before the futures month (estimate, Chinese holidays ignored). Expired blocks are hidden/labelled
+   on the site even if options_levels.json has not been rebuilt yet (weekend, failed run). */
+function nyCloseMs(ymd){                                       // 16:00 America/New_York on that date
+  const [y,m,d] = ymd.split('-').map(Number); let t = Date.UTC(y, m-1, d, 20);   // EDT guess
+  const p = tzParts('America/New_York', new Date(t)); return t + (16 - p.h)*3600e3;
+}
+function shfeLastTrade(series){                                // 'au2612' → '2026-11-24'
+  const m = /(\d{2})(\d{2})$/.exec(series||''); if (!m) return null;
+  let y = 2000 + +m[1], mo = +m[2] - 1; if (mo === 0){ mo = 12; y--; }
+  let d = new Date(Date.UTC(y, mo, 0)), n = 0;                 // last day of month mo
+  for (;;){ if (d.getUTCDay()%6){ if (++n === 5) break; } d = new Date(d - 86400e3); }
+  return d.toISOString().slice(0,10);
+}
+function optExpMs(src, e){
+  if (src==='gld') return e.expiry ? nyCloseMs(e.expiry) : null;
+  const lt = e.expiry_est || shfeLastTrade(e.series); return lt ? Date.parse(lt+'T15:00:00+08:00') : null;
+}
+const optAlive = (src, e, now=optNow()) => { const t = optExpMs(src, e); return t==null || now < t; };
+const optNow = () => S.optNowOverride ?? Date.now();            // ?optnow=ISO for testing the roll
+if (qs.get('optnow')) S.optNowOverride = Date.parse(qs.get('optnow'));
+const optFront = (src, b) => (b && b.expiries || []).find(e=>optAlive(src, e)) || null;   // first not-yet-expired block
 let optLines = [];
 S.opt = null; S.optTab = qs.get('opt') || LS.get('optTab','gld'); S.optOn = {gld: LS.get('opt_gld', true), shfe: LS.get('opt_shfe', true)};
 function drawOptLines(){
@@ -396,7 +418,7 @@ function drawOptLines(){
   for (const src of ['gld','shfe']){
     const b = S.opt[src], st = OPT_STYLE[src];
     if (!S.optOn[src] || !b || !b.expiries || !b.expiries.length) continue;
-    const e = b.expiries[0];                                    // front weekly (GLD) / active series (SHFE) only on the chart
+    const e = optFront(src, b); if (!e) continue;               // first NOT expired block only (front weekly / active series)
     const add = (price, color, title, ls) => optLines.push(cs.createPriceLine({price, color, lineWidth:st.w, lineStyle:ls, axisLabelVisible:true, title}));
     (e.call_walls||[]).forEach(w=>add(w.level_spot, st.call, `${st.tag} C${w.strike}`, st.ls));
     (e.put_walls||[]).forEach(w=>add(w.level_spot, st.put, `${st.tag} P${w.strike}`, st.ls));
@@ -417,9 +439,16 @@ function renderOpt(){
   const dist = (lv) => p!=null ? `<small>${sgn(lv-p)}</small>` : '';
   const row = (t, cls, w) => `<span class="t ${cls}">${t}</span><span class="lv">${fmt(w.level_spot)}</span><span class="k2">${w.strike}</span><span class="oi">OI ${fmt(w.oi,0)}${w.oi_chg!=null?` <small>(${w.oi_chg>=0?'+':''}${fmt(w.oi_chg,0)})</small>`:''} ${dist(w.level_spot)}</span>`;
   let html = '';
-  for (const e of b.expiries){
-    const name = src==='gld' ? `หมดอายุ ${e.expiry}` : `ซีรีส์ ${e.series}`;
-    const kind = {'front weekly':'รายสัปดาห์ใกล้สุด','monthly':'รายเดือน','front weekly + monthly':'รายสัปดาห์+รายเดือน','active (largest OI)':'สัญญาหลัก (OI มากสุด)','front':'สัญญาใกล้สุด'}[e.kind]||e.kind;
+  const now = optNow(), live = b.expiries.filter(e=>optAlive(src, e, now)), gone = b.expiries.filter(e=>!optAlive(src, e, now));
+  const tTH = (ms) => new Date(ms).toLocaleString('th-TH',{timeZone:'Asia/Bangkok', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) + ' น.';
+  const show = live.length ? live : b.expiries;                 // everything expired → still show, labelled
+  if (gone.length && live.length) html += `<div class="ometa oroll" style="grid-column:1/-1"><span class="badge warn">หมดอายุแล้ว</span> ${gone.map(e=>src==='gld'?e.expiry:e.series).join(', ')} — ซ่อนแล้ว แสดงสัญญาถัดไปแทน · ไฟล์จะอัปเดตเองรอบถัดไป</div>`;
+  for (const e of show){
+    const xt = optExpMs(src, e), dead = xt!=null && now >= xt, hrs = xt!=null ? (xt-now)/3600e3 : null;
+    const name = src==='gld' ? `หมดอายุ ${e.expiry}` : `ซีรีส์ ${e.series}${xt!=null?` <small>(หมดอายุ ≈ ${e.expiry_est || shfeLastTrade(e.series)})</small>`:''}`;
+    const kind = {'front weekly':'รายสัปดาห์ใกล้สุด','next weekly':'รายสัปดาห์ถัดไป','monthly':'รายเดือน','front weekly + monthly':'รายสัปดาห์+รายเดือน','active (largest OI)':'สัญญาหลัก (OI มากสุด)','front':'สัญญาใกล้สุด'}[e.kind]||e.kind;
+    const xb = dead ? `<span class="badge warn">หมดอายุแล้ว — รอข้อมูลรอบใหม่</span>`
+             : (hrs!=null && hrs <= 24) ? `<span class="badge warn">หมดอายุ ${tTH(xt)}</span>` : '';
     const L = [...(e.call_walls||[]).map(w=>['Call wall','call',w]), ...(e.put_walls||[]).map(w=>['Put wall','put',w])];
     if (e.max_pain) L.push(['Max pain','mp',{...e.max_pain, oi:null}]);
     L.sort((a,b)=>b[2].level_spot-a[2].level_spot || (a[1]==='mp'?-1:1));       // price ladder, high -> low
@@ -429,7 +458,7 @@ function renderOpt(){
       rows += row(t,c,w).replace('OI —','');
     }
     if (p!=null && !placed) rows += `<div class="now-row" style="grid-column:1/-1">ราคา ${fmt(p)}</div>`;
-    html += `<div class="oexp"><h4>${name} <small>${kind}</small></h4>
+    html += `<div class="oexp${dead?' dead':''}"><h4>${name} <small>${kind}</small> ${xb}</h4>
       <div class="ostats"><span>P/C OI <b>${e.pc_oi_ratio??'—'}</b></span><span>Call OI <b>${fmt(e.call_oi_total,0)}</b></span><span>Put OI <b>${fmt(e.put_oi_total,0)}</b></span><span>อ้างอิง <b>${e.underlying}</b> ${unit}</span></div>
       <div class="olv"><span class="ometa">ระดับ (spot XAUUSD) · strike (${unit}) · OI (เปลี่ยนแปลง) · ระยะจากราคา — แสดงเฉพาะ strike ภายใน ±${e.window_pct}% ของราคาอ้างอิง</span>${rows}</div></div>`;
   }
@@ -549,7 +578,7 @@ function guardLevels(){
     L.push({side:z.type, lo:Math.min(z.zone[0],z.zone[1]), hi:Math.max(z.zone[0],z.zone[1]), src:'โซน'});
   }
   if (S.opt) for (const src of ['gld','shfe']){
-    const b = S.opt[src], e = b && b.expiries && b.expiries[0]; if (!e) continue;
+    const b = S.opt[src], e = optFront(src, b); if (!e) continue;
     const tag = src==='gld' ? 'GLD' : 'SHFE';
     (e.put_walls||[]).forEach(w=>isFinite(w.level_spot) && L.push({side:'support', lo:w.level_spot, hi:w.level_spot, src:`${tag} Put wall ${w.strike}`}));
     (e.call_walls||[]).forEach(w=>isFinite(w.level_spot) && L.push({side:'resistance', lo:w.level_spot, hi:w.level_spot, src:`${tag} Call wall ${w.strike}`}));
@@ -1014,7 +1043,11 @@ async function main(){
   loadTape(); renderZones(); renderCalc();
   // reload data files every 10 min (daily update script)
   setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); renderGuard(); }catch(e){} loadOpt(); loadNews(); }, 600000);
-  setInterval(()=>{ if (S.opt) renderOpt(); }, 15000);   // refresh distance-to-price
+  let optKey = '';
+  setInterval(()=>{ if (!S.opt) return; renderOpt();     // refresh distance-to-price
+    const k = ['gld','shfe'].map(x=>{ const e = optFront(x, S.opt[x]); return e ? (e.expiry||e.series) : '-'; }).join('|');
+    if (k !== optKey){ optKey = k; drawOptLines(); renderGuard(); }   // an expiry just passed → roll lines + alert levels
+  }, 15000);
 }
 /* shared helpers for js/nas.js (NAS100 chart) — same formatting, market hours, H4 anchoring and OKX client as the gold chart */
 window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, bitgetIndex, raceFeeds, createVP, VP_SRC };

@@ -147,6 +147,38 @@ def us_eastern_offset(d):
     return -4 if dst_start <= d < dst_end else -5
 
 
+def et_now(now=None):
+    """(date, datetime) in New York now. OPT_NOW=ISO-UTC overrides the clock for tests."""
+    import os
+    now = now or (dt.datetime.fromisoformat(os.environ["OPT_NOW"]) if os.environ.get("OPT_NOW") else dt.datetime.now(dt.timezone.utc))
+    off = us_eastern_offset(now.date())
+    t = now.astimezone(dt.timezone(dt.timedelta(hours=off)))
+    off2 = us_eastern_offset(t.date())
+    if off2 != off:
+        t = now.astimezone(dt.timezone(dt.timedelta(hours=off2)))
+    return t.date(), t
+
+
+def gld_close_th(e):
+    """16:00 New York on expiry day e, as Thai time ISO."""
+    return dt.datetime.combine(e, dt.time(16), dt.timezone(dt.timedelta(hours=us_eastern_offset(e)))).astimezone(TH).isoformat(timespec="minutes")
+
+
+def shfe_last_trade(ser):
+    """SHFE au option last trading day ≈ 5th-last weekday of the month before the futures delivery month
+    (Chinese holidays ignored, so it is an estimate)."""
+    y, m = 2000 + int(ser[:2]), int(ser[2:])
+    y, m = (y - 1, 12) if m == 1 else (y, m - 1)
+    d = (dt.date(y + (m == 12), m % 12 + 1, 1) - dt.timedelta(days=1))
+    n = 0
+    while True:
+        if d.weekday() < 5:
+            n += 1
+            if n == 5:
+                return d
+        d -= dt.timedelta(days=1)
+
+
 def do_gld(prev_block):
     url = "https://cdn.cboe.com/api/global/delayed_quotes/options/GLD.json"
     d = get_json(url, timeout=60)
@@ -164,15 +196,25 @@ def do_gld(prev_block):
             continue
         e = dt.datetime.strptime(m.group(1), "%y%m%d").date()
         by.setdefault(e, ({}, {}))[0 if m.group(2) == "C" else 1][int(m.group(3)) / 1000] = fnum(o.get("open_interest")) or 0.0
-    exps = sorted(e for e in by if e > ltt.date() and sum(by[e][0].values()) + sum(by[e][1].values()) > 0)
+    # Auto-roll: keep only expiries that have NOT expired yet, judged by the clock (New York), not by the quote date —
+    # a GLD option stops trading at 16:00 ET on its expiry day. So the expiring weekly stays on its last day (it pins
+    # price that session) and drops out at the first run after 16:00 ET (21:30 UTC cron = 04:30 Thai next morning).
+    today_et, now_et = et_now()
+    alive = lambda e: e > today_et or (e == today_et and now_et.hour < 16)
+    exps = sorted(e for e in by if alive(e) and sum(by[e][0].values()) + sum(by[e][1].values()) > 0)
     if not exps:
         raise RuntimeError("no live GLD expiries")
     tot = lambda e: sum(by[e][0].values()) + sum(by[e][1].values())
     # GLD lists daily expiries; "front weekly" = the biggest-OI expiry within the next 8 days (normally Friday)
-    wk = [e for e in exps if (e - ltt.date()).days <= 8] or exps[:1]
+    wk = [e for e in exps if (e - today_et).days <= 8] or exps[:1]
     front = max(wk, key=tot)
     pick = [(front, "front weekly")]
     mon = next((e for e in exps if is_monthly(e)), None)
+    # when the front weekly expires within 2 days, also publish the next weekly so the site can roll by itself
+    if (front - today_et).days <= 2:
+        nx = [e for e in exps if front < e <= front + dt.timedelta(days=8) and e != mon]
+        if nx:
+            pick.append((max(nx, key=tot), "next weekly"))
     if mon and mon != front:
         pick.append((mon, "monthly"))
     elif mon == front:
@@ -199,7 +241,7 @@ def do_gld(prev_block):
                 for k, v in side.items():
                     chg[(typ, k)] = v - float(pe[key].get(str(k), 0))
         s = summarise(by[e][0], by[e][1], gld_px, ratio, chg, "USD per GLD share")
-        s.update({"expiry": e.isoformat(), "kind": kind})
+        s.update({"expiry": e.isoformat(), "kind": kind, "expires_at_th": gld_close_th(e)})
         exp_out.append(s)
     return {
         "source": "Cboe delayed quotes GLD.json (SPDR Gold Shares ETF options; proxy, not CME)",
@@ -277,7 +319,9 @@ def do_shfe(prev_block):
                      "au_close_usd_oz": round(fusd, 2), "premium_usd_oz_vs_spot": round(fusd - spot, 2), "ratio": round(ratio, 5)}
         s = series[ser]
         out = summarise(s["C"], s["P"], fclose, ratio, s["chg"], "CNY per gram")
-        out.update({"series": "au" + ser, "kind": kind})
+        lt = shfe_last_trade(ser)
+        out.update({"series": "au" + ser, "kind": kind, "expiry_est": lt.isoformat(),
+                    "expires_at_th": dt.datetime.combine(lt, dt.time(15), CN).astimezone(TH).isoformat(timespec="minutes")})
         exp_out.append(out)
     return {
         "source": "Shanghai Futures Exchange daily option data (au gold options; proxy, not CME)",

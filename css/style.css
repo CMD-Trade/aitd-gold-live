@@ -222,6 +222,10 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 .nas-price.up{color:#4ee3b5}.nas-price.down{color:#ff7b78}
 .nas-px .chg{font-size:13px;margin-left:6px}
 .nas-hl{margin-top:2px}.nas-hl b{font-family:var(--mono);font-size:13px}
+.nas-cal{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:11px;margin-left:6px;vertical-align:middle}
+.nas-cal-box:not(.hidden){display:inline-flex;gap:4px}
+.nas-cal-btn,.nas-cal-box button{background:#1b2130;color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:1px 7px;font:inherit;font-size:11px;line-height:1.5;cursor:pointer}
+.nas-cal-box input{width:110px;background:#0d1016;color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font-family:var(--mono);font-size:12px}
 .hdr-src{font-size:11px;color:var(--mut);margin-left:4px}
 .nas-guard{margin-top:8px;padding:8px 10px;border-radius:10px;background:#1a1f2a;font-size:13px;line-height:1.45}
 .nas-guard b{font-family:var(--mono)}

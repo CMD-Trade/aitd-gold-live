@@ -109,7 +109,7 @@
   <!-- NAS100 CHART (js/nas.js): OKX US100-USDT index candles + bands from nas_zones.json, same look as gold -->
   <section class="card chart-card nas-card" id="nasCard">
     <div class="nas-top">
-      <div class="nas-title"><b>NAS100</b> <span id="nasBadge" class="badge">กำลังเชื่อมต่อ…</span>
+      <div class="nas-title"><b>NAS100</b> <span id="nasBadge" class="badge">กำลังเชื่อมต่อ…</span> <span class="nas-cal"><span id="nasCalInfo" class="label"></span> <button type="button" id="nasCalBtn" class="nas-cal-btn">ปรับให้ตรง MT5</button> <span id="nasCalMsg" class="label"></span> <span id="nasCalBox" class="nas-cal-box hidden"><input id="nasCalIn" type="text" inputmode="decimal" placeholder="ราคา MT5 ตอนนี้" aria-label="ราคา NAS100 ใน MT5 ตอนนี้"> <button type="button" id="nasCalSet">ตั้ง</button> <button type="button" id="nasCalReset">ค่าเริ่มต้น</button></span></span>
         <div class="nas-px"><span class="nas-price" id="nasPrice">—</span> <span class="chg" id="nasChg"></span></div>
         <div class="nas-hl"><span class="label">สูง / ต่ำวันนี้ (ตั้งแต่ 17:00 NY)</span> <b id="nasHL">—</b></div>
       </div>
@@ -117,7 +117,7 @@
     <div class="chart-head">
       <div class="tabs" role="tablist">
         <button class="ntab active" data-nview="zone">กราฟ + โซน</button>
-        <button class="ntab" data-nview="tv">TradingView (OANDA)</button>
+        <button class="ntab" data-nview="tv">TradingView (Skilling)</button>
       </div>
       <div class="tfs" id="nasTfs">
         <button data-tf="1">M1</button><button data-tf="5">M5</button><button data-tf="15" class="active">M15</button><button data-tf="60">H1</button><button data-tf="240">H4</button>
@@ -134,7 +134,7 @@
       <div class="zones nas-zones" id="nasZones"><div class="sub">กำลังโหลด nas_zones.json…</div></div>
       <div class="sub" id="nasMeta"></div>
     </details>
-    <div class="sub nas-note" id="nasNote">ราคา/แท่งเทียน: <b>ดัชนี OKX US100-USDT</b> (เรียลไทม์, ไม่ต้องใช้คีย์) ตัดช่วงที่โบรกปิด (ศ. 17:00 → อา. 18:00 และ 17:00–18:00 นิวยอร์กทุกวัน) · โซนจาก nas_zones.json (ดัชนี ^NDX: High/Low/Close เมื่อวาน, Pivot, High/Low สัปดาห์นี้/ก่อน, เลขกลม 100 จุด, แถบ ±10 จุด) · <b>ราคาอาจต่างจาก MT5/โบรกของคุณหลายสิบจุด</b> · แถบเตือนด้านบนใช้กับทองเท่านั้น · ไม่ใช่สัญญาณซื้อขาย</div>
+    <div class="sub nas-note" id="nasNote">ราคา/แท่งเทียน: <b>ดัชนี OKX US100-USDT</b> (เรียลไทม์, ไม่ต้องใช้คีย์; สำรอง Bitget NDX100) <b>ปรับให้ใกล้ Skilling US100 / MT5</b> ตามค่า “ปรับ” ด้านบน — ถ้ายังไม่ตรง กด “ปรับให้ตรง MT5” แล้วใส่ราคาใน MT5 ครั้งเดียว ตัดช่วงที่โบรกปิด (ศ. 17:00 → อา. 18:00 และ 17:00–18:00 นิวยอร์กทุกวัน) · โซนจาก nas_zones.json (ดัชนี ^NDX: High/Low/Close เมื่อวาน, Pivot, High/Low สัปดาห์นี้/ก่อน, เลขกลม 100 จุด, แถบ ±10 จุด) · แท็บ TradingView = SKILLING:US100 (ตรงกับโบรก) · แถบเตือนด้านบนใช้กับทองเท่านั้น · ไม่ใช่สัญญาณซื้อขาย</div>
   </section>
   </div>
 
@@ -217,7 +217,7 @@
 <footer>
   <p><b>แหล่งข้อมูล</b> · กราฟ TradingView: OANDA:XAUUSD (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) ·
   กราฟ + โซน: แท่งเทียนเรียลไทม์จาก OKX XAU/USD spot index (ราคา spot ดอลลาร์ ไม่ต้องปรับฐาน, ตัดช่วงตลาดปิดออก, H4 เริ่ม 17:00 นิวยอร์กแบบโบรก) ตรวจเทียบกับ <a href="https://gold-api.com" target="_blank" rel="noopener">gold-api.com</a> · สำรอง: Binance/OKX perp ปรับฐาน ·
-  ข่าว: ForexFactory · NAS100: แท่งเทียนเรียลไทม์จากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> US100-USDT (สำรอง: OKX US100-USDT perp) + แท็บ TradingView OANDA:NAS100USD, โซนจากแท่งรายวันดัชนี ^NDX (Yahoo Finance) · ระดับออปชัน: <a href="https://www.cboe.com/delayed_quotes/gld/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (GLD)</a> และ <a href="https://www.shfe.com.cn/" target="_blank" rel="noopener">SHFE</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) · โซน: อัตโนมัติจากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> XAU-USD ทุกเช้าวันทำการ (หรือโซนของ AiTD เมื่อมี) · Volume Profile: OKX XAU-USDT perp (ประมาณการ) · หัวข้อข่าว: Google News RSS, investingLive, Kitco/FXStreet/Reuters (ผ่าน Google News) — ลิงก์ไปยังต้นฉบับ · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
+  ข่าว: ForexFactory · NAS100: แท่งเทียนเรียลไทม์จากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> US100-USDT (สำรอง: Bitget NDX100, OKX US100-USDT perp; ปรับให้ใกล้ Skilling) + แท็บ TradingView SKILLING:US100, โซนจากแท่งรายวันดัชนี ^NDX (Yahoo Finance) · ระดับออปชัน: <a href="https://www.cboe.com/delayed_quotes/gld/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (GLD)</a> และ <a href="https://www.shfe.com.cn/" target="_blank" rel="noopener">SHFE</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) · โซน: อัตโนมัติจากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> XAU-USD ทุกเช้าวันทำการ (หรือโซนของ AiTD เมื่อมี) · Volume Profile: OKX XAU-USDT perp (ประมาณการ) · หัวข้อข่าว: Google News RSS, investingLive, Kitco/FXStreet/Reuters (ผ่าน Google News) — ลิงก์ไปยังต้นฉบับ · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
   <p>ราคาบนเว็บอาจต่างจากราคาโบรกเกอร์ของคุณเล็กน้อย · ข้อมูลเพื่อประกอบการตัดสินใจเท่านั้น ไม่ใช่คำแนะนำการลงทุน</p>
   <p class="muted">AiTD Gold Live · <span id="buildInfo"></span></p>
 </footer>

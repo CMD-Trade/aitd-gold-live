@@ -7,14 +7,23 @@
    All feeds are requested at once with short timeouts (raceFeeds in app.js); the first good one is shown.
    Bars/ticks inside the broker close (Fri 17:00 → Sun 18:00 NY and the daily 17:00–18:00 NY break) are dropped,
    like the gold chart, because the OKX index keeps printing 24/7.
-   Zones        : nas_zones.json "zones" (bands from ^NDX daily levels, built by nas_zones.py). */
+   Zones        : nas_zones.json "zones" (bands from ^NDX daily levels, built by nas_zones.py).
+   Skilling/MT5 match (28 Oct 2026, vs TradingView SKILLING:US100): Skilling ≈ Dukascopy USATECH −4.5 ≈ ^NDX cash −5;
+                  OKX US100-USDT index runs ~+7…+12 above Skilling, Bitget NDX100 index ~+36 (off-hours up to +140), OKX perp ~+30.
+                  Every feed is shifted by a per-feed offset (default below, or the user's own "ปรับให้ตรง MT5" value saved
+                  in localStorage) so candles, price, high/low and alerts read in Skilling/MT5 points; ^NDX bands move by ZONE_SHIFT. */
 (() => {
 'use strict';
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
 const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds } = L;
-const NEAR = 15;                                   // inline warning when price is inside a band or within this many points
+const NEAR = 15;
+const DEF_OFF = { okxidx:-12, bitget:-36, perp:-30 };   // feed → Skilling US100 (measured 28 Oct 2026, see header)
+const ZONE_SHIFT = -5;                                   // ^NDX cash levels → Skilling US100 CFD
+const userOff = (name) => { const v = parseFloat(LS.get('nas_off_'+name, '')); return isFinite(v) ? v : null; };
+const offFor = (name) => userOff(name) ?? DEF_OFF[name] ?? 0;
+const shiftBar = (b, d) => ({time:b.time, open:b.open+d, high:b.high+d, low:b.low+d, close:b.close+d});                                   // inline warning when price is inside a band or within this many points
 const N = { tf: TF[qs.get('nastf')] ? qs.get('nastf') : (TF[LS.get('nas_tf','15')] ? LS.get('nas_tf','15') : '15'),
-  view: LS.get('nas_view','zone'), raw: [], dayRaw: [], price: null, prev: null, feed: null, zones: null, lastTickAt: 0, hi: null, lo: null };
+  view: LS.get('nas_view','zone'), raw: [], dayRaw: [], off: 0, price: null, prev: null, feed: null, zones: null, lastTickAt: 0, hi: null, lo: null };
 
 /* ---------------- feeds ---------------- */
 const Feeds = {
@@ -102,6 +111,7 @@ function updLast(){
   e20.update(x20[x20.length-1]); e50.update(x50[x50.length-1]);
 }
 function onTick(p, ms){
+  p += N.off;                                                  // feed → Skilling/MT5 points
   if (!cs || !N.raw.length || spotClosed(ms)) return;
   const t = bucketStart(Math.floor(ms/1000), N.tf), last = N.raw[N.raw.length-1];
   if (t < last.time) return;
@@ -112,7 +122,7 @@ function onTick(p, ms){
 async function resyncTail(){
   const f = N.feed; if (!f || !f.tail || !N.raw.length) return;
   try{
-    const tf = N.tf; let bars = await f.tail(tf);
+    const tf = N.tf, off = N.off; let bars = (await f.tail(tf)).map(b=>shiftBar(b, off));
     if (tf==='240'){ const cur = N.raw[N.raw.length-1].time; bars = aggregate(bars.filter(b=>bucketStart(b.time,'240')>=cur), '240'); }
     if (tf!==N.tf || f!==N.feed) return;
     for (const b of bars){
@@ -133,7 +143,8 @@ async function loadFeed(){
   N.loading = false;
   if (won){
     const f = Feeds[won.name];
-    N.feed = f; N.raw = won.hist; redraw(); chart.timeScale().scrollToRealTime();
+    N.off = offFor(won.name);
+    N.feed = f; N.raw = won.hist.map(b=>shiftBar(b, N.off)); renderCal(); redraw(); chart.timeScale().scrollToRealTime();
     stop = f.stream(onTick); N.lastTickAt = Date.now();
     setTimeout(()=>loadDay(f), 2000);
     $('nasStatus').textContent = won.name==='okxidx' ? '' : 'สำรอง: '+f.label; renderBadge(); return;
@@ -142,7 +153,36 @@ async function loadFeed(){
   $('nasStatus').textContent = 'โหลดข้อมูล NAS100 ไม่ได้ — เปิดแท็บ TradingView ให้แทน';
   if (N.view==='zone') setView('tv', true);                 // show live TradingView chart instead of an empty one
 }
-async function loadDay(f){ try{ N.dayRaw = await f.history('15', 120); recomputeDay(); }catch(e){} }
+async function loadDay(f){ try{ const off = N.off; N.dayRaw = (await f.history('15', 120)).map(b=>shiftBar(b, off)); recomputeDay(); }catch(e){} }
+
+/* ---------------- "ปรับให้ตรง MT5": user types the MT5/Skilling price once → offset saved per feed ---------------- */
+function setOff(v){
+  const d = v - N.off; if (!isFinite(d)) return;
+  N.off = v;
+  N.raw = N.raw.map(b=>shiftBar(b, d)); N.dayRaw = N.dayRaw.map(b=>shiftBar(b, d));
+  if (N.hi!=null){ N.hi += d; N.lo += d; }
+  if (N.price!=null) N.price += d;
+  N.prev = null; redraw(); renderCal();
+}
+function renderCal(){
+  const el = $('nasCalInfo'); if (!el) return;
+  if (!N.feed){ el.textContent = ''; return; }
+  const own = userOff(N.feed.name) != null;
+  el.textContent = `ปรับ ${sgn(N.off, Number.isInteger(N.off)?0:1)} จุด (${own ? 'ตั้งเอง' : 'ค่าเริ่มต้น ≈ Skilling'})`;
+  el.title = `ราคาแหล่ง ${N.feed.label} ${N.off>=0?'+':'−'} ${Math.abs(N.off)} จุด`;
+}
+function wireCal(){
+  const box = $('nasCalBox'), inp = $('nasCalIn');
+  $('nasCalBtn').onclick = ()=>{ box.classList.toggle('hidden'); if (!box.classList.contains('hidden')){ inp.value = N.price!=null ? N.price.toFixed(1) : ''; inp.focus(); inp.select(); } };
+  $('nasCalSet').onclick = ()=>{
+    const mt5 = parseFloat(String(inp.value).replace(/,/g,'')); if (!N.feed || N.price==null || !isFinite(mt5)) return;
+    const v = Math.round((N.off + (mt5 - N.price))*10)/10;
+    if (Math.abs(v) > 500){ $('nasCalMsg').textContent = 'ต่างเกิน 500 จุด — ตรวจตัวเลขอีกครั้ง'; return; }
+    LS.set('nas_off_'+N.feed.name, String(v)); setOff(v); $('nasCalMsg').textContent = 'บันทึกแล้ว (เก็บในเครื่องนี้)'; box.classList.add('hidden');
+  };
+  $('nasCalReset').onclick = ()=>{ if (!N.feed) return; try{ localStorage.removeItem('aitd_nas_off_'+N.feed.name); }catch(e){}; setOff(DEF_OFF[N.feed.name] ?? 0); $('nasCalMsg').textContent = 'กลับเป็นค่าเริ่มต้น'; box.classList.add('hidden'); };
+  inp.onkeydown = (e)=>{ if (e.key==='Enter') $('nasCalSet').click(); };
+}
 function recomputeDay(){
   const t0 = dayStartMs()/1000; let hi=null, lo=null;
   const src = N.dayRaw.length ? N.dayRaw : (N.tf!=='240' ? N.raw : []);
@@ -160,8 +200,8 @@ function setPrice(p){
   N.prev = N.price; N.price = p;
   const el = $('nasPrice'); el.textContent = fmt(p);
   if (N.prev!=null && p!==N.prev){ el.classList.remove('up','down'); el.classList.add(p>N.prev?'up':'down'); clearTimeout(flashT); flashT = setTimeout(()=>el.classList.remove('up','down'),700); }
-  const pc = N.zones && N.zones.last_close && N.zones.last_close.close;
-  if (pc){ const c = p-pc, e = $('nasChg'); e.className = 'chg '+(c>=0?'pos':'neg'); e.textContent = `${sgn(c)} (${sgn(c/pc*100)}%) เทียบปิด ^NDX ${fmt(pc)}`; }
+  const pc0 = N.zones && N.zones.last_close && N.zones.last_close.close, pc = pc0 ? pc0 + ZONE_SHIFT : null;
+  if (pc){ const c = p-pc, e = $('nasChg'); e.className = 'chg '+(c>=0?'pos':'neg'); e.textContent = `${sgn(c)} (${sgn(c/pc*100)}%) เทียบปิด ${fmt(pc)}`; e.title = `ปิด ^NDX ${fmt(pc0)} ${ZONE_SHIFT} จุด (ฐาน Skilling)`; }
   renderGuard(); renderList();
 }
 function renderBadge(){
@@ -244,23 +284,24 @@ function renderMeta(){
   if (pd) m += ` · เมื่อวาน H ${fmt(pd.high)} / L ${fmt(pd.low)} / C ${fmt(pd.close)}`;
   if (wk) m += ` · สัปดาห์นี้ H ${fmt(wk.high)} / L ${fmt(wk.low)}`;
   if (pw) m += ` · สัปดาห์ก่อน H ${fmt(pw.high)} / L ${fmt(pw.low)}`;
-  m += ` · แถบบนกราฟ = ระดับ ±10 จุด · อัปเดต ${thDT(Z.generated_at)}`;
+  m += ` · แถบบนกราฟ = ระดับ ^NDX ${ZONE_SHIFT} จุด (ให้ตรง Skilling/MT5) ±10 จุด · ตัวเลขข้างบนเป็นค่า ^NDX เดิม · อัปเดต ${thDT(Z.generated_at)}`;
   if (isFinite(ageH) && ageH > 96) m += ' · ⚠️ ข้อมูลเก่าเกิน 4 วัน';
   $('nasMeta').textContent = m;
 }
 async function loadZones(){
   try{ const z = await getJSON('nas_zones.json');
     if (!Array.isArray(z.zones) && Array.isArray(z.levels)) z.zones = z.levels.map(l=>({zone:[l.price-10, l.price+10], type:l.type, level:l.price, label:l.label}));   // older file
+    z.zones = z.zones.map(q=>({...q, zone:[q.zone[0]+ZONE_SHIFT, q.zone[1]+ZONE_SHIFT], level:(q.level ?? (q.zone[0]+q.zone[1])/2)+ZONE_SHIFT}));   // ^NDX → Skilling
     N.zones = z; }catch(e){}
   renderMeta(); renderList(); renderGuard(); drawZones(); if (N.price!=null) setPrice(N.price);
 }
 
-/* ---------------- TradingView tab (OANDA:NAS100USD) ---------------- */
+/* ---------------- TradingView tab (SKILLING:US100 — the user's MT5 broker feed) ---------------- */
 function loadTV(){
   withTV(()=>{
     $('nasTv').innerHTML = '<div id="nasTvInner" style="height:100%"></div>';
     new window.TradingView.widget({
-      container_id:'nasTvInner', autosize:true, symbol:'OANDA:NAS100USD', interval:N.tf, timezone:'Asia/Bangkok', theme:'dark', style:'1', locale:'th_TH',
+      container_id:'nasTvInner', autosize:true, symbol:'SKILLING:US100', interval:N.tf, timezone:'Asia/Bangkok', theme:'dark', style:'1', locale:'th_TH',
       toolbar_bg:'#0d1016', enable_publishing:false, allow_symbol_change:false, hide_volume:true, withdateranges:false, save_image:false,
       studies:[{id:'MAExp@tv-basicstudies', inputs:{length:20}}, {id:'MAExp@tv-basicstudies', inputs:{length:50}}],
       overrides:{'paneProperties.background':'#0d1016','paneProperties.backgroundType':'solid'},
@@ -283,7 +324,7 @@ function setTF(tf){
 function start(){
   document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>setView(b.dataset.nview));
   document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===N.tf); b.onclick=()=>setTF(b.dataset.tf); });
-  initChart(); setView(N.view); loadZones();
+  wireCal(); initChart(); setView(N.view); loadZones();
   // gold first: start NAS when the gold chart has painted, or after 1 s at most
   Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(loadFeed);
   setInterval(renderBadge, 2000);

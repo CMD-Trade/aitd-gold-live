@@ -1,0 +1,36 @@
+name: Update gold news + calendar
+
+on:
+  schedule:
+    - cron: "5 0-16 * * 1-5"  # every hour at :05, 00:05-16:05 UTC = 07:05-23:05 Thai, Mon-Fri
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-news
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build news.json from public RSS (stdlib only; keeps last file if all feeds fail)
+        run: python3 news.py
+      - name: Refresh events.json from ForexFactory weekly calendar (keeps last file on failure)
+        run: python3 update_data.py --events-only || true
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- news.json events.json; then echo "no change"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add news.json events.json
+          git commit -m "news: $(date -u +%Y-%m-%dT%H:%MZ)"
+          for i in 1 2 3; do git pull --rebase --autostash && git push && exit 0; sleep 5; done
+          exit 1

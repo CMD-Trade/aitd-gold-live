@@ -304,14 +304,15 @@ function onSpotOnlyTick(p, at){
 /* zone bands drawn on an overlay canvas, aligned with the price scale */
 function drawZones(){
   const cv = $('zoneCanvas'), wrap = $('zoneView');
-  if (!cs || !S.zones || wrap.classList.contains('hidden')) return;
+  if (!cs || wrap.classList.contains('hidden')) return;
   const dpr = window.devicePixelRatio||1, W = wrap.clientWidth, H = wrap.clientHeight;
   if (cv.width !== W*dpr || cv.height !== H*dpr){ cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px'; }
   const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
   const paneW = chart.timeScale().width(), paneH = H - chart.timeScale().height();
   const col = {resistance:[239,83,80], support:[38,166,154], pivot:[240,180,41]};
   ctx.save(); ctx.beginPath(); ctx.rect(0,0,paneW,paneH); ctx.clip();
-  for (const z of S.zones.zones){
+  drawVP(ctx, paneW, paneH);
+  for (const z of (S.zones ? S.zones.zones : [])){
     const y1 = cs.priceToCoordinate(z.zone[1]), y2 = cs.priceToCoordinate(z.zone[0]);
     if (y1==null || y2==null) continue;
     const c = col[z.type]||[139,147,165];
@@ -545,6 +546,124 @@ function loadTape(){
     showSymbolLogo:true, isTransparent:true, colorTheme:'dark', locale:'th_TH'});
 }
 
+/* ---------------- Volume Profile (OKX XAU-USDT-SWAP volume, shifted to spot by the live perp-index basis) ---------------- */
+const VP_PERIODS = { today:{bar:'5m', s:300, label:'วันนี้'}, asia:{bar:'5m', s:300, label:'ตั้งแต่เปิดเอเชีย'}, h24:{bar:'5m', s:300, label:'24 ชม.'}, week:{bar:'15m', s:900, label:'สัปดาห์นี้'} };
+S.vpOn = qs.get('vp') ? qs.get('vp')!=='0' : LS.get('vp_on', true);
+S.vpPeriod = VP_PERIODS[qs.get('vpp')] ? qs.get('vpp') : LS.get('vp_period', 'today');
+S.vp = null; S.vpBars = new Map();
+function vpStart(p, now=Date.now()){
+  if (p==='h24') return now - 86400000;
+  if (p==='asia'){ const d = new Date(now + 7*3600e3); let t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0) ; if (t > now) t -= 86400000; return t; }   // 07:00 Thai = 00:00 UTC
+  let t = dayStartMs(new Date(now));
+  if (p==='week'){ for (let i=0;i<7 && tzParts('America/New_York', new Date(t+3600e3)).wd!=='Sun'; i++) t -= 86400000; }
+  return t;
+}
+async function vpFetch(full){
+  const P = VP_PERIODS[S.vpPeriod], start = vpStart(S.vpPeriod);
+  if (full) S.vpBars = new Map();
+  const put = (rows)=>rows.forEach(k=>{ const t=+k[0]; if (t>=start) S.vpBars.set(t, {t, h:+k[2], l:+k[3], v:+k[6]}); });   // k[6] = volCcy (XAU oz)
+  let rows = await okxGet(`${OKX}candles?instId=XAU-USDT-SWAP&bar=${P.bar}&limit=${full?300:3}`); put(rows);
+  if (full){
+    let after = rows.length ? rows[rows.length-1][0] : null;
+    for (let i=0; i<12 && after && +after > start; i++){
+      rows = await okxGet(`${OKX}history-candles?instId=XAU-USDT-SWAP&bar=${P.bar}&limit=100&after=${after}`);
+      if (!rows.length) break; put(rows); after = rows[rows.length-1][0];
+    }
+  }
+  for (const t of S.vpBars.keys()) if (t < start) S.vpBars.delete(t);
+}
+async function vpBasis(){
+  const [p, i] = await Promise.all([okxGet(`${OKX}ticker?instId=XAU-USDT-SWAP`), okxGet(`${OKX}index-tickers?instId=XAU-USD`)]);
+  const b = (+p[0].last) - (+i[0].idxPx);
+  if (isFinite(b) && Math.abs(b) < 60) S.vpBasis = b;
+}
+function vpCompute(){
+  const basis = S.vpBasis ?? 0, bins = new Map(); let total = 0;
+  for (const c of S.vpBars.values()){
+    if (!(c.v > 0)) continue;
+    const lo = Math.floor(c.l - basis), hi = Math.floor(c.h - basis), n = hi - lo + 1, per = c.v / n;
+    for (let b = lo; b <= hi; b++) bins.set(b, (bins.get(b)||0) + per);
+    total += c.v;
+  }
+  if (!bins.size) { S.vp = null; return; }
+  const keys = [...bins.keys()].sort((a,b)=>a-b), lo = keys[0], hi = keys[keys.length-1];
+  const arr = []; for (let b=lo; b<=hi; b++) arr.push(bins.get(b)||0);
+  let pi = 0; arr.forEach((v,i)=>{ if (v > arr[pi]) pi = i; });
+  let a = pi, z = pi, acc = arr[pi];
+  while (acc < total*0.7 && (a>0 || z<arr.length-1)){
+    const up = z<arr.length-1 ? arr[z+1] : -1, dn = a>0 ? arr[a-1] : -1;
+    if (up >= dn){ z++; acc += up; } else { a--; acc += dn; }
+  }
+  S.vp = { lo, arr, max: arr[pi], poc: lo+pi+0.5, vah: lo+z+1, val: lo+a, total, bars: S.vpBars.size, basis, at: Date.now() };
+}
+async function loadVP(full){
+  if (!S.vpOn) { renderVPInfo(); return; }
+  try{
+    await vpBasis().catch(()=>{});
+    await vpFetch(full || !S.vpBars.size);
+    vpCompute();
+  }catch(e){ S.vpErr = String(e); }
+  renderVPInfo(); drawZones();
+}
+function renderVPInfo(){
+  const el = $('vpInfo'); if (!el) return;
+  if (!S.vpOn){ el.textContent = 'ปิดอยู่'; return; }
+  const v = S.vp;
+  if (!v){ el.textContent = S.vpErr ? 'โหลด Volume Profile ไม่ได้' : 'กำลังโหลด…'; return; }
+  const t = new Date(v.at).toLocaleTimeString('th-TH',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit'});
+  el.innerHTML = `POC <b>${fmt(v.poc,1)}</b> · VAH <b>${fmt(v.vah,0)}</b> · VAL <b>${fmt(v.val,0)}</b> · basis ${sgn(v.basis,2)} · ${v.bars} แท่ง ${VP_PERIODS[S.vpPeriod].bar} · ${fmt(v.total,0)} oz · ${t}`;
+}
+function drawVP(ctx, paneW, paneH){
+  const v = S.vp; if (!S.vpOn || !v || S.view!=='zone') return;
+  const maxW = Math.min(180, paneW*0.18), x1 = paneW - 2;
+  const inVA = (p)=>p >= v.val && p < v.vah;
+  for (let i=0;i<v.arr.length;i++){
+    if (!v.arr[i]) continue;
+    const p = v.lo + i, ya = cs.priceToCoordinate(p+1), yb = cs.priceToCoordinate(p);
+    if (ya==null || yb==null || yb < 0 || ya > paneH) continue;
+    const w = maxW * v.arr[i] / v.max, h = Math.max(1, yb - ya - 0.5);
+    ctx.fillStyle = (p+0.5===v.poc) ? 'rgba(255,152,0,0.85)' : inVA(p) ? 'rgba(100,140,255,0.36)' : 'rgba(139,147,165,0.22)';
+    ctx.fillRect(x1 - w, ya, w, h);
+  }
+  const line = (p, col, dash, lbl)=>{
+    const y = cs.priceToCoordinate(p); if (y==null || y<0 || y>paneH) return;
+    ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(0, Math.round(y)+.5); ctx.lineTo(paneW, Math.round(y)+.5); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font = '600 10px "IBM Plex Sans Thai", sans-serif'; ctx.fillStyle = col;
+    const s = `${lbl} ${fmt(p,lbl==='POC'?1:0)}`; ctx.fillText(s, x1 - maxW - ctx.measureText(s).width - 6, y - 3);
+  };
+  line(v.vah, 'rgba(130,160,255,0.9)', [6,3], 'VAH'); line(v.val, 'rgba(130,160,255,0.9)', [6,3], 'VAL'); line(v.poc, 'rgba(255,152,0,0.95)', [], 'POC');
+}
+
+/* ---------------- gold news (news.json: public RSS headlines, automatic keyword tags) ---------------- */
+S.newsFilter = LS.get('news_filter', 'all');
+function relTime(iso){
+  const m = Math.round((Date.now() - Date.parse(iso)) / 60000);
+  if (!isFinite(m)) return '';
+  if (m < 1) return 'เมื่อสักครู่'; if (m < 60) return `${m} นาทีที่แล้ว`;
+  const h = Math.floor(m/60); if (h < 24) return `${h} ชม.ที่แล้ว`; return `${Math.floor(h/24)} วันที่แล้ว`;
+}
+function renderNews(){
+  const box = $('newsList'); if (!box) return;
+  const N = S.news;
+  if (!N || !N.items){ box.innerHTML = '<div class="sub">ยังไม่มี news.json</div>'; return; }
+  const items = N.items;
+  const counts = {}; items.forEach(x=>(x.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));
+  const lean = {}; items.forEach(x=>lean[x.lean]=(lean[x.lean]||0)+1);
+  const chips = [['all','ทั้งหมด',items.length], ['lean:ทองบวก','ทองบวก',lean['ทองบวก']||0], ['lean:ทองลบ','ทองลบ',lean['ทองลบ']||0],
+    ...Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([t,n])=>['tag:'+t, t, n])];
+  if (!chips.some(c=>c[0]===S.newsFilter)) S.newsFilter = 'all';
+  $('newsFilters').innerHTML = chips.map(([k,l,n])=>`<button class="nchip ${k===S.newsFilter?'active':''} ${k.startsWith('lean:')?(l==='ทองบวก'?'up':'dn'):''}" data-k="${esc(k)}">${esc(l)} <small>${n}</small></button>`).join('');
+  $('newsFilters').querySelectorAll('.nchip').forEach(b=>b.onclick=()=>{ S.newsFilter=b.dataset.k; LS.set('news_filter', S.newsFilter); renderNews(); });
+  const f = S.newsFilter, sel = items.filter(x=> f==='all' || (f.startsWith('lean:') && x.lean===f.slice(5)) || (f.startsWith('tag:') && (x.tags||[]).includes(f.slice(4))));
+  const LC = {'ทองบวก':'up','ทองลบ':'dn','กลาง':'flat'};
+  box.innerHTML = sel.map(x=>`<div class="nitem"><span class="nlean ${LC[x.lean]||'flat'}">${esc(x.lean||'กลาง')}</span>
+    <div class="nmain"><a href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">${esc(x.title)}</a>
+    <div class="nmeta"><span>${esc(x.source||'')}</span> · <span title="${esc(thDT(x.published))}">${relTime(x.published)}</span>${(x.tags||[]).filter(t=>t!=='ทั่วไป').map(t=>` <i class="ntag">${esc(t)}</i>`).join('')}</div></div></div>`).join('') || '<div class="sub">ไม่มีข่าวในหมวดนี้</div>';
+  const ok = (N.sources||[]).filter(s=>s.ok && s.used>0).map(s=>s.name);
+  $('newsMeta').textContent = `อัปเดต ${thDT(N.generated_at)} · ${items.length} หัวข้อใน 48 ชม. · แหล่ง: ${ok.join(', ')||'—'}`;
+}
+async function loadNews(){ try{ S.news = await getJSON('news.json'); }catch(e){} renderNews(); }
+
 /* ---------------- UI wiring ---------------- */
 function setView(v){
   S.view = v; LS.set('view', v);
@@ -573,6 +692,8 @@ function wire(){
   $('zoneLot').addEventListener('input', ()=>{ LS.set('zoneLot', $('zoneLot').value); renderZones(); });
   document.querySelectorAll('.otab').forEach(b=>b.onclick=()=>{ S.optTab=b.dataset.src; LS.set('optTab',S.optTab); renderOpt(); });
   [['tgGld','gld'],['tgShfe','shfe']].forEach(([id,k])=>{ $(id).checked = S.optOn[k]; $(id).onchange = ()=>{ S.optOn[k] = $(id).checked; LS.set('opt_'+k, S.optOn[k]); drawOptLines(); }; });
+  $('tgVp').checked = S.vpOn; $('tgVp').onchange = ()=>{ S.vpOn = $('tgVp').checked; LS.set('vp_on', S.vpOn); if (S.vpOn) loadVP(true); else { renderVPInfo(); drawZones(); } };
+  $('vpPeriod').value = S.vpPeriod; $('vpPeriod').onchange = ()=>{ S.vpPeriod = $('vpPeriod').value; LS.set('vp_period', S.vpPeriod); S.vp = null; renderVPInfo(); loadVP(true); };
   $('cUseLive').onclick = ()=>{ if (S.price){ $('cEntry').value = S.price.toFixed(2); renderCalc(); } };
   const io = new IntersectionObserver((ents)=>ents.forEach(e=>{ if(e.isIntersecting){ WIDGETS[e.target.dataset.widget](e.target); io.unobserve(e.target);} }), {rootMargin:'300px'});
   document.querySelectorAll('.lazy-widget[data-widget=overview]').forEach(el=>io.observe(el));
@@ -581,12 +702,15 @@ function wire(){
 
 async function main(){
   const [z, e] = await Promise.allSettled([getJSON('zones.json'), getJSON('events.json')]);
-  if (z.status==='fulfilled'){ S.zones = z.value; $('zonesDate').textContent = `· ${S.zones.date||''}`; $('zonesMeta').textContent = (S.zones.bias?('มุมมอง: '+S.zones.bias+' · '):'') + 'อัปเดต '+(S.zones.generated_at||S.zones.date||'—'); }
+  if (z.status==='fulfilled'){ S.zones = z.value; $('zonesDate').textContent = `· ${S.zones.date||''}`; $('zonesMeta').textContent = (S.zones.auto?'โซนอัตโนมัติจากแท่ง H1 ดัชนี OKX XAU-USD (High/Low เมื่อวาน, Pivot, เอเชีย, swing H1/H4, เลขกลม) · ':'') + (S.zones.bias?('มุมมอง: '+S.zones.bias+' · '):'') + 'อัปเดต '+thDT(S.zones.generated_at||S.zones.date); }
   if (e.status==='fulfilled'){ S.events = (e.value.events||[]).map(x=>({...x, ms:Date.parse(x.time)})).filter(x=>isFinite(x.ms)).sort((x,y)=>x.ms-y.ms); }
   $('buildInfo').textContent = `zones ${S.zones?.date||'—'}`;
   wire(); tickClock(); setInterval(tickClock, 1000);
   WIDGETS.calendar(document.querySelector('[data-widget=calendar]'));   // load first: avoids a TradingView CDN 403 seen when it loads after other TV widgets
-  initChart(); setView(S.view); loadOpt();
+  initChart(); setView(S.view); loadOpt(); loadNews(); loadVP(true);
+  setInterval(()=>loadVP(false), 60000);                                    // volume profile: newest candles + basis every minute
+  setInterval(()=>{ if (S.vpOn) loadVP(true); }, 15*60000);                 // full rebuild (drops candles older than the period start)
+  setInterval(renderNews, 60000);                                           // relative times
   await pollSpot(); setInterval(pollSpot, 15000);
   await loadFeed();
   setInterval(renderFeedInfo, 2000);
@@ -594,7 +718,7 @@ async function main(){
   setInterval(resyncTail, 60000);
   loadTape(); renderZones(); renderCalc();
   // reload data files every 10 min (daily update script)
-  setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); }catch(e){} loadOpt(); }, 600000);
+  setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); }catch(e){} loadOpt(); loadNews(); }, 600000);
   setInterval(()=>{ if (S.opt) renderOpt(); }, 15000);   // refresh distance-to-price
 }
 main();

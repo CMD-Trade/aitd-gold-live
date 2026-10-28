@@ -10,17 +10,25 @@ Static XAUUSD live-chart site (Thai, dark, mobile-first). No server, no API keys
 | Spot reference / cross-check | `https://api.gold-api.com/price/XAU` (CORS `*`, no key, ~30 s cache) — the info line shows the difference vs the chart | Every 15 s |
 | Header price / today high-low | same as zone chart; day = from 17:00 New York | Live |
 | Ticker strip, market quotes, economic calendar | TradingView free widgets | Live |
-| Zones, event list | `zones.json`, `events.json` | Static, rewritten by `update_data.py` (page re-reads zones every 10 min) |
+| Zones | `zones.json` — automatic public zones from `zones_auto.py` (OKX XAU-USD index H1) or the owner's hand-made file via `update_data.py` | Weekday 07:00 Thai (GitHub Actions `update-zones.yml`); page re-reads every 10 min |
+| Event list ("ข่าวแรงถัดไป") | `events.json` from ForexFactory weekly JSON (`update_data.py --events-only`) | Hourly 07:05–23:05 Thai weekdays (`update-news.yml`) |
+| Gold news panel "ข่าวทองล่าสุด" | `news.json` from `news.py`: public RSS headlines (Google News EN/TH, Reuters/Kitco/FXStreet via Google News, investingLive) with automatic keyword tags | Hourly 07:05–23:05 Thai weekdays (`update-news.yml`) |
+| Volume Profile (chart overlay, toggle + period) | OKX `XAU-USDT-SWAP` 5m/15m candle volume (oz), shifted to spot by the live perp − index basis, $1 bins, POC + 70 % value area | Client-side, every 60 s |
 | Option OI levels (chart price lines + panel "ระดับจากออปชัน") | `options_levels.json` from `options_levels.py`: **Cboe delayed GLD options** + **SHFE au gold options** (proxies, not CME) | Daily (GitHub Actions `update-options.yml`) |
 | Balance, floor, daily stop, today's P/L | typed by the user, saved in that browser's localStorage only | Never published |
 | Clock, sessions, countdown | browser clock, `Asia/Bangkok` | Live |
 
-URL options: `?feed=okxidx` (default), `?feed=okx`, `?feed=binance`, `?feed=none` (forces spot-only fallback).
+URL options: `?feed=okxidx` (default), `?feed=okx`, `?feed=binance`, `?feed=none` (forces spot-only fallback); `?vp=0|1`, `?vpp=today|asia|h24|week` (Volume Profile), `?opt=gld|shfe`.
 
 ## Data files
-- `zones.json` — copy of `/workspace/gold_zones.json`:
-  `{date, source, zones:[{zone:[low,high], type:"resistance"|"pivot"|"support", note}], prev_day:{high,low,close}, week:{high,low}, bias}`.
-  `prev_day.close` is the reference for the header change.
+- `zones.json` — `{date, source, zones:[{zone:[low,high], type:"resistance"|"pivot"|"support", note[, score]}], prev_day:{high,low,close}, week:{high,low}, bias, generated_at[, auto, pivot, asia, price_at_build]}`.
+  `prev_day.close` is the reference for the header change. Either the owner's hand-made `/workspace/gold_zones.json` (copied by `update_data.py`)
+  or the automatic file from `zones_auto.py` (`"auto": true`): previous trading day (17:00→17:00 New York) high/low/close, classic daily pivot P/R1/S1,
+  this/last week high/low, last Asian session (07:00–15:00 Thai) high/low, H1 swings (last 3 days) and H4 swings (last 20 days), round $25 levels;
+  candidates within $4 are merged into zones (≥$3 wide, ≤$10), 5–8 best-scoring zones within ±1.7 % of price are kept, each with a note listing its reasons.
+  `zones_auto.py` never overwrites a hand-made zones.json already dated today (use `--force`), and keeps the old file on any failure.
+- `news.json` — `{generated_at, note, sources:[{id,name,ok,parsed,fresh,used|error}], items:[{title, source, link, published:"ISO+07:00", feed, tags:[Thai], lean:"ทองบวก"|"ทองลบ"|"กลาง"}]}`.
+  Headlines + links only (no article text). ≤30 items from the last 48 h, deduped, merged with the previous file; tags and lean are keyword rules on the headline.
 - `events.json` — `{events:[{title, title_en, country, impact, time:"ISO+07:00", forecast, previous}]}` (high-impact USD).
 - `candles_seed.json` — optional static M15 seed used only by the spot-only fallback (M15, aggregated for H1/H4).
 
@@ -31,12 +39,21 @@ URL options: `?feed=okxidx` (default), `?feed=okx`, `?feed=binance`, `?feed=none
 ## Option levels automation
 `.github/workflows/update-options.yml` runs `python3 options_levels.py` Mon–Fri at 07:40 & 09:10 UTC (14:40 / 16:10 Thai, after SHFE posts ~14:25 Thai) and 15:00 & 21:30 UTC (22:00 / 04:30 Thai, Cboe GLD after the OCC OI refresh and after the US close), plus manual `workflow_dispatch`, and commits `options_levels.json` + `options_oi_state.json` if they changed (default `GITHUB_TOKEN`, `contents: write`). Stdlib only. Manual: `python3 options_levels.py [--only gld|shfe]`.
 
+## Zones + news automation
+- `.github/workflows/update-zones.yml`: `python3 zones_auto.py` at 00:00 UTC Mon–Fri (07:00 Thai) + `workflow_dispatch`; commits `zones.json` if changed.
+- `.github/workflows/update-news.yml`: `python3 news.py` and `python3 update_data.py --events-only` at :05 every hour 00–16 UTC Mon–Fri (07:05–23:05 Thai) + `workflow_dispatch`; commits `news.json` + `events.json` if changed.
+GitHub may start scheduled runs several minutes late. All scripts are stdlib-only and need no secrets beyond the default `GITHUB_TOKEN` (`contents: write`).
+
 ## Daily update
 ```
 python3 update_data.py            # writes zones.json, events.json, candles_seed.json (+ options_levels.json)
 python3 update_data.py --no-options   # skip the option levels
 python3 update_data.py --no-net   # skip live ForexFactory fetch, use /workspace/hub/ff_week.json
+python3 update_data.py --events-only  # events.json only (keeps the old file if ForexFactory fails)
+python3 zones_auto.py [--force] [--dry]   # automatic zones.json from OKX index candles
+python3 news.py [--dry]           # news.json from public RSS
 ```
+If `/workspace/gold_zones.json` is missing, `update_data.py` falls back to `zones_auto.py`.
 No account data (balance, P/L, journal) is ever read or written by this script.
 
 ## Host on GitHub Pages

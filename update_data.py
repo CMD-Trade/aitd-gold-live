@@ -15,7 +15,13 @@ Optional: /workspace/hub/candles.json -> candles_seed.json (static M15 seed for 
 Also runs options_levels.py (options_levels.json: GLD/Cboe + SHFE au option OI levels) unless --no-options.
 (On GitHub the workflow .github/workflows/update-options.yml runs options_levels.py on its own schedule.)
 
+zones.json: if /workspace/gold_zones.json (the owner's private hand-made zones) is missing, falls back to
+zones_auto.py (automatic public zones from OKX index candles). On GitHub, update-zones.yml runs zones_auto.py
+every weekday 07:00 Thai; a hand-made zones.json dated today is never overwritten by it.
+
 Usage:  python3 update_data.py [--no-net] [--no-options]
+        python3 update_data.py --events-only     (events.json only; used by update-news.yml; keeps the
+                                                   previous events.json when ForexFactory is unreachable)
 """
 import json, sys, datetime as dt, urllib.request
 from pathlib import Path
@@ -45,6 +51,10 @@ def write(name, obj):
 
 
 def do_zones():
+    if not ZONES_SRC.exists():
+        import zones_auto
+        zones_auto.main([])
+        return
     z = json.loads(ZONES_SRC.read_text(encoding="utf-8"))
     z["generated_at"] = NOW.isoformat(timespec="seconds")
     z["_format"] = ("zones: list of {zone:[low,high], type: resistance|pivot|support, note}. "
@@ -66,8 +76,10 @@ def load_ff(no_net):
     return [], "none"
 
 
-def do_events(no_net):
+def do_events(no_net, keep_if_none=False):
     ff, src = load_ff(no_net)
+    if keep_if_none and (src == "none" or not ff):
+        print("no ForexFactory data; previous events.json kept"); return
     ev = []
     for e in ff:
         if e.get("impact") != "High" or e.get("country") != "USD":
@@ -100,6 +112,8 @@ def do_seed():
 
 if __name__ == "__main__":
     a = sys.argv[1:]
+    if "--events-only" in a:
+        do_events(False, keep_if_none=True); sys.exit(0)
     do_zones(); do_events("--no-net" in a); do_seed()
     if "--no-net" not in a and "--no-options" not in a:
         import options_levels

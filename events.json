@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-10-28T12:12:03+07:00",
- "source": "ForexFactory (/workspace/hub/ff_week.json)",
+ "generated_at": "2026-10-28T14:25:46+07:00",
+ "source": "ForexFactory (live)",
  "_format": "events: list of {title, country, impact, time (ISO with +07:00), forecast, previous}",
  "events": [
   {

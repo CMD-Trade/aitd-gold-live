@@ -1,0 +1,52 @@
+{
+ "generated_at": "2026-10-28T12:12:03+07:00",
+ "source": "ForexFactory (/workspace/hub/ff_week.json)",
+ "_format": "events: list of {title, country, impact, time (ISO with +07:00), forecast, previous}",
+ "events": [
+  {
+   "title": "Fed ประกาศดอกเบี้ย",
+   "title_en": "Federal Funds Rate",
+   "country": "USD",
+   "impact": "High",
+   "time": "2026-10-29T01:00:00+07:00",
+   "forecast": "4.00%",
+   "previous": "4.00%"
+  },
+  {
+   "title": "แถลงการณ์ FOMC",
+   "title_en": "FOMC Statement",
+   "country": "USD",
+   "impact": "High",
+   "time": "2026-10-29T01:00:00+07:00",
+   "forecast": "",
+   "previous": ""
+  },
+  {
+   "title": "แถลงข่าวประธาน Fed (FOMC)",
+   "title_en": "FOMC Press Conference",
+   "country": "USD",
+   "impact": "High",
+   "time": "2026-10-29T01:30:00+07:00",
+   "forecast": "",
+   "previous": ""
+  },
+  {
+   "title": "GDP สหรัฐ (ล่วงหน้า)",
+   "title_en": "Advance GDP q/q",
+   "country": "USD",
+   "impact": "High",
+   "time": "2026-10-29T19:30:00+07:00",
+   "forecast": "3.2%",
+   "previous": "1.5%"
+  },
+  {
+   "title": "Core PCE m/m",
+   "title_en": "Core PCE Price Index m/m",
+   "country": "USD",
+   "impact": "High",
+   "time": "2026-10-29T19:30:00+07:00",
+   "forecast": "0.3%",
+   "previous": "0.2%"
+  }
+ ]
+}

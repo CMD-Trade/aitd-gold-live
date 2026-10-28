@@ -1,0 +1,74 @@
+{
+ "date": "2026-10-28",
+ "source": "Dukascopy spot M15 (to 01:15) + TradingView OANDA:XAUUSD scanner + Yahoo GC=F M15 (futures, ~+14-20 premium, shape only)",
+ "zones": [
+  {
+   "zone": [
+    4068,
+    4072
+   ],
+   "type": "resistance",
+   "note": "today/week high 4070.84 (07:00 spike), round 4070"
+  },
+  {
+   "zone": [
+    4062,
+    4065.5
+   ],
+   "type": "pivot",
+   "note": "Tue NY high 4064.5/4065.5"
+  },
+  {
+   "zone": [
+    4052,
+    4058
+   ],
+   "type": "support",
+   "note": "NY late lows 4055.4-4056.3, Asia low 4057.7, H1 breakout base 4052"
+  },
+  {
+   "zone": [
+    4040,
+    4046
+   ],
+   "type": "support",
+   "note": "H1 breakout body 20:00-21:00 Tue (4044-4046), round 4040"
+  },
+  {
+   "zone": [
+    4024,
+    4032
+   ],
+   "type": "support",
+   "note": "old resistance Mon high 4030 / Tue 20:00 high 4032 (RS flip)"
+  },
+  {
+   "zone": [
+    3995,
+    4000
+   ],
+   "type": "support",
+   "note": "round 4000 / Tue London lows"
+  },
+  {
+   "zone": [
+    3975,
+    3982
+   ],
+   "type": "support",
+   "note": "week low 3978.2"
+  }
+ ],
+ "prev_day": {
+  "high": 4065.51,
+  "low": 3988.98,
+  "close": 4058.0
+ },
+ "week": {
+  "high": 4070.84,
+  "low": 3978.18
+ },
+ "bias": "H1/M15 above EMA50 after Tue US rally +$70; daily still below EMA20 (4123) - D downtrend, intraday up",
+ "generated_at": "2026-10-28T12:12:03+07:00",
+ "_format": "zones: list of {zone:[low,high], type: resistance|pivot|support, note}. prev_day/week: {high,low[,close]}. Prices = spot XAUUSD (OANDA-like)."
+}

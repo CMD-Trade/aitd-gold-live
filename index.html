@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<title>AiTD Gold Live · XAUUSD เรียลไทม์</title>
+<meta name="description" content="กราฟทอง XAUUSD เรียลไทม์ พร้อมโซนแนวรับแนวต้าน เวลาไทย และเครื่องคำนวณ Lot">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230b0d12'/><path d='M12 44h40L44 22H20z' fill='%23d4af37'/></svg>">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo">◆</span><div><b>AiTD Gold Live</b><small>XAUUSD · เวลาไทย</small></div></div>
+  <div class="clock"><span id="clock">--:--:--</span><small id="clockDate">—</small></div>
+</header>
+
+<div class="tv-tape" id="tape"></div>
+
+<main>
+  <!-- PRICE -->
+  <section class="card price-card">
+    <div class="price-row">
+      <div>
+        <div class="label">XAUUSD <span id="feedBadge" class="badge">กำลังเชื่อมต่อ…</span></div>
+        <div class="price" id="price">—</div>
+        <div class="chg" id="chg">—</div>
+      </div>
+      <div class="hl">
+        <div><span class="label">สูงสุดวันนี้</span><b id="dayHigh">—</b></div>
+        <div><span class="label">ต่ำสุดวันนี้</span><b id="dayLow">—</b></div>
+        <div><span class="label">ช่วงวัน</span><b id="dayRange">—</b></div>
+      </div>
+    </div>
+    <div class="sub" id="feedInfo">—</div>
+  </section>
+
+  <!-- SESSIONS + EVENT -->
+  <section class="grid2">
+    <div class="card">
+      <div class="card-h">เซสชัน</div>
+      <div class="sessions" id="sessions"></div>
+      <div class="mywin" id="myWin">—</div>
+    </div>
+    <div class="card event-card" id="eventCard">
+      <div class="card-h">ข่าวแรงถัดไป <span class="dot red"></span></div>
+      <div class="ev-title" id="evTitle">—</div>
+      <div class="ev-time" id="evTime">—</div>
+      <div class="countdown" id="evCount">--:--:--</div>
+      <details><summary>ข่าวสัปดาห์นี้</summary><ul class="ev-list" id="evList"></ul></details>
+    </div>
+  </section>
+
+  <!-- CHART -->
+  <section class="card chart-card">
+    <div class="chart-head">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-view="zone">กราฟ + โซน</button>
+        <button class="tab" data-view="tv">TradingView (OANDA)</button>
+      </div>
+      <div class="tfs" id="tfs">
+        <button data-tf="1">M1</button><button data-tf="5">M5</button><button data-tf="15" class="active">M15</button><button data-tf="60">H1</button><button data-tf="240">H4</button>
+      </div>
+    </div>
+    <div class="chart-wrap" id="zoneView">
+      <div id="lwChart" class="lw"></div>
+      <canvas id="zoneCanvas" class="zone-canvas"></canvas>
+      <div class="legend"><span class="ema20">EMA20</span><span class="ema50">EMA50</span><span id="lwStatus"></span></div>
+    </div>
+    <div class="chart-wrap hidden" id="tvView"><div id="tvChart" class="tvc"></div></div>
+    <div class="sub" id="chartNote">โซนจาก zones.json · เส้น EMA20/50 คำนวณจากแท่งเทียนบนกราฟ</div>
+  </section>
+
+  <!-- ZONES -->
+  <section class="card">
+    <div class="card-h">โซนวันนี้ <small id="zonesDate"></small>
+      <span class="spacer"></span>
+      <label class="mini">Lot <input id="zoneLot" type="number" step="0.01" min="0.01" value="0.1"></label>
+    </div>
+    <div class="zones" id="zones"></div>
+    <div class="sub" id="zonesMeta"></div>
+  </section>
+
+  <!-- CALCULATOR + ACCOUNT -->
+  <section class="grid2">
+    <div class="card calc">
+      <div class="card-h">คำนวณ Lot / ความเสี่ยง <span class="spacer"></span><span class="pill" id="cDir">—</span></div>
+      <div class="form">
+        <label>Lot<input id="cLot" type="number" step="0.01" min="0.01" value="0.1" inputmode="decimal"></label>
+        <label>Entry<div class="inrow"><input id="cEntry" type="number" step="0.01" inputmode="decimal"><button id="cUseLive" title="ใช้ราคาปัจจุบัน">ราคาตอนนี้</button></div></label>
+        <label>SL<input id="cSL" type="number" step="0.01" inputmode="decimal"></label>
+        <label>TP<input id="cTP" type="number" step="0.01" inputmode="decimal"></label>
+      </div>
+      <div class="out">
+        <div><span>ระยะ SL</span><b id="oSLd">—</b></div>
+        <div><span>เสี่ยง</span><b class="neg" id="oRisk">—</b></div>
+        <div><span>ระยะ TP</span><b id="oTPd">—</b></div>
+        <div><span>กำไร</span><b class="pos" id="oRew">—</b></div>
+        <div><span>RR</span><b id="oRR">—</b></div>
+        <div><span>Margin (1:100)</span><b id="oMargin">—</b></div>
+        <div class="wide"><span>ถ้าโดน SL วันนี้จะเป็น</span><b id="oDay">—</b></div>
+        <div class="wide"><span>Lot สูงสุดก่อนชนจุดหยุดวัน</span><b id="oMaxLot">—</b></div>
+      </div>
+    </div>
+    <div class="card acct">
+      <div class="card-h">บัญชีของฉัน <small>เก็บไว้ในเครื่องนี้เท่านั้น</small></div>
+      <div class="form">
+        <label>Balance ($)<input id="aBalIn" type="number" step="0.01" inputmode="decimal" placeholder="Balance ของคุณ"></label>
+        <label>เส้นห้ามต่ำกว่า ($)<input id="aFloorIn" type="number" step="1" inputmode="decimal" placeholder="เช่น เส้น Max DD"></label>
+        <label>จุดหยุดรายวัน ($)<input id="aStopIn" type="number" step="1" min="0" inputmode="decimal" placeholder="200"></label>
+        <label>P/L วันนี้ ($)<input id="aToday" type="number" step="0.01" inputmode="decimal" placeholder="0"></label>
+      </div>
+      <div class="acct-grid">
+        <div><span>เหลือถึงเส้น</span><b id="aBuf">—</b></div>
+        <div><span>เหลือก่อนจุดหยุดวัน</span><b id="aRoom">—</b></div>
+      </div>
+      <div class="bar"><div id="aBar"></div></div>
+      <div class="sub" id="aState">ข้อมูลบัญชีไม่ถูกส่งออกจากเครื่อง (localStorage)</div>
+    </div>
+  </section>
+
+  <!-- MARKETS + CALENDAR (TradingView widgets) -->
+  <section class="grid2">
+    <div class="card"><div class="card-h">ตลาดที่เกี่ยวข้อง</div><div class="lazy-widget" data-widget="overview" style="height:380px"></div></div>
+    <div class="card"><div class="card-h">ปฏิทินเศรษฐกิจ</div><div class="lazy-widget" data-widget="calendar" style="height:470px"></div></div>
+  </section>
+</main>
+
+<footer>
+  <p><b>แหล่งข้อมูล</b> · กราฟ TradingView: OANDA:XAUUSD (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) ·
+  กราฟ + โซน: แท่งเทียนเรียลไทม์จาก Binance Futures XAUUSDT หรือ OKX XAU-USDT-SWAP ปรับฐานให้ตรงราคา spot ด้วย <a href="https://gold-api.com" target="_blank" rel="noopener">gold-api.com</a> ·
+  ข่าว: ForexFactory · โซน: AiTD (อัปเดตรายวัน) · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
+  <p>ราคาบนเว็บอาจต่างจากราคาโบรกเกอร์ของคุณเล็กน้อย · ข้อมูลเพื่อประกอบการตัดสินใจเท่านั้น ไม่ใช่คำแนะนำการลงทุน</p>
+  <p class="muted">AiTD Gold Live · <span id="buildInfo"></span></p>
+</footer>
+
+<script src="vendor/lightweight-charts.standalone.production.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

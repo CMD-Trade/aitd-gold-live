@@ -70,6 +70,12 @@
       <div class="legend"><span class="ema20">EMA20</span><span class="ema50">EMA50</span><span id="lwStatus"></span></div>
     </div>
     <div class="chart-wrap hidden" id="tvView"><div id="tvChart" class="tvc"></div></div>
+    <div class="opt-toggles" id="optToggles">
+      <span class="label">เส้นออปชัน:</span>
+      <label><input type="checkbox" id="tgGld"> <i class="sw gld"></i>GLD · Cboe</label>
+      <label><input type="checkbox" id="tgShfe"> <i class="sw shfe"></i>SHFE · เซี่ยงไฮ้</label>
+      <span class="okey"><i class="k call"></i>Call wall <i class="k put"></i>Put wall <i class="k mp"></i>Max pain</span>
+    </div>
     <div class="sub" id="chartNote">โซนจาก zones.json · เส้น EMA20/50 คำนวณจากแท่งเทียนบนกราฟ</div>
   </section>
 
@@ -81,6 +87,18 @@
     </div>
     <div class="zones" id="zones"></div>
     <div class="sub" id="zonesMeta"></div>
+  </section>
+
+  <!-- OPTION OI LEVELS -->
+  <section class="card" id="optCard">
+    <div class="card-h">ระดับจากออปชัน <small id="optGen"></small>
+      <span class="spacer"></span>
+      <div class="otabs"><button class="otab active" data-src="gld">GLD · Cboe</button><button class="otab" data-src="shfe">SHFE · เซี่ยงไฮ้</button></div>
+    </div>
+    <div id="optBody" class="opt-body"><div class="sub">กำลังโหลด options_levels.json…</div></div>
+    <div class="sub opt-note">ระดับเหล่านี้คือราคาที่ <b>Open Interest ของออปชันกระจุกตัว</b> (Call wall = OI ฝั่ง Call มาก มักเป็นแนวต้าน, Put wall = OI ฝั่ง Put มาก มักเป็นแนวรับ, Max pain = ราคาที่ผู้ถือออปชันรวมขาดทุนมากที่สุด ณ วันหมดอายุ)
+      ใช้ข้อมูลตัวแทน (proxy) — ออปชันกองทุน GLD จาก Cboe และออปชันทองตลาดเซี่ยงไฮ้ (SHFE) — <b>ไม่ใช่ข้อมูล CME/COMEX</b> แปลงเป็นราคา spot XAUUSD ด้วยอัตราส่วนราคา ณ เวลาข้อมูล
+      · OI อัปเดตวันละครั้ง · <b>ไม่ใช่สัญญาณซื้อขาย</b></div>
   </section>
 
   <!-- CALCULATOR + ACCOUNT -->
@@ -131,7 +149,7 @@
 <footer>
   <p><b>แหล่งข้อมูล</b> · กราฟ TradingView: OANDA:XAUUSD (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) ·
   กราฟ + โซน: แท่งเทียนเรียลไทม์จาก OKX XAU/USD spot index (ราคา spot ดอลลาร์ ไม่ต้องปรับฐาน, ตัดช่วงตลาดปิดออก, H4 เริ่ม 17:00 นิวยอร์กแบบโบรก) ตรวจเทียบกับ <a href="https://gold-api.com" target="_blank" rel="noopener">gold-api.com</a> · สำรอง: Binance/OKX perp ปรับฐาน ·
-  ข่าว: ForexFactory · โซน: AiTD (อัปเดตรายวัน) · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
+  ข่าว: ForexFactory · ระดับออปชัน: <a href="https://www.cboe.com/delayed_quotes/gld/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (GLD)</a> และ <a href="https://www.shfe.com.cn/" target="_blank" rel="noopener">SHFE</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) · โซน: AiTD (อัปเดตรายวัน) · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
   <p>ราคาบนเว็บอาจต่างจากราคาโบรกเกอร์ของคุณเล็กน้อย · ข้อมูลเพื่อประกอบการตัดสินใจเท่านั้น ไม่ใช่คำแนะนำการลงทุน</p>
   <p class="muted">AiTD Gold Live · <span id="buildInfo"></span></p>
 </footer>

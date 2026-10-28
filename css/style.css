@@ -107,3 +107,32 @@ footer .muted{opacity:.7}
   .tabs button{padding:6px 8px;font-size:12.5px}
 }
 input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;color:#5d6577}
+
+/* option OI levels */
+.opt-toggles{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12.5px;color:var(--mut);margin-top:8px}
+.opt-toggles label{display:flex;align-items:center;gap:5px;cursor:pointer;color:var(--txt)}
+.opt-toggles input{width:auto;padding:0;margin:0;accent-color:var(--gold)}
+.sw{display:inline-block;width:18px;height:0;border-top:2px dashed #b388ff}
+.sw.shfe{border-top:2px dotted #ff9f43}
+.okey{display:flex;gap:6px;align-items:center;font-size:11.5px}
+.k{display:inline-block;width:14px;height:0;border-top:2px dashed}
+.k.call{border-color:#b388ff}.k.put{border-color:#2ec4b6}.k.mp{border-color:#ffd54f}
+.otabs{display:flex;gap:4px;background:#0f1218;border:1px solid var(--line);border-radius:10px;padding:3px}
+.otab{background:none;border:0;color:var(--mut);padding:5px 10px;border-radius:8px;font:inherit;font-size:12.5px;cursor:pointer}
+.otab.active{background:#262c3a;color:var(--gold2)}
+.opt-body{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:860px){.opt-body{grid-template-columns:1fr 1fr}}
+.oexp{background:#171c26;border-radius:12px;padding:10px 12px}
+.oexp h4{margin:0 0 6px;font-size:13.5px;color:var(--txt);display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+.oexp h4 small{color:var(--mut);font-weight:400;font-size:12px}
+.ostats{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mut);margin-bottom:6px}
+.ostats b{color:var(--txt);font-family:var(--mono)}
+.olv{display:grid;grid-template-columns:auto 1fr auto auto;gap:3px 10px;font-size:12.5px;align-items:center}
+.olv .t{font-size:11px;padding:1px 6px;border-radius:6px;font-weight:600}
+.olv .t.call{background:rgba(179,136,255,.15);color:#c7a6ff}.olv .t.put{background:rgba(46,196,182,.15);color:#5fe0d0}.olv .t.mp{background:rgba(255,213,79,.15);color:#ffd54f}
+.olv .lv{font-family:var(--mono);font-weight:700;font-size:14px}
+.olv .k2{font-family:var(--mono);color:var(--mut);font-size:11.5px}
+.olv .oi{font-family:var(--mono);text-align:right;font-size:12px}
+.olv .oi small{color:var(--mut)}
+.ometa{grid-column:1/-1;color:var(--mut);font-size:11.5px;line-height:1.5}
+.opt-note{border-top:1px dashed var(--line);padding-top:8px}

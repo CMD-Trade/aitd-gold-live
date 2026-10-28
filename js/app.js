@@ -325,6 +325,66 @@ function drawZones(){
   ctx.restore();
 }
 
+
+/* ---------------- option OI levels (options_levels.json; proxies: Cboe GLD + SHFE au) ---------------- */
+const OPT_STYLE = {
+  gld:  {call:'#b388ff', put:'#2ec4b6', mp:'#ffd54f', ls:2, w:1, tag:'GLD'},     // dashed
+  shfe: {call:'#e0b3ff', put:'#7fe3d6', mp:'#ffb74d', ls:1, w:1, tag:'SH'},      // dotted, lighter
+};
+let optLines = [];
+S.opt = null; S.optTab = qs.get('opt') || LS.get('optTab','gld'); S.optOn = {gld: LS.get('opt_gld', true), shfe: LS.get('opt_shfe', true)};
+function drawOptLines(){
+  if (!cs) return;
+  optLines.forEach(l=>{ try{ cs.removePriceLine(l); }catch(e){} }); optLines = [];
+  if (!S.opt) return;
+  for (const src of ['gld','shfe']){
+    const b = S.opt[src], st = OPT_STYLE[src];
+    if (!S.optOn[src] || !b || !b.expiries || !b.expiries.length) continue;
+    const e = b.expiries[0];                                    // front weekly (GLD) / active series (SHFE) only on the chart
+    const add = (price, color, title, ls) => optLines.push(cs.createPriceLine({price, color, lineWidth:st.w, lineStyle:ls, axisLabelVisible:true, title}));
+    (e.call_walls||[]).forEach(w=>add(w.level_spot, st.call, `${st.tag} C${w.strike}`, st.ls));
+    (e.put_walls||[]).forEach(w=>add(w.level_spot, st.put, `${st.tag} P${w.strike}`, st.ls));
+    if (e.max_pain) add(e.max_pain.level_spot, st.mp, `${st.tag} MaxPain`, src==='gld'?3:1);
+  }
+}
+const thDT = (iso) => { if(!iso) return '—'; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleString('th-TH',{timeZone:'Asia/Bangkok', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) + ' น.'; };
+function renderOpt(){
+  document.querySelectorAll('.otab').forEach(b=>b.classList.toggle('active', b.dataset.src===S.optTab));
+  const body = $('optBody');
+  if (!S.opt){ body.innerHTML = '<div class="sub">ยังไม่มีข้อมูล options_levels.json</div>'; return; }
+  $('optGen').textContent = '· อัปเดต ' + thDT(S.opt.generated_at);
+  const src = S.optTab, b = S.opt[src];
+  if (!b || !b.expiries || !b.expiries.length){ body.innerHTML = `<div class="sub">ไม่มีข้อมูล ${src.toUpperCase()} ${b&&b.error?('('+esc(b.error)+')'):''}</div>`; return; }
+  const c = b.conversion || {}, p = S.price;
+  const stale = b.stale ? `<span class="badge warn">ข้อมูลเก่า (ดึงล่าสุดไม่สำเร็จ ${thDT(b.failed_at)})</span>` : '';
+  const unit = src==='gld' ? '$/หุ้น GLD' : 'หยวน/กรัม';
+  const dist = (lv) => p!=null ? `<small>${sgn(lv-p)}</small>` : '';
+  const row = (t, cls, w) => `<span class="t ${cls}">${t}</span><span class="lv">${fmt(w.level_spot)}</span><span class="k2">${w.strike}</span><span class="oi">OI ${fmt(w.oi,0)}${w.oi_chg!=null?` <small>(${w.oi_chg>=0?'+':''}${fmt(w.oi_chg,0)})</small>`:''} ${dist(w.level_spot)}</span>`;
+  let html = '';
+  for (const e of b.expiries){
+    const name = src==='gld' ? `หมดอายุ ${e.expiry}` : `ซีรีส์ ${e.series}`;
+    const kind = {'front weekly':'รายสัปดาห์ใกล้สุด','monthly':'รายเดือน','front weekly + monthly':'รายสัปดาห์+รายเดือน','active (largest OI)':'สัญญาหลัก (OI มากสุด)','front':'สัญญาใกล้สุด'}[e.kind]||e.kind;
+    const L = [...(e.call_walls||[]).map(w=>['Call wall','call',w]), ...(e.put_walls||[]).map(w=>['Put wall','put',w])];
+    if (e.max_pain) L.push(['Max pain','mp',{...e.max_pain, oi:null}]);
+    L.sort((a,b)=>b[2].level_spot-a[2].level_spot || (a[1]==='mp'?-1:1));       // price ladder, high -> low
+    let rows = '', placed = false;
+    for (const [t,c,w] of L){
+      if (p!=null && !placed && w.level_spot < p){ rows += `<div class="now-row" style="grid-column:1/-1">ราคา ${fmt(p)}</div>`; placed = true; }
+      rows += row(t,c,w).replace('OI —','');
+    }
+    if (p!=null && !placed) rows += `<div class="now-row" style="grid-column:1/-1">ราคา ${fmt(p)}</div>`;
+    html += `<div class="oexp"><h4>${name} <small>${kind}</small></h4>
+      <div class="ostats"><span>P/C OI <b>${e.pc_oi_ratio??'—'}</b></span><span>Call OI <b>${fmt(e.call_oi_total,0)}</b></span><span>Put OI <b>${fmt(e.put_oi_total,0)}</b></span><span>อ้างอิง <b>${e.underlying}</b> ${unit}</span></div>
+      <div class="olv"><span class="ometa">ระดับ (spot XAUUSD) · strike (${unit}) · OI (เปลี่ยนแปลง) · ระยะจากราคา — แสดงเฉพาะ strike ภายใน ±${e.window_pct}% ของราคาอ้างอิง</span>${rows}</div></div>`;
+  }
+  const conv = src==='gld'
+    ? `แปลงด้วย spot/GLD = ${c.spot} / ${c.gld_price} = ${c.ratio} (spot OKX ${thDT(c.spot_time)})`
+    : `แปลงด้วย spot/au = ${c.spot} / ${Object.values(c.series||{}).map(x=>x.au_close_cny_g+' ('+x.au_future+')').join(', ')} → ×${Object.values(c.series||{}).map(x=>x.ratio).join(', ')} · USDCNY ${c.usdcny} · ส่วนต่าง SHFE เทียบ spot ${Object.values(c.series||{}).map(x=>sgn(x.premium_usd_oz_vs_spot)+' $/oz').join(', ')}`;
+  html += `<div class="ometa">${stale} ข้อมูลวันที่ <b>${b.data_date}</b> · ${esc(b.source)} · ${esc(b.oi_note||'')} · ${conv} · ดึงเมื่อ ${thDT(b.fetched_at)}</div>`;
+  body.innerHTML = html;
+}
+async function loadOpt(){ try{ S.opt = await getJSON('options_levels.json'); }catch(e){ } drawOptLines(); renderOpt(); }
+
 async function loadFeed(){
   if (stopStream){ stopStream(); stopStream=null; }
   S.raw = []; S.ticks = []; S.offsetSamples = []; S.offset = 0; $('lwStatus').textContent = 'กำลังโหลด…';
@@ -511,6 +571,8 @@ function wire(){
   ['cLot','cEntry','cSL','cTP','aToday','aBalIn','aFloorIn','aStopIn'].forEach(id=>$(id).addEventListener('input', renderCalc));
   $('zoneLot').value = LS.get('zoneLot', 0.1);
   $('zoneLot').addEventListener('input', ()=>{ LS.set('zoneLot', $('zoneLot').value); renderZones(); });
+  document.querySelectorAll('.otab').forEach(b=>b.onclick=()=>{ S.optTab=b.dataset.src; LS.set('optTab',S.optTab); renderOpt(); });
+  [['tgGld','gld'],['tgShfe','shfe']].forEach(([id,k])=>{ $(id).checked = S.optOn[k]; $(id).onchange = ()=>{ S.optOn[k] = $(id).checked; LS.set('opt_'+k, S.optOn[k]); drawOptLines(); }; });
   $('cUseLive').onclick = ()=>{ if (S.price){ $('cEntry').value = S.price.toFixed(2); renderCalc(); } };
   const io = new IntersectionObserver((ents)=>ents.forEach(e=>{ if(e.isIntersecting){ WIDGETS[e.target.dataset.widget](e.target); io.unobserve(e.target);} }), {rootMargin:'300px'});
   document.querySelectorAll('.lazy-widget[data-widget=overview]').forEach(el=>io.observe(el));
@@ -524,7 +586,7 @@ async function main(){
   $('buildInfo').textContent = `zones ${S.zones?.date||'—'}`;
   wire(); tickClock(); setInterval(tickClock, 1000);
   WIDGETS.calendar(document.querySelector('[data-widget=calendar]'));   // load first: avoids a TradingView CDN 403 seen when it loads after other TV widgets
-  initChart(); setView(S.view);
+  initChart(); setView(S.view); loadOpt();
   await pollSpot(); setInterval(pollSpot, 15000);
   await loadFeed();
   setInterval(renderFeedInfo, 2000);
@@ -532,7 +594,8 @@ async function main(){
   setInterval(resyncTail, 60000);
   loadTape(); renderZones(); renderCalc();
   // reload data files every 10 min (daily update script)
-  setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); }catch(e){} }, 600000);
+  setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); }catch(e){} loadOpt(); }, 600000);
+  setInterval(()=>{ if (S.opt) renderOpt(); }, 15000);   // refresh distance-to-price
 }
 main();
 window.__AITD = S;

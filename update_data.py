@@ -12,7 +12,10 @@ Read-only sources (never modified):
                                           FOMC 29 Oct 2026 01:00 Thai always kept)
 Optional: /workspace/hub/candles.json -> candles_seed.json (static M15 seed for the zone chart fallback)
 
-Usage:  python3 update_data.py [--no-net]
+Also runs options_levels.py (options_levels.json: GLD/Cboe + SHFE au option OI levels) unless --no-options.
+(On GitHub the workflow .github/workflows/update-options.yml runs options_levels.py on its own schedule.)
+
+Usage:  python3 update_data.py [--no-net] [--no-options]
 """
 import json, sys, datetime as dt, urllib.request
 from pathlib import Path
@@ -98,6 +101,12 @@ def do_seed():
 if __name__ == "__main__":
     a = sys.argv[1:]
     do_zones(); do_events("--no-net" in a); do_seed()
+    if "--no-net" not in a and "--no-options" not in a:
+        import options_levels
+        try:
+            options_levels.main([])
+        except Exception as e:
+            print("options_levels failed (previous file kept):", e)
     stale = SITE / "account.json"
     if stale.exists():
         stale.unlink(); print("removed account.json (balance is never published)")

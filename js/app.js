@@ -137,7 +137,7 @@ function sampleOffset(){
 }
 
 /* ---------------- live candle feeds ---------------- */
-const TF = { '1':{bn:'1m',okx:'1m',s:60}, '5':{bn:'5m',okx:'5m',s:300}, '15':{bn:'15m',okx:'15m',s:900}, '60':{bn:'1h',okx:'1H',s:3600}, '240':{bn:'4h',okx:'4H',s:14400} };
+const TF = { '1':{bn:'1m',okx:'1m',s:60}, '5':{bn:'5m',okx:'5m',s:300}, '15':{bn:'15m',okx:'15m',s:900}, '30':{bn:'30m',okx:'30m',s:1800}, '60':{bn:'1h',okx:'1H',s:3600}, '240':{bn:'4h',okx:'4H',s:14400} };
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]);
 
 /* every network call gets a hard timeout: a blocked host (OKX is blocked by Thai ISPs since 28 Jun 2025) can hang
@@ -158,7 +158,7 @@ async function okxGet(url, tries=3){
 }
 /* Bitget index candles (CORS *, no key) — backup when OKX is unreachable. history-index-candles: max 200 bars/request, ascending. */
 const BG = 'https://api.bitget.com/api/v2/mix/market/';
-const BG_TF = { '1':'1m', '5':'5m', '15':'15m', '60':'1H' };
+const BG_TF = { '1':'1m', '5':'5m', '15':'15m', '30':'30m', '60':'1H' };
 async function bgGet(path){ const j = await fetchJSON(BG+path, 4000); if (j.code!=='00000') throw new Error('bitget '+j.code+' '+j.msg); return j.data; }
 function bitgetIndex(symbol, label, adjust){
   return {
@@ -465,7 +465,7 @@ async function loadFeed(){
   }
   // fallback: spot polling only (+ static seed for M15)
   S.feed = {name:'gold-api', label:'gold-api.com (spot)'}; S.offset = 0;
-  if (['15','60','240'].includes(S.tf)){ try{ const s = await getJSON('candles_seed.json'); const c = s.candles.map(c=>({...c})); S.raw = S.tf==='15' ? c : aggregate(c, S.tf); }catch(e){} }
+  if (['15','30','60','240'].includes(S.tf)){ try{ const s = await getJSON('candles_seed.json'); const c = s.candles.map(c=>({...c})); S.raw = S.tf==='15' ? c : aggregate(c, S.tf); }catch(e){} }
   redrawAll(); if (S.spot) onSpotOnlyTick(S.spot, Date.now());
   $('lwStatus').textContent = 'โหมดสำรอง: อัปเดตจาก spot ทุก ~30 วิ';
   renderFeedInfo(); goldReady();

@@ -14,6 +14,7 @@ Static XAUUSD live-chart site (Thai, dark, mobile-first). No server, no API keys
 | Event list ("ข่าวแรงถัดไป") | `events.json` from ForexFactory weekly JSON (`update_data.py --events-only`) | Hourly 07:05–23:05 Thai weekdays (`update-news.yml`) |
 | Gold news panel "ข่าวทองล่าสุด" | `news.json` from `news.py`: public RSS headlines (Google News EN/TH, Reuters/Kitco/FXStreet via Google News, investingLive) with automatic keyword tags | Hourly 07:05–23:05 Thai weekdays (`update-news.yml`) |
 | Volume Profile (chart overlay, toggle + period) | OKX `XAU-USDT-SWAP` 5m/15m candle volume (oz), shifted to spot by the live perp − index basis, $1 bins, POC + 70 % value area | Client-side, every 60 s |
+| NAS100 card (chart + "ระดับอ้างอิง NAS100") | Chart: TradingView free widget `OANDA:NAS100USD` (lazy-loaded when scrolled near, M5–D, EMA20/50). Levels: `nas_zones.json` from `nas_zones.py` (Yahoo Finance `^NDX` cash-index daily bars) shown beside the chart, not on it (the TradingView iframe can't take custom lines) | Chart live; levels weekday 07:00 Thai with `update-zones.yml` |
 | Option OI levels (chart price lines + panel "ระดับจากออปชัน") | `options_levels.json` from `options_levels.py`: **Cboe delayed GLD options** + **SHFE au gold options** (proxies, not CME) | Daily (GitHub Actions `update-options.yml`) |
 | Balance, floor, daily stop, today's P/L | typed by the user, saved in that browser's localStorage only | Never published |
 | Clock, sessions, countdown | browser clock, `Asia/Bangkok` | Live |
@@ -32,6 +33,8 @@ URL options: `?feed=okxidx` (default), `?feed=okx`, `?feed=binance`, `?feed=none
 - `events.json` — `{events:[{title, title_en, country, impact, time:"ISO+07:00", forecast, previous}]}` (high-impact USD).
 - `candles_seed.json` — optional static M15 seed used only by the spot-only fallback (M15, aggregated for H1/H4).
 
+- `nas_zones.json` — `{date, auto, symbol:"^NDX", chart_symbol, source, last_close:{date,close}, prev_day:{date,open,high,low,close}, week:{start,days,high,low}|null, prev_week:{start,high,low,close}, pivot, levels:[{price, type:"resistance"|"support"|"pivot", label, note}], generated_at}`.
+  Built by `nas_zones.py` from completed US cash sessions only: previous day high/low/close, classic pivot, this/previous week high/low, 3 round-100 levels above and below the last close; levels within 20 points merged. Cash index ≠ broker CFD (can differ by tens of points). Keeps the old file on failure. Gold zone banner/checklist ignore it.
 - `options_levels.json` — `{gld:{...}, shfe:{...}, generated_at}`; each block: `source, source_url, data_date, conversion{...}, expiries:[{expiry|series, kind, underlying, call_oi_total, put_oi_total, pc_oi_ratio, max_pain{strike,level_spot}, call_walls:[{strike, level_spot, oi, oi_chg}], put_walls:[...], top_any}], fetched_at, stale`.
   Walls = top-5 OI strikes within ±10 % of the underlying. `level_spot` = strike × ratio (GLD: spot/GLD at the GLD quote time; SHFE: spot at 15:00 Beijing / au futures close, which bakes in USDCNY and the SHFE premium; both inputs are written in `conversion`). A failed source keeps its last good block with `stale: true`.
 - `options_oi_state.json` — previous Cboe per-strike OI snapshot, used for GLD OI change (SHFE gives the change itself).
@@ -52,6 +55,7 @@ python3 update_data.py --no-net   # skip live ForexFactory fetch, use /workspace
 python3 update_data.py --events-only  # events.json only (keeps the old file if ForexFactory fails)
 python3 zones_auto.py [--force] [--dry]   # automatic zones.json from OKX index candles
 python3 news.py [--dry]           # news.json from public RSS
+python3 nas_zones.py [--dry]      # nas_zones.json (NAS100 reference levels) from Yahoo ^NDX daily bars
 ```
 If `/workspace/gold_zones.json` is missing, `update_data.py` falls back to `zones_auto.py`.
 No account data (balance, P/L, journal) is ever read or written by this script.

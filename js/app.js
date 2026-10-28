@@ -687,8 +687,74 @@ function loadTVChart(){
       overrides:{'paneProperties.background':'#0d1016','paneProperties.backgroundType':'solid'},
     });
   };
-  if (window.TradingView && window.TradingView.widget) return go();
-  if (!tvjs){ tvjs = document.createElement('script'); tvjs.src = 'https://s3.tradingview.com/tv.js'; tvjs.onload = go; document.head.append(tvjs); }
+  withTV(go);
+}
+/* load tv.js once; queue every caller (gold TradingView tab + NAS100 card) until it is ready */
+const tvQueue = [];
+function withTV(fn){
+  if (window.TradingView && window.TradingView.widget) return fn();
+  tvQueue.push(fn);
+  if (!tvjs){ tvjs = document.createElement('script'); tvjs.src = 'https://s3.tradingview.com/tv.js';
+    tvjs.onload = () => { while (tvQueue.length) { try{ tvQueue.shift()(); }catch(e){ console.warn('tv widget', e); } } };
+    document.head.append(tvjs); }
+}
+
+/* ---------------- NAS100 card: TradingView OANDA:NAS100USD + reference levels (nas_zones.json) ---------------- */
+const NAS_TFS = ['5','15','60','240','D'];
+S.nasTf = NAS_TFS.includes(qs.get('nastf')) ? qs.get('nastf') : (NAS_TFS.includes(LS.get('nas_tf','15')) ? LS.get('nas_tf','15') : '15');
+S.nasZones = null; S.nasShown = false;
+function loadNasChart(){
+  const el = $('nasChart'); if (!el) return;
+  S.nasShown = true;
+  withTV(()=>{
+    el.innerHTML = '<div id="nasInner" style="height:100%"></div>';
+    new window.TradingView.widget({
+      container_id:'nasInner', autosize:true, symbol:'OANDA:NAS100USD', interval:S.nasTf, timezone:'Asia/Bangkok', theme:'dark', style:'1', locale:'th_TH',
+      toolbar_bg:'#0d1016', enable_publishing:false, allow_symbol_change:false, hide_volume:true, withdateranges:false, save_image:false,
+      studies:[{id:'MAExp@tv-basicstudies', inputs:{length:20}}, {id:'MAExp@tv-basicstudies', inputs:{length:50}}],
+      overrides:{'paneProperties.background':'#0d1016','paneProperties.backgroundType':'solid'},
+    });
+  });
+}
+function setNasTF(tf){
+  S.nasTf = tf; LS.set('nas_tf', tf);
+  document.querySelectorAll('#nasTfs button').forEach(b=>b.classList.toggle('active', b.dataset.tf===tf));
+  if (S.nasShown) loadNasChart();
+}
+function renderNasZones(){
+  const box = $('nasZones'); if (!box) return;
+  const N = S.nasZones;
+  if (!N || !Array.isArray(N.levels) || !N.levels.length){ box.innerHTML = '<div class="sub">ยังไม่มีข้อมูล nas_zones.json</div>'; $('nasMeta').textContent = ''; return; }
+  const TAG = {resistance:'แนวต้าน', support:'แนวรับ', pivot:'Pivot'};
+  const c = N.last_close && N.last_close.close;
+  const lv = [...N.levels].sort((a,b)=>b.price-a.price);
+  let html = '', placed = false;
+  for (const z of lv){
+    if (c!=null && !placed && z.price < c){ html += `<div class="now-row">ปิดล่าสุด ${fmt(c)}</div>`; placed = true; }
+    html += `<div class="zone ${esc(z.type)}"><span class="tag">${TAG[z.type]||esc(z.type)}</span><span class="rng">${fmt(z.price)}</span><span class="note">${esc(z.label||'')}${c!=null?` · ห่างจากปิด ${sgn(z.price-c)}`:''}</span></div>`;
+  }
+  if (c!=null && !placed) html += `<div class="now-row">ปิดล่าสุด ${fmt(c)}</div>`;
+  box.innerHTML = html;
+  const thDate = (d) => { const x = new Date(d+'T12:00:00Z'); return isNaN(x) ? d : x.toLocaleDateString('th-TH',{timeZone:'UTC', weekday:'short', day:'numeric', month:'short'}); };
+  $('nasDate').textContent = N.last_close ? `· ปิด ${thDate(N.last_close.date)}` : '';
+  const ageH = (Date.now() - Date.parse(N.generated_at)) / 3600e3;
+  const pd = N.prev_day, pw = N.prev_week, wk = N.week;
+  let m = `ข้อมูล ^NDX ปิดวันที่ ${esc(N.last_close?.date||N.date)} (เวลานิวยอร์ก)`;
+  if (pd) m += ` · เมื่อวาน H ${fmt(pd.high)} / L ${fmt(pd.low)} / C ${fmt(pd.close)}`;
+  if (wk) m += ` · สัปดาห์นี้ H ${fmt(wk.high)} / L ${fmt(wk.low)}`;
+  if (pw) m += ` · สัปดาห์ก่อน H ${fmt(pw.high)} / L ${fmt(pw.low)}`;
+  m += ` · อัปเดต ${thDT(N.generated_at)}`;
+  if (isFinite(ageH) && ageH > 96) m += ' · ⚠️ ข้อมูลเก่าเกิน 4 วัน';
+  $('nasMeta').textContent = m;
+}
+async function loadNasZones(){ try{ S.nasZones = await getJSON('nas_zones.json'); }catch(e){ S.nasZones = null; } renderNasZones(); }
+function wireNas(){
+  const card = $('nasCard'); if (!card) return;
+  document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===S.nasTf); b.onclick = ()=>setNasTF(b.dataset.tf); });
+  // lazy: build the TradingView widget only when the card comes near the viewport
+  const io = new IntersectionObserver((ents)=>ents.forEach(e=>{ if (e.isIntersecting){ io.disconnect(); loadNasChart(); } }), {rootMargin:'400px'});
+  io.observe(card);
+  loadNasZones();
 }
 const WIDGETS = {
   overview: (el)=>tvEmbed(el,'embed-widget-market-quotes.js',{colorTheme:'dark', isTransparent:true, width:'100%', height:el.clientHeight||470, locale:'th_TH', showSymbolLogo:true,
@@ -865,6 +931,7 @@ async function main(){
   renderGuard(); setInterval(renderChecklist, 30000);   // checklist expiry
   WIDGETS.calendar(document.querySelector('[data-widget=calendar]'));   // load first: avoids a TradingView CDN 403 seen when it loads after other TV widgets
   initChart(); setView(S.view); loadOpt(); loadNews(); loadVP(true);
+  wireNas();
   setInterval(()=>loadVP(false), 60000);                                    // volume profile: newest candles + basis every minute
   setInterval(()=>{ if (S.vpOn) loadVP(true); }, 15*60000);                 // full rebuild (drops candles older than the period start)
   setInterval(renderNews, 60000);                                           // relative times
@@ -875,7 +942,7 @@ async function main(){
   setInterval(resyncTail, 60000);
   loadTape(); renderZones(); renderCalc();
   // reload data files every 10 min (daily update script)
-  setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); renderGuard(); }catch(e){} loadOpt(); loadNews(); }, 600000);
+  setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); renderGuard(); }catch(e){} loadOpt(); loadNews(); loadNasZones(); }, 600000);
   setInterval(()=>{ if (S.opt) renderOpt(); }, 15000);   // refresh distance-to-price
 }
 main();

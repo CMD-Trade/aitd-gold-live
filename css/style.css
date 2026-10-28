@@ -211,3 +211,20 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 .ck-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
 .ck-foot .sub{margin-top:0}
 .ck-reset{background:#262c3a;color:var(--gold2);border:1px solid #3a3320;border-radius:9px;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer}
+
+/* ---------- NAS100 card ---------- */
+.nas-h{margin-bottom:0;align-self:center;padding-left:4px}
+.nas-grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:860px){.nas-grid{grid-template-columns:1fr 290px}}
+.nas-wrap{height:52vh;min-height:340px;max-height:560px}
+.nas-wait{position:absolute;inset:0;display:grid;place-items:center;margin:0}
+.nas-side{display:flex;flex-direction:column;gap:6px;min-width:0}
+.nas-side-h{font-weight:600;color:var(--gold2);font-size:13.5px}
+.nas-side-h small{color:var(--mut);font-weight:400}
+.nas-zones{gap:5px}
+@media(min-width:860px){.nas-zones{max-height:540px;overflow:auto}}
+.nas-zones .zone{padding:7px 10px;grid-template-columns:auto 1fr}
+.nas-zones .zone .rng{font-size:14px;text-align:right}
+.nas-zones .zone .note{font-size:11.5px}
+.nas-note{font-size:11.5px;border-top:1px dashed var(--line);padding-top:8px}
+@media(max-width:520px){.nas-wrap{height:56vh}}

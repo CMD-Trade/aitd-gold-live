@@ -23,12 +23,15 @@ jobs:
           python-version: "3.12"
       - name: Build zones.json from OKX XAU-USD index candles (stdlib only; keeps last good file on failure)
         run: python3 zones_auto.py
+      - name: Build nas_zones.json from Yahoo Finance ^NDX daily bars (stdlib only; keeps last good file on failure)
+        run: python3 nas_zones.py || echo "nas_zones failed, keeping old file"
       - name: Commit if changed
         run: |
-          if git diff --quiet -- zones.json; then echo "no change"; exit 0; fi
+          git add -N nas_zones.json 2>/dev/null || true
+          if git diff --quiet -- zones.json nas_zones.json; then echo "no change"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
-          git add zones.json
+          git add zones.json nas_zones.json
           git commit -m "auto zones: $(date -u +%Y-%m-%dT%H:%MZ)"
           for i in 1 2 3; do git pull --rebase --autostash && git push && exit 0; sleep 5; done
           exit 1

@@ -143,6 +143,25 @@
     <div class="sub">หมวดและป้าย <b>ทองบวก / ทองลบ / กลาง</b> ติดให้อัตโนมัติจากคำในหัวข้อข่าว (keyword) — ไม่ใช่บทวิเคราะห์และไม่ใช่สัญญาณซื้อขาย · แสดงเฉพาะหัวข้อและลิงก์ไปยังต้นฉบับ</div>
   </section>
 
+  <!-- NAS100 (TradingView OANDA:NAS100USD + reference levels from nas_zones.json) -->
+  <section class="card chart-card nas-card" id="nasCard">
+    <div class="chart-head">
+      <div class="card-h nas-h">NAS100 <small>Nasdaq 100 · OANDA:NAS100USD</small></div>
+      <div class="tfs" id="nasTfs">
+        <button data-tf="5">M5</button><button data-tf="15" class="active">M15</button><button data-tf="60">H1</button><button data-tf="240">H4</button><button data-tf="D">D</button>
+      </div>
+    </div>
+    <div class="nas-grid">
+      <div class="chart-wrap nas-wrap"><div id="nasChart" class="tvc"><div class="sub nas-wait">กราฟ NAS100 จะโหลดเมื่อเลื่อนมาถึง…</div></div></div>
+      <div class="nas-side">
+        <div class="nas-side-h">ระดับอ้างอิง NAS100 <small id="nasDate"></small></div>
+        <div class="zones nas-zones" id="nasZones"><div class="sub">กำลังโหลด nas_zones.json…</div></div>
+      </div>
+    </div>
+    <div class="sub" id="nasMeta"></div>
+    <div class="sub nas-note">กราฟ: วิดเจ็ตฟรี TradingView <b>OANDA:NAS100USD</b> (CFD เรียลไทม์, เวลาไทย, EMA20/50) · ระดับอ้างอิงคำนวณจาก <b>ดัชนี Nasdaq 100 เงินสด (^NDX)</b> แท่งรายวันที่ปิดแล้ว (Yahoo Finance): High/Low/Close เมื่อวาน, Pivot, High/Low สัปดาห์นี้/สัปดาห์ก่อน, เลขกลม 100 จุด · ราคา CFD ของโบรกอาจต่างจากดัชนีเงินสดหลายสิบจุด · แถบเตือนโซนด้านบนใช้กับทองเท่านั้น · <b>ไม่ใช่สัญญาณซื้อขาย</b></div>
+  </section>
+
   <!-- CALCULATOR + ACCOUNT -->
   <section class="grid2">
     <div class="card calc">
@@ -191,7 +210,7 @@
 <footer>
   <p><b>แหล่งข้อมูล</b> · กราฟ TradingView: OANDA:XAUUSD (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) ·
   กราฟ + โซน: แท่งเทียนเรียลไทม์จาก OKX XAU/USD spot index (ราคา spot ดอลลาร์ ไม่ต้องปรับฐาน, ตัดช่วงตลาดปิดออก, H4 เริ่ม 17:00 นิวยอร์กแบบโบรก) ตรวจเทียบกับ <a href="https://gold-api.com" target="_blank" rel="noopener">gold-api.com</a> · สำรอง: Binance/OKX perp ปรับฐาน ·
-  ข่าว: ForexFactory · ระดับออปชัน: <a href="https://www.cboe.com/delayed_quotes/gld/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (GLD)</a> และ <a href="https://www.shfe.com.cn/" target="_blank" rel="noopener">SHFE</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) · โซน: อัตโนมัติจากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> XAU-USD ทุกเช้าวันทำการ (หรือโซนของ AiTD เมื่อมี) · Volume Profile: OKX XAU-USDT perp (ประมาณการ) · หัวข้อข่าว: Google News RSS, investingLive, Kitco/FXStreet/Reuters (ผ่าน Google News) — ลิงก์ไปยังต้นฉบับ · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
+  ข่าว: ForexFactory · NAS100: กราฟ TradingView OANDA:NAS100USD, ระดับอ้างอิงจากแท่งรายวันดัชนี ^NDX (Yahoo Finance) · ระดับออปชัน: <a href="https://www.cboe.com/delayed_quotes/gld/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (GLD)</a> และ <a href="https://www.shfe.com.cn/" target="_blank" rel="noopener">SHFE</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) · โซน: อัตโนมัติจากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> XAU-USD ทุกเช้าวันทำการ (หรือโซนของ AiTD เมื่อมี) · Volume Profile: OKX XAU-USDT perp (ประมาณการ) · หัวข้อข่าว: Google News RSS, investingLive, Kitco/FXStreet/Reuters (ผ่าน Google News) — ลิงก์ไปยังต้นฉบับ · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
   <p>ราคาบนเว็บอาจต่างจากราคาโบรกเกอร์ของคุณเล็กน้อย · ข้อมูลเพื่อประกอบการตัดสินใจเท่านั้น ไม่ใช่คำแนะนำการลงทุน</p>
   <p class="muted">AiTD Gold Live · <span id="buildInfo"></span></p>
 </footer>

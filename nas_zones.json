@@ -1,0 +1,100 @@
+{
+ "date": "2026-10-27",
+ "auto": true,
+ "symbol": "^NDX",
+ "chart_symbol": "OANDA:NAS100USD",
+ "source": "อัตโนมัติ: Yahoo Finance ^NDX (ดัชนี Nasdaq 100 เงินสด) แท่งรายวันที่ปิดแล้ว — High/Low/Close เมื่อวาน, Pivot, High/Low สัปดาห์นี้และสัปดาห์ก่อน, เลขกลม 100 จุด",
+ "last_close": {
+  "date": "2026-10-27",
+  "close": 29651.44
+ },
+ "prev_day": {
+  "date": "2026-10-27",
+  "open": 29407.19,
+  "high": 29719.63,
+  "low": 29340.54,
+  "close": 29651.44
+ },
+ "week": {
+  "start": "2026-10-26",
+  "days": 2,
+  "high": 29719.63,
+  "low": 29011.91
+ },
+ "prev_week": {
+  "start": "2026-10-19",
+  "high": 29928.31,
+  "low": 28825.72,
+  "close": 28957.53
+ },
+ "pivot": 29570.54,
+ "levels": [
+  {
+   "price": 29928.31,
+   "type": "resistance",
+   "label": "High สัปดาห์ก่อน",
+   "note": "High สัปดาห์ก่อน 29,928.31 (สัปดาห์เริ่ม 19/10)"
+  },
+  {
+   "price": 29900.0,
+   "type": "resistance",
+   "label": "เลขกลม",
+   "note": "เลขกลม 29,900.00"
+  },
+  {
+   "price": 29800.0,
+   "type": "resistance",
+   "label": "เลขกลม",
+   "note": "เลขกลม 29,800.00"
+  },
+  {
+   "price": 29719.63,
+   "type": "resistance",
+   "label": "High เมื่อวาน · High สัปดาห์นี้ · เลขกลม",
+   "note": "High เมื่อวาน 29,719.63 (High วันที่ 27/10) · High สัปดาห์นี้ 29,719.63 · เลขกลม 29,700.00"
+  },
+  {
+   "price": 29600.0,
+   "type": "support",
+   "label": "เลขกลม",
+   "note": "เลขกลม 29,600.00"
+  },
+  {
+   "price": 29570.54,
+   "type": "pivot",
+   "label": "Pivot รายวัน",
+   "note": "Pivot รายวัน 29,570.54 ((H+L+C)/3 ของวันก่อน)"
+  },
+  {
+   "price": 29500.0,
+   "type": "support",
+   "label": "เลขกลม",
+   "note": "เลขกลม 29,500.00"
+  },
+  {
+   "price": 29400.0,
+   "type": "support",
+   "label": "เลขกลม",
+   "note": "เลขกลม 29,400.00"
+  },
+  {
+   "price": 29340.54,
+   "type": "support",
+   "label": "Low เมื่อวาน",
+   "note": "Low เมื่อวาน 29,340.54 (Low วันที่ 27/10)"
+  },
+  {
+   "price": 29011.91,
+   "type": "support",
+   "label": "Low สัปดาห์นี้",
+   "note": "Low สัปดาห์นี้ 29,011.91 (2 วันที่ปิดแล้ว)"
+  },
+  {
+   "price": 28825.72,
+   "type": "support",
+   "label": "Low สัปดาห์ก่อน",
+   "note": "Low สัปดาห์ก่อน 28,825.72 (สัปดาห์เริ่ม 19/10)"
+  }
+ ],
+ "generated_at": "2026-10-28T19:39:08+07:00"
+}

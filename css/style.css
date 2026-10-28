@@ -145,6 +145,7 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 .vp-sel{width:auto;background:#0f1218;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:3px 6px;font:inherit;font-size:12px}
 .vpinfo{font-family:var(--mono);font-size:11.5px;color:var(--txt)}
 .vpinfo b{color:var(--gold2)}
+.vpinfo.vp-fail{color:#ffaa5a}
 .vp-note{font-size:11.5px}
 
 /* gold news */

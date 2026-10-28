@@ -455,7 +455,7 @@ async function loadFeed(){
       S.ticks.push([Date.now(), hist[hist.length-1].close]);
       S.offset = 0;
       if (f.adjust && S.spot && S.offsetMode==='auto'){ S.offset = hist[hist.length-1].close - S.spot; S.offsetSamples=[S.offset]; }
-      redrawAll(); chart.timeScale().scrollToRealTime();
+      redrawAll(); chart.timeScale().scrollToRealTime(); GVP.realign();   // VP shift follows the chart source
       stopStream = f.stream(S.tf, f.adjust && !f.ticks ? onBar : onIndexTick);
       S.lastTickAt = Date.now();
       setTimeout(()=>loadDay(f), 1500);                     // after first paint, not in the startup burst
@@ -466,7 +466,7 @@ async function loadFeed(){
   // fallback: spot polling only (+ static seed for M15)
   S.feed = {name:'gold-api', label:'gold-api.com (spot)'}; S.offset = 0;
   if (['15','30','60','240'].includes(S.tf)){ try{ const s = await getJSON('candles_seed.json'); const c = s.candles.map(c=>({...c})); S.raw = S.tf==='15' ? c : aggregate(c, S.tf); }catch(e){} }
-  redrawAll(); if (S.spot) onSpotOnlyTick(S.spot, Date.now());
+  redrawAll(); GVP.realign(); if (S.spot) onSpotOnlyTick(S.spot, Date.now());
   $('lwStatus').textContent = 'โหมดสำรอง: อัปเดตจาก spot ทุก ~30 วิ';
   renderFeedInfo(); goldReady();
 }
@@ -763,11 +763,15 @@ function loadTape(){
     showSymbolLogo:true, isTransparent:true, colorTheme:'dark', locale:'th_TH'});
 }
 
-/* ---------------- Volume Profile (OKX XAU-USDT-SWAP volume, shifted to spot by the live perp-index basis) ---------------- */
+/* ---------------- Volume Profile engine (gold + NAS100) ----------------
+   Volume comes from crypto-exchange perpetuals (the only free, CORS-open, no-key candle volume):
+   gold: OKX XAU-USDT-SWAP → Bitget XAUUSDT → Binance XAUUSDT;  NAS100: OKX US100-USDT-SWAP → Bitget NDX100USDT.
+   All sources are requested at once (4 s fetch timeout each, raceFeeds); the first one in priority order that answers wins —
+   in Thailand okx.com is blocked, so Bitget/Binance take over instead of the profile staying blank.
+   The perp trades at a different price than the chart (basis, and for NAS the Skilling offset), so the profile is shifted onto
+   the chart: shift = median(perp close − chart close) over bars that close at the same time. That also carries the NAS
+   Skilling offset / "ปรับให้ตรง MT5" value automatically because the NAS chart candles are already shifted. */
 const VP_PERIODS = { today:{bar:'5m', s:300, label:'วันนี้'}, asia:{bar:'5m', s:300, label:'ตั้งแต่เปิดเอเชีย'}, h24:{bar:'5m', s:300, label:'24 ชม.'}, week:{bar:'15m', s:900, label:'สัปดาห์นี้'} };
-S.vpOn = qs.get('vp') ? qs.get('vp')!=='0' : LS.get('vp_on', true);
-S.vpPeriod = VP_PERIODS[qs.get('vpp')] ? qs.get('vpp') : LS.get('vp_period', 'today');
-S.vp = null; S.vpBars = new Map();
 function vpStart(p, now=Date.now()){
   if (p==='h24') return now - 86400000;
   if (p==='asia'){ const d = new Date(now + 7*3600e3); let t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0) ; if (t > now) t -= 86400000; return t; }   // 07:00 Thai = 00:00 UTC
@@ -775,81 +779,153 @@ function vpStart(p, now=Date.now()){
   if (p==='week'){ for (let i=0;i<7 && tzParts('America/New_York', new Date(t+3600e3)).wd!=='Sun'; i++) t -= 86400000; }
   return t;
 }
-async function vpFetch(full){
-  const P = VP_PERIODS[S.vpPeriod], start = vpStart(S.vpPeriod);
-  if (full) S.vpBars = new Map();
-  const put = (rows)=>rows.forEach(k=>{ const t=+k[0]; if (t>=start) S.vpBars.set(t, {t, h:+k[2], l:+k[3], v:+k[6]}); });   // k[6] = volCcy (XAU oz)
-  let rows = await okxGet(`${OKX}candles?instId=XAU-USDT-SWAP&bar=${P.bar}&limit=${full?300:3}`); put(rows);
-  if (full){
-    let after = rows.length ? rows[rows.length-1][0] : null;
-    for (let i=0; i<12 && after && +after > start; i++){
-      rows = await okxGet(`${OKX}history-candles?instId=XAU-USDT-SWAP&bar=${P.bar}&limit=100&after=${after}`);
-      if (!rows.length) break; put(rows); after = rows[rows.length-1][0];
+const vpRow = (t,h,l,c,v) => ({t:+t, h:+h, l:+l, c:+c, v:+v});
+const VP_SRC = {
+  okx: (instId) => async (bar, start, full) => {             // k[6] = volCcy (oz for XAU, index units for US100)
+    const out = []; const put = (rows)=>rows.forEach(k=>out.push(vpRow(k[0],k[2],k[3],k[4],k[6])));
+    let rows = await okxGet(`${OKX}candles?instId=${instId}&bar=${bar}&limit=${full?300:3}`, 1); put(rows);
+    if (full){
+      let after = rows.length ? rows[rows.length-1][0] : null;
+      for (let i=0; i<12 && after && +after > start; i++){
+        rows = await okxGet(`${OKX}history-candles?instId=${instId}&bar=${bar}&limit=100&after=${after}`, 1);
+        if (!rows.length) break; put(rows); after = rows[rows.length-1][0];
+      }
     }
-  }
-  for (const t of S.vpBars.keys()) if (t < start) S.vpBars.delete(t);
-}
-async function vpBasis(){
-  const [p, i] = await Promise.all([okxGet(`${OKX}ticker?instId=XAU-USDT-SWAP`), okxGet(`${OKX}index-tickers?instId=XAU-USD`)]);
-  const b = (+p[0].last) - (+i[0].idxPx);
-  if (isFinite(b) && Math.abs(b) < 60) S.vpBasis = b;
-}
-function vpCompute(){
-  const basis = S.vpBasis ?? 0, bins = new Map(); let total = 0;
-  for (const c of S.vpBars.values()){
-    if (!(c.v > 0)) continue;
-    const lo = Math.floor(c.l - basis), hi = Math.floor(c.h - basis), n = hi - lo + 1, per = c.v / n;
-    for (let b = lo; b <= hi; b++) bins.set(b, (bins.get(b)||0) + per);
-    total += c.v;
-  }
-  if (!bins.size) { S.vp = null; return; }
-  const keys = [...bins.keys()].sort((a,b)=>a-b), lo = keys[0], hi = keys[keys.length-1];
-  const arr = []; for (let b=lo; b<=hi; b++) arr.push(bins.get(b)||0);
-  let pi = 0; arr.forEach((v,i)=>{ if (v > arr[pi]) pi = i; });
-  let a = pi, z = pi, acc = arr[pi];
-  while (acc < total*0.7 && (a>0 || z<arr.length-1)){
-    const up = z<arr.length-1 ? arr[z+1] : -1, dn = a>0 ? arr[a-1] : -1;
-    if (up >= dn){ z++; acc += up; } else { a--; acc += dn; }
-  }
-  S.vp = { lo, arr, max: arr[pi], poc: lo+pi+0.5, vah: lo+z+1, val: lo+a, total, bars: S.vpBars.size, basis, at: Date.now() };
-}
-async function loadVP(full){
-  if (!S.vpOn) { renderVPInfo(); return; }
-  try{
-    await vpBasis().catch(()=>{});
-    await vpFetch(full || !S.vpBars.size);
-    vpCompute();
-  }catch(e){ S.vpErr = String(e); }
-  renderVPInfo(); drawZones(); renderGuard();
-}
-function renderVPInfo(){
-  const el = $('vpInfo'); if (!el) return;
-  if (!S.vpOn){ el.textContent = 'ปิดอยู่'; return; }
-  const v = S.vp;
-  if (!v){ el.textContent = S.vpErr ? 'โหลด Volume Profile ไม่ได้' : 'กำลังโหลด…'; return; }
-  const t = new Date(v.at).toLocaleTimeString('th-TH',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit'});
-  el.innerHTML = `POC <b>${fmt(v.poc,1)}</b> · VAH <b>${fmt(v.vah,0)}</b> · VAL <b>${fmt(v.val,0)}</b> · basis ${sgn(v.basis,2)} · ${v.bars} แท่ง ${VP_PERIODS[S.vpPeriod].bar} · ${fmt(v.total,0)} oz · ${t}`;
-}
-function drawVP(ctx, paneW, paneH){
-  const v = S.vp; if (!S.vpOn || !v || S.view!=='zone') return;
-  const maxW = Math.min(180, paneW*0.18), x1 = paneW - 2;
-  const inVA = (p)=>p >= v.val && p < v.vah;
-  for (let i=0;i<v.arr.length;i++){
-    if (!v.arr[i]) continue;
-    const p = v.lo + i, ya = cs.priceToCoordinate(p+1), yb = cs.priceToCoordinate(p);
-    if (ya==null || yb==null || yb < 0 || ya > paneH) continue;
-    const w = maxW * v.arr[i] / v.max, h = Math.max(1, yb - ya - 0.5);
-    ctx.fillStyle = (p+0.5===v.poc) ? 'rgba(255,152,0,0.85)' : inVA(p) ? 'rgba(100,140,255,0.36)' : 'rgba(139,147,165,0.22)';
-    ctx.fillRect(x1 - w, ya, w, h);
-  }
-  const line = (p, col, dash, lbl)=>{
-    const y = cs.priceToCoordinate(p); if (y==null || y<0 || y>paneH) return;
-    ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(0, Math.round(y)+.5); ctx.lineTo(paneW, Math.round(y)+.5); ctx.stroke(); ctx.setLineDash([]);
-    ctx.font = '600 10px "IBM Plex Sans Thai", sans-serif'; ctx.fillStyle = col;
-    const s = `${lbl} ${fmt(p,lbl==='POC'?1:0)}`; ctx.fillText(s, x1 - maxW - ctx.measureText(s).width - 6, y - 3);
+    return out;
+  },
+  bitget: (symbol) => async (bar, start, full) => {           // k[5] = base volume (oz / index units)
+    const j = await fetchJSON(`https://api.bitget.com/api/v2/mix/market/candles?symbol=${symbol}&productType=USDT-FUTURES&granularity=${bar}&limit=${full?1000:3}${full?`&startTime=${start}`:''}`);
+    if (j.code!=='00000' || !Array.isArray(j.data)) throw new Error('bitget '+j.code);
+    return j.data.map(k=>vpRow(k[0],k[2],k[3],k[4],k[5]));
+  },
+  binance: (symbol) => async (bar, start, full) => {          // k[5] = base volume (oz)
+    const j = await fetchJSON(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${bar}&limit=${full?1500:3}${full?`&startTime=${start}`:''}`);
+    if (!Array.isArray(j)) throw new Error('binance '+(j && j.code));
+    return j.map(k=>vpRow(k[0],k[2],k[3],k[4],k[5]));
+  },
+};
+/* o: { key (LS prefix), qsOn, qsPeriod, ids:{tg, period, info}, sources:[{name,label,fetch}], bin, unit, volDigits,
+        tf:()=>chart tf, chartBars:()=>[{time(sec UTC), close(as drawn)}], series:()=>candle series, onChange:()=>void } */
+function createVP(o){
+  const V = { on: qs.get(o.qsOn) ? qs.get(o.qsOn)!=='0' : LS.get(o.key+'_on', true),
+    period: VP_PERIODS[qs.get(o.qsPeriod)] ? qs.get(o.qsPeriod) : LS.get(o.key+'_period', 'today'),
+    bars: new Map(), src: null, data: null, err: null, busy: false };
+  if (!VP_PERIODS[V.period]) V.period = 'today';
+  const srcOf = (n) => o.sources.find(s=>s.name===n);
+  const fetchFrom = async (n, full) => {
+    const start = vpStart(V.period), rows = await withTimeout(srcOf(n).fetch(VP_PERIODS[V.period].bar, start, full), full ? 9000 : 5000);
+    return rows.filter(r=>r.t>=start && isFinite(r.h) && isFinite(r.l) && !spotClosed(r.t));
   };
-  line(v.vah, 'rgba(130,160,255,0.9)', [6,3], 'VAH'); line(v.val, 'rgba(130,160,255,0.9)', [6,3], 'VAL'); line(v.poc, 'rgba(255,152,0,0.95)', [], 'POC');
+  V.shift = () => {                                            // perp → chart price
+    const cb = o.chartBars(); if (!cb.length || !V.bars.size) return null;
+    const tf = o.tf(), vs = VP_PERIODS[V.period].s, m = new Map(cb.map(b=>[b.time, b.close])), d = [];
+    const bars = [...V.bars.values()].sort((a,b)=>a.t-b.t);
+    for (const b of bars){
+      if (!(b.v > 0)) continue;
+      const t0 = b.t/1000, end = t0 + vs, k = bucketStart(end - 1, tf);
+      if (bucketStart(end, tf) === k) continue;               // perp bar must close together with the chart bar
+      const c = m.get(k); if (c!=null) d.push(b.c - c);
+    }
+    const use = d.slice(-60).sort((a,b)=>a-b);
+    if (use.length) return use[use.length>>1];
+    return bars[bars.length-1].c - cb[cb.length-1].close;
+  };
+  V.compute = () => {
+    const sh = V.shift(); if (sh==null){ V.data = null; return; }
+    const bs = o.bin, bins = new Map(); let total = 0;
+    for (const c of V.bars.values()){
+      if (!(c.v > 0)) continue;
+      const lo = Math.floor((c.l - sh)/bs), hi = Math.floor((c.h - sh)/bs), n = hi - lo + 1, per = c.v / n;
+      for (let b = lo; b <= hi; b++) bins.set(b, (bins.get(b)||0) + per);
+      total += c.v;
+    }
+    if (!bins.size){ V.data = null; return; }
+    const keys = [...bins.keys()].sort((a,b)=>a-b), lo = keys[0], hi = keys[keys.length-1];
+    const arr = []; for (let b=lo; b<=hi; b++) arr.push(bins.get(b)||0);
+    let pi = 0; arr.forEach((v,i)=>{ if (v > arr[pi]) pi = i; });
+    let a = pi, z = pi, acc = arr[pi];
+    while (acc < total*0.7 && (a>0 || z<arr.length-1)){
+      const up = z<arr.length-1 ? arr[z+1] : -1, dn = a>0 ? arr[a-1] : -1;
+      if (up >= dn){ z++; acc += up; } else { a--; acc += dn; }
+    }
+    V.data = { lo, bs, arr, max: arr[pi], poc: (lo+pi+0.5)*bs, vah: (lo+z+1)*bs, val: (lo+a)*bs, total, bars: V.bars.size, shift: sh, src: srcOf(V.src), at: Date.now() };
+  };
+  V.realign = () => { if (V.bars.size){ V.compute(); V.render(); o.onChange(); } };
+  V.load = async (full) => {
+    if (!V.on){ V.render(); o.onChange(); return; }
+    if (V.busy) return; V.busy = true;
+    try{
+      let ok = false;
+      if (!full && V.src && V.bars.size){                     // minute refresh: newest bars from the source already in use
+        try{ (await fetchFrom(V.src, false)).forEach(b=>V.bars.set(b.t, b)); ok = true; }catch(e){}
+      }
+      if (!ok){                                               // all sources at once, first in priority order wins
+        const won = await raceFeeds(o.sources.map(s=>s.name), (n)=>fetchFrom(n, true), 800);
+        if (won){ V.src = won.name; V.bars = new Map(won.hist.map(b=>[b.t, b])); V.err = null; }
+        else { V.err = 'all'; V.src = null; V.bars = new Map(); }
+      }
+      const start = vpStart(V.period); for (const t of V.bars.keys()) if (t < start) V.bars.delete(t);
+      V.compute();
+    }catch(e){ V.err = String(e); }
+    finally{ V.busy = false; }
+    V.render(); o.onChange();
+  };
+  V.render = () => {
+    const el = $(o.ids.info); if (!el) return;
+    if (!V.on){ el.textContent = 'ปิดอยู่'; el.classList.remove('vp-fail'); return; }
+    const v = V.data;
+    el.classList.toggle('vp-fail', !v && !!V.err);
+    if (!v){ el.textContent = V.err ? `Volume Profile โหลดไม่ได้ (${o.sources.map(s=>s.short).join(' / ')} ไม่ตอบ) · ลองใหม่ทุก 1 นาที` : 'กำลังโหลด Volume Profile…'; return; }
+    const t = new Date(v.at).toLocaleTimeString('th-TH',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit'}), dg = o.bin < 1.5 ? 1 : 0;
+    el.innerHTML = `POC <b>${fmt(v.poc,dg)}</b> · VAH <b>${fmt(v.vah,0)}</b> · VAL <b>${fmt(v.val,0)}</b> · ที่มา <b class="vp-src">${esc(v.src ? v.src.label : '—')}</b> · เลื่อน ${sgn(-v.shift,1)} ให้ตรงกราฟ · ${v.bars} แท่ง ${VP_PERIODS[V.period].bar} · ${fmt(v.total, o.volDigits ?? 0)} ${o.unit} · ${t}`;
+  };
+  V.draw = (ctx, paneW, paneH) => {
+    if (!V.on) return;
+    const v = V.data, cs = o.series(); if (!cs) return;
+    if (!v){
+      if (V.err){ ctx.font = '600 10.5px "IBM Plex Sans Thai", sans-serif'; ctx.fillStyle = 'rgba(255,170,90,0.9)'; const s = 'Volume Profile โหลดไม่ได้'; ctx.fillText(s, paneW - ctx.measureText(s).width - 8, paneH - 8); }
+      return;
+    }
+    const maxW = Math.min(180, paneW*0.18), x1 = paneW - 2, bs = v.bs;
+    for (let i=0;i<v.arr.length;i++){
+      if (!v.arr[i]) continue;
+      const p = (v.lo + i)*bs, ya = cs.priceToCoordinate(p+bs), yb = cs.priceToCoordinate(p);
+      if (ya==null || yb==null || yb < 0 || ya > paneH) continue;
+      const w = maxW * v.arr[i] / v.max, h = Math.max(1, yb - ya - 0.5);
+      ctx.fillStyle = (p + bs/2 === v.poc) ? 'rgba(255,152,0,0.85)' : (p >= v.val && p < v.vah) ? 'rgba(100,140,255,0.36)' : 'rgba(139,147,165,0.22)';
+      ctx.fillRect(x1 - w, ya, w, h);
+    }
+    const line = (p, col, dash, lbl)=>{
+      const y = cs.priceToCoordinate(p); if (y==null || y<0 || y>paneH) return;
+      ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(0, Math.round(y)+.5); ctx.lineTo(paneW, Math.round(y)+.5); ctx.stroke(); ctx.setLineDash([]);
+      ctx.font = '600 10px "IBM Plex Sans Thai", sans-serif'; ctx.fillStyle = col;
+      const s = `${lbl} ${fmt(p,lbl==='POC' && bs<1.5?1:0)}`; ctx.fillText(s, x1 - maxW - ctx.measureText(s).width - 6, y - 3);
+    };
+    line(v.vah, 'rgba(130,160,255,0.9)', [6,3], 'VAH'); line(v.val, 'rgba(130,160,255,0.9)', [6,3], 'VAL'); line(v.poc, 'rgba(255,152,0,0.95)', [], 'POC');
+  };
+  V.wire = () => {
+    const tg = $(o.ids.tg), sel = $(o.ids.period);
+    if (tg){ tg.checked = V.on; tg.onchange = ()=>{ V.on = tg.checked; LS.set(o.key+'_on', V.on); if (V.on){ V.data = null; V.err = null; V.render(); V.load(true); } else { V.render(); o.onChange(); } }; }
+    if (sel){ sel.value = V.period; sel.onchange = ()=>{ V.period = sel.value; LS.set(o.key+'_period', V.period); V.data = null; V.err = null; V.bars = new Map(); V.render(); o.onChange(); V.load(true); }; }
+    V.render();
+  };
+  V.start = (delay=0) => {
+    setTimeout(()=>V.load(true), delay);
+    setInterval(()=>{ if (V.on) V.load(false); }, 60000);         // newest bars every minute (full race again if the source failed)
+    setInterval(()=>{ if (V.on) V.load(true); }, 15*60000);       // full rebuild (drops bars older than the period start)
+  };
+  return V;
 }
+const GVP = createVP({
+  key:'vp', qsOn:'vp', qsPeriod:'vpp', ids:{tg:'tgVp', period:'vpPeriod', info:'vpInfo'}, bin:1, unit:'oz',
+  sources:[ {name:'okx', short:'OKX', label:'OKX XAU-USDT perp', fetch:VP_SRC.okx('XAU-USDT-SWAP')},
+            {name:'bitget', short:'Bitget', label:'Bitget XAUUSDT perp', fetch:VP_SRC.bitget('XAUUSDT')},
+            {name:'binance', short:'Binance', label:'Binance XAUUSDT perp', fetch:VP_SRC.binance('XAUUSDT')} ],
+  tf:()=>S.tf, chartBars:()=>S.raw.map(b=>({time:b.time, close:b.close - S.offset})), series:()=>cs,
+  onChange:()=>{ S.vpOn = GVP.on; S.vp = GVP.data; drawZones(); renderGuard(); },
+});
+S.vpOn = GVP.on; S.vp = null; window.__AITD_GVP = GVP;
+function drawVP(ctx, paneW, paneH){ if (S.view==='zone') GVP.draw(ctx, paneW, paneH); }
 
 /* ---------------- gold news (news.json: public RSS headlines, automatic keyword tags) ---------------- */
 S.newsFilter = LS.get('news_filter', 'all');
@@ -911,8 +987,7 @@ function wire(){
   $('zoneLot').addEventListener('input', ()=>{ LS.set('zoneLot', $('zoneLot').value); renderZones(); });
   document.querySelectorAll('.otab').forEach(b=>b.onclick=()=>{ S.optTab=b.dataset.src; LS.set('optTab',S.optTab); renderOpt(); });
   [['tgGld','gld'],['tgShfe','shfe']].forEach(([id,k])=>{ $(id).checked = S.optOn[k]; $(id).onchange = ()=>{ S.optOn[k] = $(id).checked; LS.set('opt_'+k, S.optOn[k]); drawOptLines(); }; });
-  $('tgVp').checked = S.vpOn; $('tgVp').onchange = ()=>{ S.vpOn = $('tgVp').checked; LS.set('vp_on', S.vpOn); if (S.vpOn) loadVP(true); else { renderVPInfo(); drawZones(); renderGuard(); } };
-  $('vpPeriod').value = S.vpPeriod; $('vpPeriod').onchange = ()=>{ S.vpPeriod = $('vpPeriod').value; LS.set('vp_period', S.vpPeriod); S.vp = null; renderVPInfo(); loadVP(true); };
+  GVP.wire();
   $('cUseLive').onclick = ()=>{ if (S.price){ $('cEntry').value = S.price.toFixed(2); renderCalc(); } };
   const io = new IntersectionObserver((ents)=>ents.forEach(e=>{ if(e.isIntersecting){ WIDGETS[e.target.dataset.widget](e.target); io.unobserve(e.target);} }), {rootMargin:'300px'});
   document.querySelectorAll('.lazy-widget[data-widget=overview]').forEach(el=>io.observe(el));
@@ -930,10 +1005,7 @@ async function main(){
   WIDGETS.calendar(document.querySelector('[data-widget=calendar]'));   // load first: avoids a TradingView CDN 403 seen when it loads after other TV widgets
   initChart(); setView(S.view); loadOpt(); loadNews();
   spotP = pollSpot(); setInterval(pollSpot, 15000);        // runs alongside the candle load (was awaited first)
-  const vpStart = ()=>loadVP(true);
-  window.AITD_GOLD_READY.then(()=>setTimeout(vpStart, 2500));   // volume profile after both charts have painted
-  setInterval(()=>loadVP(false), 60000);                                    // volume profile: newest candles + basis every minute
-  setInterval(()=>{ if (S.vpOn) loadVP(true); }, 15*60000);                 // full rebuild (drops candles older than the period start)
+  window.AITD_GOLD_READY.then(()=>GVP.start(1500));   // volume profile after both charts have painted (all sources in parallel)
   setInterval(renderNews, 60000);                                           // relative times
   await loadFeed();
   setInterval(renderFeedInfo, 2000);
@@ -945,7 +1017,7 @@ async function main(){
   setInterval(()=>{ if (S.opt) renderOpt(); }, 15000);   // refresh distance-to-price
 }
 /* shared helpers for js/nas.js (NAS100 chart) — same formatting, market hours, H4 anchoring and OKX client as the gold chart */
-window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, bitgetIndex, raceFeeds };
+window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, bitgetIndex, raceFeeds, createVP, VP_SRC };
 main();
 window.__AITD = S;
 })();

@@ -15,7 +15,7 @@
 (() => {
 'use strict';
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
-const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds } = L;
+const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createVP, VP_SRC } = L;
 const NEAR = 15;
 const DEF_OFF = { okxidx:-12, bitget:-36, perp:-30 };   // feed → Skilling US100 (measured 28 Oct 2026, see header)
 const ZONE_SHIFT = -5;                                   // ^NDX cash levels → Skilling US100 CFD
@@ -81,6 +81,14 @@ const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')
 
 /* ---------------- chart (same options as the gold chart) ---------------- */
 let chart, cs, e20, e50, stop = null;
+/* Volume Profile (same engine/look as gold): OKX US100-USDT-SWAP → Bitget NDX100USDT perp volume, shifted onto the
+   (Skilling-offset) NAS candles; 5-point bins. */
+const NVP = createVP({
+  key:'nas_vp', qsOn:'nasvp', qsPeriod:'nasvpp', ids:{tg:'nasTgVp', period:'nasVpPeriod', info:'nasVpInfo'}, bin:5, unit:'US100', volDigits:2,
+  sources:[ {name:'okx', short:'OKX', label:'OKX US100-USDT perp', fetch:VP_SRC.okx('US100-USDT-SWAP')},
+            {name:'bitget', short:'Bitget', label:'Bitget NDX100USDT perp', fetch:VP_SRC.bitget('NDX100USDT')} ],
+  tf:()=>N.tf, chartBars:()=>N.raw, series:()=>cs, onChange:()=>drawZones(),
+});
 function initChart(){
   const LW = window.LightweightCharts;
   chart = LW.createChart($('nasLw'), {
@@ -144,7 +152,7 @@ async function loadFeed(){
   if (won){
     const f = Feeds[won.name];
     N.off = offFor(won.name);
-    N.feed = f; N.raw = won.hist.map(b=>shiftBar(b, N.off)); renderCal(); redraw(); chart.timeScale().scrollToRealTime();
+    N.feed = f; N.raw = won.hist.map(b=>shiftBar(b, N.off)); renderCal(); redraw(); chart.timeScale().scrollToRealTime(); NVP.realign();
     stop = f.stream(onTick); N.lastTickAt = Date.now();
     setTimeout(()=>loadDay(f), 2000);
     $('nasStatus').textContent = won.name==='okxidx' ? '' : 'สำรอง: '+f.label; renderBadge(); return;
@@ -162,7 +170,7 @@ function setOff(v){
   N.raw = N.raw.map(b=>shiftBar(b, d)); N.dayRaw = N.dayRaw.map(b=>shiftBar(b, d));
   if (N.hi!=null){ N.hi += d; N.lo += d; }
   if (N.price!=null) N.price += d;
-  N.prev = null; redraw(); renderCal();
+  N.prev = null; redraw(); renderCal(); NVP.realign();   // VP follows the new offset
 }
 function renderCal(){
   const el = $('nasCalInfo'); if (!el) return;
@@ -243,6 +251,7 @@ function drawZones(){
   const col = {resistance:[239,83,80], support:[38,166,154], pivot:[240,180,41]};
   const TAG = {resistance:'แนวต้าน', support:'แนวรับ', pivot:'Pivot'};
   ctx.save(); ctx.beginPath(); ctx.rect(0,0,paneW,paneH); ctx.clip();
+  NVP.draw(ctx, paneW, paneH);
   const used = [];                                             // label y positions already taken (bands can sit close together)
   for (const z of [...zonesArr()].sort((a,b)=>b.zone[1]-a.zone[1])){
     const y1 = cs.priceToCoordinate(z.zone[1]), y2 = cs.priceToCoordinate(z.zone[0]);
@@ -324,14 +333,14 @@ function setTF(tf){
 function start(){
   document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>setView(b.dataset.nview));
   document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===N.tf); b.onclick=()=>setTF(b.dataset.tf); });
-  wireCal(); initChart(); setView(N.view); loadZones();
+  wireCal(); NVP.wire(); initChart(); setView(N.view); loadZones();
   // gold first: start NAS when the gold chart has painted, or after 1 s at most
-  Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(loadFeed);
+  Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(()=>{ loadFeed(); NVP.start(2500); });   // VP after the NAS candles
   setInterval(renderBadge, 2000);
   setInterval(resyncTail, 60000);
   setInterval(()=>{ if (N.feed) loadDay(N.feed); }, 5*60000);
   setInterval(loadZones, 600000);
 }
 start();
-window.__AITD_NAS = N;
+window.__AITD_NAS = N; window.__AITD_NVP = NVP;
 })();

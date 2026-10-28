@@ -11,10 +11,11 @@ Levels (all from real bars, nothing invented):
   previous week high / low,
   round 100-point numbers: the 3 nearest above and 3 nearest below the last close.
 Levels within MERGE points of each other are merged (labels joined). Type: above the last close = resistance,
-below = support, pivot P = pivot.
+below = support, pivot P = pivot. Each level is also written as a chart band "zones":[{zone:[level-PAD, level+PAD], type, note}]
+in the same shape as zones.json, so the NAS100 chart draws it exactly like the gold zones.
 
-The chart on the site is TradingView OANDA:NAS100USD (CFD). The CFD can differ from the cash index by a few
-to tens of points, so the page shows these as reference levels next to the chart, not on it.
+The site chart uses the OKX US100-USDT index (tracks CFD NAS100 quotes; matched the ^NDX cash close within ~5 points at
+16:00 NY on 27 Oct 2026). Broker CFDs can still differ by a few to tens of points.
 Keeps the previous nas_zones.json if anything fails or looks wrong.
 Usage: python3 nas_zones.py [--dry]
 """
@@ -29,6 +30,7 @@ SYMBOL = "^NDX"
 URLS = ["https://query1.finance.yahoo.com/v8/finance/chart/%5ENDX?interval=1d&range=3mo",
         "https://query2.finance.yahoo.com/v8/finance/chart/%5ENDX?interval=1d&range=3mo"]
 ROUND, N_ROUND, MERGE = 100, 3, 20.0
+PAD = 10.0          # chart band = level ± PAD points (gold uses ≥$3-wide bands ≈ 0.07 %; 20 pts ≈ 0.07 % of NAS100)
 
 
 def fetch():
@@ -117,7 +119,7 @@ def build():
         "date": f"{last['date']}",
         "auto": True,
         "symbol": SYMBOL,
-        "chart_symbol": "OANDA:NAS100USD",
+        "chart_symbol": "OKX US100-USDT index",
         "source": "อัตโนมัติ: Yahoo Finance ^NDX (ดัชนี Nasdaq 100 เงินสด) แท่งรายวันที่ปิดแล้ว — High/Low/Close เมื่อวาน, Pivot, High/Low สัปดาห์นี้และสัปดาห์ก่อน, เลขกลม 100 จุด",
         "last_close": {"date": f"{last['date']}", "close": r2(close)},
         "prev_day": {"date": f"{last['date']}", "open": r2(last["open"]), "high": r2(last["high"]), "low": r2(last["low"]), "close": r2(close)},
@@ -125,6 +127,7 @@ def build():
         "prev_week": {"start": f"{prev_wk_start}", "high": r2(max(b["high"] for b in prev_week)), "low": r2(min(b["low"] for b in prev_week)), "close": r2(prev_week[-1]["close"])},
         "pivot": r2(P),
         "levels": out,
+        "zones": [{"zone": [r2(L["price"] - PAD), r2(L["price"] + PAD)], "type": L["type"], "level": L["price"], "label": L["label"], "note": L["note"]} for L in out],
         "generated_at": dt.datetime.now(TH).replace(microsecond=0).isoformat(),
     }
 

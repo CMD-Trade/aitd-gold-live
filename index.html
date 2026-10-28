@@ -12,10 +12,20 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230b0d12'/><path d='M12 44h40L44 22H20z' fill='%23d4af37'/></svg>">
 </head>
 <body>
+<div class="sticky-top">
 <header class="topbar">
   <div class="brand"><span class="logo">◆</span><div><b>AiTD Gold Live</b><small>XAUUSD · เวลาไทย</small></div></div>
   <div class="clock"><span id="clock">--:--:--</span><small id="clockDate">—</small></div>
 </header>
+<!-- ZONE GUARD: live price vs support/resistance (zones.json + option walls + VAH/VAL) -->
+<div class="guard wait" id="guard" role="status" aria-live="polite">
+  <div class="g-body">
+    <div class="g-main" id="gMain">กำลังรอราคา…</div>
+    <div class="g-sub" id="gSub"></div>
+  </div>
+  <button type="button" class="g-alert" id="gAlert" title="เสียง + แจ้งเตือนเมื่อราคาเข้าโซน" aria-pressed="false">🔕<span class="g-al"> เตือน: ปิด</span></button>
+</div>
+</div>
 
 <div class="tv-tape" id="tape"></div>
 
@@ -35,6 +45,20 @@
       </div>
     </div>
     <div class="sub" id="feedInfo">—</div>
+  </section>
+
+  <!-- PRE-TRADE CHECKLIST (localStorage only) -->
+  <section class="card check-card" id="checkCard">
+    <div class="card-h">เช็กก่อนกด <small>ติ๊กให้ครบทุกครั้งก่อนส่งออเดอร์</small>
+      <span class="spacer"></span>
+      <span class="ready no" id="ckBadge">ยังไม่พร้อม</span>
+    </div>
+    <div class="ck-block hidden" id="ckBlock"></div>
+    <div class="ck-list" id="ckList"></div>
+    <div class="ck-foot">
+      <span class="sub" id="ckInfo">เก็บในเครื่องนี้เท่านั้น (localStorage)</span>
+      <button type="button" class="ck-reset" id="ckReset">รีเซ็ต</button>
+    </div>
   </section>
 
   <!-- SESSIONS + EVENT -->

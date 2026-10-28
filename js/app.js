@@ -5,6 +5,11 @@ const $ = (id) => document.getElementById(id);
 const TH_OFF = 7 * 3600;                  // chart shows Thai time (UTC+7)
 const PPL = 100;                          // $ per $1 move per 1.00 lot (XAUUSD)
 const qs = new URLSearchParams(location.search);
+/* ---- Zone guard settings ---- */
+const ZONE_NEAR_USD = 3;                  // banner fires when price is inside a level/zone or within this many $ of it
+const ALERT_COOLDOWN_MS = 60000;          // min gap between two beeps/notifications for the same state
+const CHECK_EXPIRE_MIN = 30;              // pre-trade checklist ticks auto-clear after this many minutes
+const TEST_PRICE = parseFloat(qs.get('testprice'));   // debug: ?testprice=4030 forces the banner/checklist price (chart unaffected)
 const LS = { get:(k,d)=>{try{const v=localStorage.getItem('aitd_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}}, set:(k,v)=>{try{localStorage.setItem('aitd_'+k,JSON.stringify(v))}catch(e){}} };
 
 const fmt = (n, d=2) => (n==null||!isFinite(n)) ? '—' : Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -384,7 +389,7 @@ function renderOpt(){
   html += `<div class="ometa">${stale} ข้อมูลวันที่ <b>${b.data_date}</b> · ${esc(b.source)} · ${esc(b.oi_note||'')} · ${conv} · ดึงเมื่อ ${thDT(b.fetched_at)}</div>`;
   body.innerHTML = html;
 }
-async function loadOpt(){ try{ S.opt = await getJSON('options_levels.json'); }catch(e){ } drawOptLines(); renderOpt(); }
+async function loadOpt(){ try{ S.opt = await getJSON('options_levels.json'); }catch(e){ } drawOptLines(); renderOpt(); renderGuard(); }
 
 async function loadFeed(){
   if (stopStream){ stopStream(); stopStream=null; }
@@ -436,7 +441,7 @@ function setPrice(p){
   if (S.prevPrice!=null && p!==S.prevPrice){ el.classList.remove('up','down'); el.classList.add(p>S.prevPrice?'up':'down'); clearTimeout(flashT); flashT=setTimeout(()=>el.classList.remove('up','down'),700); }
   const pc = S.zones && S.zones.prev_day && S.zones.prev_day.close;
   if (pc){ const c = p-pc; const e=$('chg'); e.className='chg '+(c>=0?'pos':'neg'); e.textContent = `${sgn(c)} (${sgn(c/pc*100)}%) เทียบปิด ${fmt(pc)}`; }
-  renderZones(); renderCalc();
+  renderZones(); renderCalc(); renderGuard();
   if (!document.hidden) document.title = `${fmt(p)} · XAUUSD · AiTD Gold Live`;
 }
 function renderFeedInfo(){
@@ -475,6 +480,155 @@ function renderZones(){
   $('zones').innerHTML = html;
 }
 const esc = (s) => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+
+/* ---------------- zone guard banner ---------------- */
+/* Levels that feed the banner:
+   - zones.json  : type 'support' / 'resistance' bands [low, high] (type 'pivot' is ignored)
+   - options     : front expiry of GLD (Cboe) and SHFE — Put wall = support, Call wall = resistance (max pain ignored)
+   - Volume Profile (when switched on): VAL = support, VAH = resistance (POC ignored)
+   Options/VP are single prices → treated as a zero-width band. */
+function guardLevels(){
+  const L = [];
+  for (const z of (S.zones && S.zones.zones) || []){
+    if (z.type!=='support' && z.type!=='resistance') continue;
+    L.push({side:z.type, lo:Math.min(z.zone[0],z.zone[1]), hi:Math.max(z.zone[0],z.zone[1]), src:'โซน'});
+  }
+  if (S.opt) for (const src of ['gld','shfe']){
+    const b = S.opt[src], e = b && b.expiries && b.expiries[0]; if (!e) continue;
+    const tag = src==='gld' ? 'GLD' : 'SHFE';
+    (e.put_walls||[]).forEach(w=>isFinite(w.level_spot) && L.push({side:'support', lo:w.level_spot, hi:w.level_spot, src:`${tag} Put wall ${w.strike}`}));
+    (e.call_walls||[]).forEach(w=>isFinite(w.level_spot) && L.push({side:'resistance', lo:w.level_spot, hi:w.level_spot, src:`${tag} Call wall ${w.strike}`}));
+  }
+  if (S.vpOn && S.vp){ L.push({side:'support', lo:S.vp.val, hi:S.vp.val, src:'VAL'}); L.push({side:'resistance', lo:S.vp.vah, hi:S.vp.vah, src:'VAH'}); }
+  return L;
+}
+const lvDist = (p, l) => p < l.lo ? l.lo - p : p > l.hi ? p - l.hi : 0;
+const lvRng = (l) => l.lo===l.hi ? fmt(l.lo) : `${fmt(l.lo)}–${fmt(l.hi)}`;
+function guardPrice(){ return isFinite(TEST_PRICE) ? TEST_PRICE : S.price; }
+function guardState(){
+  const p = guardPrice(); if (p==null || !isFinite(p)) return {state:'wait'};
+  const L = guardLevels();
+  const near = (side) => L.filter(l=>l.side===side && lvDist(p,l) <= ZONE_NEAR_USD)
+                          .sort((a,b)=>lvDist(p,a)-lvDist(p,b) || (a.src==='โซน'?-1:1));
+  const sup = near('support'), res = near('resistance');
+  const below = L.filter(l=>l.side==='support' && l.hi < p).sort((a,b)=>b.hi-a.hi)[0];
+  const above = L.filter(l=>l.side==='resistance' && l.lo > p).sort((a,b)=>a.lo-b.lo)[0];
+  const state = sup.length && res.length ? 'both' : sup.length ? 'support' : res.length ? 'resistance' : 'neutral';
+  return {state, p, sup, res, below, above, key: state + '|' + (sup[0]?lvRng(sup[0]):'') + '|' + (res[0]?lvRng(res[0]):'')};
+}
+function srcList(arr){ return [...new Set(arr.map(l=> l.src==='โซน' ? `โซน ${lvRng(l)}` : `${l.src} @ ${fmt(l.lo)}`))].join(' · '); }
+function rngOf(arr){ const z = arr.find(l=>l.src==='โซน') || arr[0]; return lvRng(z); }
+S.guard = {state:'wait'};
+function renderGuard(){
+  const g = guardState(), el = $('guard'); if (!el) return;
+  const prev = S.guard; S.guard = g;
+  el.className = 'guard ' + g.state;
+  const test = isFinite(TEST_PRICE) ? `<span class="test">TEST ${fmt(TEST_PRICE)}</span>` : '';
+    const near = (l, side) => l ? `${side} <b>${lvRng(l)}</b> (ห่าง $${fmt(l.side==='support' ? g.p-l.hi : l.lo-g.p)})` : `${side} —`;
+  let main, sub;
+  if (g.state==='wait'){ main = 'กำลังรอราคา…'; sub = ''; }
+  else if (g.state==='support'){
+    main = `⚠️ ราคาอยู่ในแนวรับ <span class="rng">${rngOf(g.sup)}</span> — ห้าม SELL · รอแท่งกลับตัว M15 ก่อนค่อยคิด BUY${test}`;
+    sub = `ราคา <b>${fmt(g.p)}</b> · ชนแนวรับ: ${esc(srcList(g.sup))} · ${near(g.above,'แนวต้านถัดไป')}`;
+  } else if (g.state==='resistance'){
+    main = `⚠️ ราคาอยู่ในแนวต้าน <span class="rng">${rngOf(g.res)}</span> — ห้าม BUY · รอแท่งกลับตัว M15 ก่อนค่อยคิด SELL${test}`;
+    sub = `ราคา <b>${fmt(g.p)}</b> · ชนแนวต้าน: ${esc(srcList(g.res))} · ${near(g.below,'แนวรับถัดไป')}`;
+  } else if (g.state==='both'){
+    main = `⚠️ ราคาติดทั้งแนวรับ <span class="rng">${rngOf(g.sup)}</span> และแนวต้าน <span class="rng">${rngOf(g.res)}</span> — ห้ามทั้ง BUY และ SELL · รอราคาหลุด/ทะลุพร้อมแท่ง M15${test}`;
+    sub = `ราคา <b>${fmt(g.p)}</b> · แนวรับ: ${esc(srcList(g.sup))} · แนวต้าน: ${esc(srcList(g.res))}`;
+  } else {
+    main = `ราคาอยู่กลางทาง — รอราคาเข้าโซน ไม่ไล่ราคา${test}`;
+    sub = `ราคา <b>${fmt(g.p)}</b> · ${near(g.below,'แนวรับใกล้สุด')} · ${near(g.above,'แนวต้านใกล้สุด')}`;
+  }
+  sub += ` · เกณฑ์ ±$${ZONE_NEAR_USD}` + (spotClosed(Date.now()) && !isFinite(TEST_PRICE) ? ' · ตลาดปิด (ราคาปิดล่าสุด)' : '');
+  if (el._m !== main){ $('gMain').innerHTML = main; el._m = main; }
+  if (el._s !== sub){ $('gSub').innerHTML = sub; el._s = sub; }
+  if (prev.key !== g.key) onGuardChange(prev, g);
+  renderChecklist();
+}
+/* optional beep + browser notification when entering a zone (off by default) */
+S.alertOn = LS.get('guard_alert', false); S.lastAlert = {};
+let audioCtx = null;
+function beep(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state==='suspended') audioCtx.resume();
+    [0, 0.22].forEach(t0=>{ const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='square'; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, audioCtx.currentTime+t0); g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime+t0+0.02); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+t0+0.18);
+      o.connect(g).connect(audioCtx.destination); o.start(audioCtx.currentTime+t0); o.stop(audioCtx.currentTime+t0+0.2); });
+  }catch(e){}
+}
+function onGuardChange(prev, g){
+  if (!S.alertOn || prev.state==='wait' || !['support','resistance','both'].includes(g.state)) return;
+  const now = Date.now(); if (now - (S.lastAlert[g.key]||0) < ALERT_COOLDOWN_MS) return;
+  S.lastAlert[g.key] = now;
+  beep();
+  const msg = g.state==='support' ? `ราคา ${fmt(g.p)} อยู่ในแนวรับ ${rngOf(g.sup)} — ห้าม SELL` : g.state==='resistance' ? `ราคา ${fmt(g.p)} อยู่ในแนวต้าน ${rngOf(g.res)} — ห้าม BUY` : `ราคา ${fmt(g.p)} ติดทั้งแนวรับและแนวต้าน — ห้ามทั้ง BUY/SELL`;
+  try{ if ('Notification' in window && Notification.permission==='granted') new Notification('AiTD Gold · เข้าโซน', {body: msg, tag:'aitd-guard'}); }catch(e){}
+}
+function wireGuard(){
+  const b = $('gAlert'); if (!b) return;
+  const paint = () => { b.classList.toggle('on', S.alertOn); b.innerHTML = S.alertOn ? '🔔<span class="g-al"> เตือน: เปิด</span>' : '🔕<span class="g-al"> เตือน: ปิด</span>'; b.setAttribute('aria-pressed', S.alertOn); };
+  paint();
+  b.onclick = () => {
+    S.alertOn = !S.alertOn; LS.set('guard_alert', S.alertOn); paint();
+    if (S.alertOn){ beep(); try{ if ('Notification' in window && Notification.permission==='default') Notification.requestPermission(); }catch(e){} }
+  };
+}
+
+/* ---------------- pre-trade checklist (localStorage only) ---------------- */
+const CHECKS = [
+  'ไม่ SELL ในแนวรับ / ไม่ BUY ในแนวต้าน',
+  'เห็นแท่งกลับตัว M15 แล้ว',
+  'ล็อต 0.1 เท่านั้น',
+  'SL ประมาณ $5 ไม่เกิน $10 · TP $5–10',
+  'วันนี้ขาดทุนยังไม่ถึง -$200',
+  'ไม่ใช่ไม้แก้แค้น / ไม่เพิ่มล็อตหลังโดน SL',
+  'ไม่ใช่ช่วงข่าวแรง (เช่น FOMC)',
+];
+function ckLoad(){
+  const c = LS.get('checklist', null);
+  if (!c || !Array.isArray(c.v) || c.v.length!==CHECKS.length || Date.now() - (c.at||0) > CHECK_EXPIRE_MIN*60000) return {v: CHECKS.map(()=>false), at: 0};
+  return c;
+}
+function ckSave(c){ LS.set('checklist', c); }
+function wireChecklist(){
+  const list = $('ckList'); if (!list) return;
+  list.innerHTML = CHECKS.map((t,i)=>`<label class="ck" data-i="${i}"><input type="checkbox" data-i="${i}"><span>${esc(t)}<small class="hidden"></small></span></label>`).join('');
+  list.querySelectorAll('input').forEach(inp=>inp.onchange = ()=>{ const c = ckLoad(); c.v[+inp.dataset.i] = inp.checked; c.at = Date.now(); ckSave(c); renderChecklist(); });
+  $('ckReset').onclick = ()=>{ ckSave({v: CHECKS.map(()=>false), at: 0}); renderChecklist(); };
+  renderChecklist();
+}
+function renderChecklist(){
+  const list = $('ckList'); if (!list || !list.firstChild) return;
+  const c = ckLoad(), g = S.guard || {state:'wait'};
+  list.querySelectorAll('.ck').forEach(row=>{ const i = +row.dataset.i, inp = row.querySelector('input'); inp.checked = !!c.v[i]; row.classList.toggle('done', !!c.v[i]); });
+  // live warnings next to items
+  const warn = {};
+  if (g.state==='support') warn[0] = 'ตอนนี้ราคาอยู่ในแนวรับ → ห้าม SELL';
+  if (g.state==='resistance') warn[0] = 'ตอนนี้ราคาอยู่ในแนวต้าน → ห้าม BUY';
+  if (g.state==='both') warn[0] = 'ตอนนี้ราคาติดทั้งแนวรับและแนวต้าน → ห้ามทั้งสองฝั่ง';
+  const lot = parseFloat($('cLot') && $('cLot').value); if (isFinite(lot) && lot > 0.1) warn[2] = `ช่องคำนวณตั้ง Lot ไว้ ${lot} (เกิน 0.1)`;
+  const pl = todayPL(), stop = acct().daily_stop; if (pl <= stop) warn[4] = `P/L วันนี้ ${sUsd(pl)} ถึงจุดหยุด ${usd(stop)} แล้ว → หยุดเทรด`;
+  const nx = S.events && S.events.find(e=>e.ms > Date.now() - 15*60000); if (nx && nx.ms - Date.now() < 30*60000) warn[6] = `ข่าวแรงภายใน 30 นาที: ${nx.title}`;
+  list.querySelectorAll('.ck').forEach(row=>{ const i = +row.dataset.i, sm = row.querySelector('small'); const w = warn[i];
+    row.classList.toggle('flag', !!w); sm.classList.toggle('hidden', !w); sm.textContent = w || ''; });
+  // blocked-direction flag inside the card
+  const blk = $('ckBlock');
+  const btxt = g.state==='support' ? `🚫 SELL ถูกบล็อก — ราคาอยู่ในแนวรับ ${rngOf(g.sup)} · รอแท่งกลับตัว M15 ก่อนคิด BUY`
+             : g.state==='resistance' ? `🚫 BUY ถูกบล็อก — ราคาอยู่ในแนวต้าน ${rngOf(g.res)} · รอแท่งกลับตัว M15 ก่อนคิด SELL`
+             : g.state==='both' ? `🚫 BUY และ SELL ถูกบล็อก — ราคาติดแนวรับ ${rngOf(g.sup)} และแนวต้าน ${rngOf(g.res)}` : '';
+  blk.classList.toggle('hidden', !btxt); blk.textContent = btxt;
+  const all = c.v.every(Boolean), n = c.v.filter(Boolean).length, bd = $('ckBadge');
+  const hardStop = pl <= stop;
+  if (hardStop){ bd.className = 'ready stop'; bd.textContent = 'หยุดเทรดวันนี้'; }
+  else if (g.state==='both'){ bd.className = 'ready stop'; bd.textContent = 'ห้ามกด (ติดทั้งสองฝั่ง)'; }
+  else if (all){ bd.className = 'ready ok'; bd.textContent = g.state==='support' ? 'พร้อมกด · BUY เท่านั้น' : g.state==='resistance' ? 'พร้อมกด · SELL เท่านั้น' : 'พร้อมกด'; }
+  else { bd.className = 'ready no'; bd.textContent = `ยังไม่พร้อม (${n}/${CHECKS.length})`; }
+  const left = c.at ? Math.max(0, Math.ceil((c.at + CHECK_EXPIRE_MIN*60000 - Date.now())/60000)) : null;
+  $('ckInfo').textContent = 'เก็บในเครื่องนี้เท่านั้น (localStorage)' + (left!=null && n ? ` · ติ๊กจะล้างเองใน ${left} นาที` : ` · ติ๊กล้างเองหลัง ${CHECK_EXPIRE_MIN} นาที`);
+}
 
 /* ---------------- calculator + account ---------------- */
 const num = (id) => { const v = parseFloat($(id).value); return isFinite(v) ? v : null; };
@@ -603,7 +757,7 @@ async function loadVP(full){
     await vpFetch(full || !S.vpBars.size);
     vpCompute();
   }catch(e){ S.vpErr = String(e); }
-  renderVPInfo(); drawZones();
+  renderVPInfo(); drawZones(); renderGuard();
 }
 function renderVPInfo(){
   const el = $('vpInfo'); if (!el) return;
@@ -688,11 +842,13 @@ function wire(){
   Object.entries(keys).forEach(([id,k])=>{ const v = LS.get(k, ''); if (v!=='' && v!=null) $(id).value = v; $(id).addEventListener('input', ()=>LS.set(k, $(id).value)); });
   if ($('aStopIn').value==='') $('aStopIn').value = 200;
   ['cLot','cEntry','cSL','cTP','aToday','aBalIn','aFloorIn','aStopIn'].forEach(id=>$(id).addEventListener('input', renderCalc));
+  ['cLot','aToday','aStopIn'].forEach(id=>$(id).addEventListener('input', renderChecklist));
+  wireGuard(); wireChecklist();
   $('zoneLot').value = LS.get('zoneLot', 0.1);
   $('zoneLot').addEventListener('input', ()=>{ LS.set('zoneLot', $('zoneLot').value); renderZones(); });
   document.querySelectorAll('.otab').forEach(b=>b.onclick=()=>{ S.optTab=b.dataset.src; LS.set('optTab',S.optTab); renderOpt(); });
   [['tgGld','gld'],['tgShfe','shfe']].forEach(([id,k])=>{ $(id).checked = S.optOn[k]; $(id).onchange = ()=>{ S.optOn[k] = $(id).checked; LS.set('opt_'+k, S.optOn[k]); drawOptLines(); }; });
-  $('tgVp').checked = S.vpOn; $('tgVp').onchange = ()=>{ S.vpOn = $('tgVp').checked; LS.set('vp_on', S.vpOn); if (S.vpOn) loadVP(true); else { renderVPInfo(); drawZones(); } };
+  $('tgVp').checked = S.vpOn; $('tgVp').onchange = ()=>{ S.vpOn = $('tgVp').checked; LS.set('vp_on', S.vpOn); if (S.vpOn) loadVP(true); else { renderVPInfo(); drawZones(); renderGuard(); } };
   $('vpPeriod').value = S.vpPeriod; $('vpPeriod').onchange = ()=>{ S.vpPeriod = $('vpPeriod').value; LS.set('vp_period', S.vpPeriod); S.vp = null; renderVPInfo(); loadVP(true); };
   $('cUseLive').onclick = ()=>{ if (S.price){ $('cEntry').value = S.price.toFixed(2); renderCalc(); } };
   const io = new IntersectionObserver((ents)=>ents.forEach(e=>{ if(e.isIntersecting){ WIDGETS[e.target.dataset.widget](e.target); io.unobserve(e.target);} }), {rootMargin:'300px'});
@@ -706,6 +862,7 @@ async function main(){
   if (e.status==='fulfilled'){ S.events = (e.value.events||[]).map(x=>({...x, ms:Date.parse(x.time)})).filter(x=>isFinite(x.ms)).sort((x,y)=>x.ms-y.ms); }
   $('buildInfo').textContent = `zones ${S.zones?.date||'—'}`;
   wire(); tickClock(); setInterval(tickClock, 1000);
+  renderGuard(); setInterval(renderChecklist, 30000);   // checklist expiry
   WIDGETS.calendar(document.querySelector('[data-widget=calendar]'));   // load first: avoids a TradingView CDN 403 seen when it loads after other TV widgets
   initChart(); setView(S.view); loadOpt(); loadNews(); loadVP(true);
   setInterval(()=>loadVP(false), 60000);                                    // volume profile: newest candles + basis every minute
@@ -718,7 +875,7 @@ async function main(){
   setInterval(resyncTail, 60000);
   loadTape(); renderZones(); renderCalc();
   // reload data files every 10 min (daily update script)
-  setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); }catch(e){} loadOpt(); loadNews(); }, 600000);
+  setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); renderGuard(); }catch(e){} loadOpt(); loadNews(); }, 600000);
   setInterval(()=>{ if (S.opt) renderOpt(); }, 15000);   // refresh distance-to-price
 }
 main();

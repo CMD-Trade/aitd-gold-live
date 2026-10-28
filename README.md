@@ -64,3 +64,10 @@ No account data (balance, P/L, journal) is ever read or written by this script.
 
 ## Local test
 `python3 -m http.server 8765` then open http://localhost:8765/ (opening the file directly will not load the JSON files).
+
+## Zone guard + เช็กก่อนกด
+- แบนเนอร์ติดหัวจอ (sticky) เทียบราคาสด OKX XAU-USD index กับ: โซน `support`/`resistance` ใน zones.json (ไม่นับ pivot), Put wall/Call wall ของ GLD และ SHFE (expiry/ซีรีส์แรกเท่านั้น), VAL/VAH ของ Volume Profile (เมื่อเปิด VP)
+- เกณฑ์ระยะ `ZONE_NEAR_USD = 3` (ต้นไฟล์ js/app.js) · ในแนวรับ = ห้าม SELL · ในแนวต้าน = ห้าม BUY · ติดทั้งสองฝั่ง = ห้ามทั้งคู่
+- ปุ่ม 🔕/🔔 = เสียง beep + Notification ตอนเข้าโซน (ปิดเป็นค่าเริ่มต้น, เก็บใน localStorage)
+- การ์ด "เช็กก่อนกด" 7 ข้อ เก็บใน localStorage เท่านั้น ล้างเองหลัง 30 นาที (`CHECK_EXPIRE_MIN`)
+- ทดสอบ: `?testprice=4030` บังคับราคาสำหรับแบนเนอร์/เช็กลิสต์ (กราฟไม่เปลี่ยน)

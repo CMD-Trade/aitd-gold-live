@@ -2,14 +2,16 @@
    Primary feed : OKX index US100-USDT (CORS ok, no key) — REST history-index-candles + WebSocket index-tickers.
                   Checked 28 Oct 2026: tracks CFD NAS100 quotes (Capital.com/Pepperstone/FOREX.com) within ~5-10 pts and
                   closed within ~5 pts of the ^NDX cash close at 16:00 NY. OANDA:NAS100USD ran ~20 pts higher.
-   Fallback     : OKX US100-USDT-SWAP perp candles (REST poll).
+   Fallbacks    : Bitget NDX100USDT index (CORS *, ~10-25 pts above OKX) — needed in Thailand, where ISPs block okx.com;
+                  OKX US100-USDT-SWAP perp candles (REST poll); if nothing answers, the card switches to the TradingView tab.
+   All feeds are requested at once with short timeouts (raceFeeds in app.js); the first good one is shown.
    Bars/ticks inside the broker close (Fri 17:00 → Sun 18:00 NY and the daily 17:00–18:00 NY break) are dropped,
    like the gold chart, because the OKX index keeps printing 24/7.
    Zones        : nas_zones.json "zones" (bands from ^NDX daily levels, built by nas_zones.py). */
 (() => {
 'use strict';
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
-const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs } = L;
+const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds } = L;
 const NEAR = 15;                                   // inline warning when price is inside a band or within this many points
 const N = { tf: TF[qs.get('nastf')] ? qs.get('nastf') : (TF[LS.get('nas_tf','15')] ? LS.get('nas_tf','15') : '15'),
   view: LS.get('nas_view','zone'), raw: [], dayRaw: [], price: null, prev: null, feed: null, zones: null, lastTickAt: 0, hi: null, lo: null };
@@ -42,7 +44,8 @@ const Feeds = {
         ws.onclose = ()=>{ clearInterval(ping); if (closed) return; startPoll(); setTimeout(open, Math.min(15000, 1000*(++retry))); };
       };
       open();
-      const wd = setInterval(()=>{ if (Date.now()-last > 10000) startPoll(); }, 5000);
+      last = Date.now();
+      const wd = setInterval(()=>{ if (Date.now()-last > 5000) startPoll(); }, 2500);   // WS silent/blocked → REST poll
       return () => { closed=true; clearInterval(ping); clearInterval(wd); stopPoll(); try{ws.close()}catch(e){} };
     },
     async tail(tf){
@@ -51,6 +54,8 @@ const Feeds = {
       return d.map(k=>({time:+k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]})).reverse().filter(b=>!spotClosed(b.time*1000));
     }
   },
+  bitget: Object.assign(bitgetIndex('NDX100USDT', 'Bitget NDX100 index (สำรอง)', false), {
+    stream(onTick){ return bitgetIndex('NDX100USDT').stream(null, onTick); } }),
   perp: {
     name:'perp', label:'OKX US100-USDT perp (สำรอง)',
     async history(tf){
@@ -63,7 +68,7 @@ const Feeds = {
     }
   }
 };
-const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')] : ['okxidx','perp'];
+const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')] : ['okxidx','bitget','perp'];
 
 /* ---------------- chart (same options as the gold chart) ---------------- */
 let chart, cs, e20, e50, stop = null;
@@ -121,18 +126,21 @@ async function resyncTail(){
 async function loadFeed(){
   if (stop){ stop(); stop = null; }
   N.raw = []; $('nasStatus').textContent = 'กำลังโหลด…';
-  for (const name of ORDER){
-    try{
-      const f = Feeds[name], tf0 = N.tf;
-      const hist = await withTimeout(f.history(N.tf), 10000);
-      if (tf0 !== N.tf) return;
-      if (!hist.length) throw new Error('empty');
-      N.feed = f; N.raw = hist; redraw(); chart.timeScale().scrollToRealTime();
-      stop = f.stream(onTick); N.lastTickAt = Date.now();
-      loadDay(f); $('nasStatus').textContent = name==='perp' ? 'สำรอง: perp' : ''; renderBadge(); return;
-    }catch(e){ console.warn('nas feed fail', name, e); }
+  const tf0 = N.tf;
+  N.loading = true;
+  const won = await raceFeeds(ORDER, (n)=>withTimeout(Feeds[n].history(N.tf), 6000), L.okxSlow ? 0 : 1000);
+  if (tf0 !== N.tf) return;
+  N.loading = false;
+  if (won){
+    const f = Feeds[won.name];
+    N.feed = f; N.raw = won.hist; redraw(); chart.timeScale().scrollToRealTime();
+    stop = f.stream(onTick); N.lastTickAt = Date.now();
+    setTimeout(()=>loadDay(f), 2000);
+    $('nasStatus').textContent = won.name==='okxidx' ? '' : 'สำรอง: '+f.label; renderBadge(); return;
   }
-  N.feed = null; $('nasStatus').textContent = 'โหลดข้อมูล NAS100 ไม่ได้ — ดูแท็บ TradingView'; renderBadge();
+  N.feed = null; renderBadge();
+  $('nasStatus').textContent = 'โหลดข้อมูล NAS100 ไม่ได้ — เปิดแท็บ TradingView ให้แทน';
+  if (N.view==='zone') setView('tv', true);                 // show live TradingView chart instead of an empty one
 }
 async function loadDay(f){ try{ N.dayRaw = await f.history('15', 120); recomputeDay(); }catch(e){} }
 function recomputeDay(){
@@ -158,7 +166,7 @@ function setPrice(p){
 }
 function renderBadge(){
   const b = $('nasBadge'), stale = !N.lastTickAt || Date.now()-N.lastTickAt > 90000;
-  if (!N.feed){ b.className='badge'; b.textContent = 'ไม่มีข้อมูล'; return; }
+  if (!N.feed){ b.className='badge'; b.textContent = N.loading ? 'กำลังเชื่อมต่อ…' : 'ไม่มีข้อมูล'; return; }
   if (spotClosed(Date.now())){ b.className='badge warn'; b.textContent='ตลาดปิด'; return; }
   b.className = 'badge ' + (stale?'warn':'live'); b.textContent = stale ? 'รอข้อมูล' : 'LIVE';
 }
@@ -259,8 +267,8 @@ function loadTV(){
     });
   });
 }
-function setView(v){
-  N.view = v==='tv' ? 'tv' : 'zone'; LS.set('nas_view', N.view);
+function setView(v, auto){
+  N.view = v==='tv' ? 'tv' : 'zone'; if (!auto) LS.set('nas_view', N.view);
   document.querySelectorAll('.ntab').forEach(b=>b.classList.toggle('active', b.dataset.nview===N.view));
   $('nasZoneView').classList.toggle('hidden', N.view!=='zone'); $('nasTvView').classList.toggle('hidden', N.view!=='tv');
   if (N.view==='tv' && !$('nasTv').firstChild) loadTV();
@@ -275,7 +283,9 @@ function setTF(tf){
 function start(){
   document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>setView(b.dataset.nview));
   document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===N.tf); b.onclick=()=>setTF(b.dataset.tf); });
-  initChart(); setView(N.view); loadZones(); loadFeed();
+  initChart(); setView(N.view); loadZones();
+  // gold first: start NAS when the gold chart has painted, or after 1 s at most
+  Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(loadFeed);
   setInterval(renderBadge, 2000);
   setInterval(resyncTail, 60000);
   setInterval(()=>{ if (N.feed) loadDay(N.feed); }, 5*60000);

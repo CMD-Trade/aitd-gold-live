@@ -115,8 +115,7 @@ function tickEvent(now){
 /* ---------------- spot reference (gold-api.com, CORS *, no key) ---------------- */
 async function pollSpot(){
   try{
-    const r = await fetch('https://api.gold-api.com/price/XAU', {cache:'no-store'});
-    const j = await r.json();
+    const j = await fetchJSON('https://api.gold-api.com/price/XAU', 5000);
     if (j && j.price){
       const at = Date.parse(j.updatedAt) || Date.now();
       const isNew = at !== S.spotAt;
@@ -141,14 +140,63 @@ function sampleOffset(){
 const TF = { '1':{bn:'1m',okx:'1m',s:60}, '5':{bn:'5m',okx:'5m',s:300}, '15':{bn:'15m',okx:'15m',s:900}, '60':{bn:'1h',okx:'1H',s:3600}, '240':{bn:'4h',okx:'4H',s:14400} };
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]);
 
+/* every network call gets a hard timeout: a blocked host (OKX is blocked by Thai ISPs since 28 Jun 2025) can hang
+   for 20+ s instead of failing, which is what kept the badges on "กำลังเชื่อมต่อ…" */
+async function fetchJSON(url, ms=4000){
+  const ac = new AbortController(), t = setTimeout(()=>ac.abort(), ms);
+  try{ const r = await fetch(url, {cache:'no-store', signal:ac.signal}); if (!r.ok) throw new Error(url+' '+r.status); return await r.json(); }
+  finally{ clearTimeout(t); }
+}
 const OKX = 'https://www.okx.com/api/v5/market/';
 async function okxGet(url, tries=3){
   for (let i=0;;i++){
-    try{ const r = await fetch(url, {cache:'no-store'}); const j = await r.json();
-      if (j.code==='0') return j.data; if (j.code!=='50011' || i>=tries-1) throw new Error('okx '+j.code+' '+j.msg); }
-    catch(e){ if (i>=tries-1) throw e; }
+    const j = await fetchJSON(url, 4000);                       // network error / timeout → fail fast, no retry
+    if (j.code==='0') return j.data;
+    if (j.code!=='50011' || i>=tries-1) throw new Error('okx '+j.code+' '+j.msg);
     await new Promise(r=>setTimeout(r, 400*(i+1)));          // 50011 = rate limit
   }
+}
+/* Bitget index candles (CORS *, no key) — backup when OKX is unreachable. history-index-candles: max 200 bars/request, ascending. */
+const BG = 'https://api.bitget.com/api/v2/mix/market/';
+const BG_TF = { '1':'1m', '5':'5m', '15':'15m', '60':'1H' };
+async function bgGet(path){ const j = await fetchJSON(BG+path, 4000); if (j.code!=='00000') throw new Error('bitget '+j.code+' '+j.msg); return j.data; }
+function bitgetIndex(symbol, label, adjust){
+  return {
+    name:'bitget', label, adjust, ticks:true,
+    async history(tf, bars=500){
+      const base = tf==='240' ? '60' : tf, s = TF[base].s;
+      const need = tf==='240' ? 900 : bars, pages = Math.ceil(need/200);
+      const end = (Math.floor(Date.now()/1000/s)+1)*s*1000;
+      const res = await Promise.all(Array.from({length:pages}, (_,k)=>
+        bgGet(`history-index-candles?symbol=${symbol}&productType=USDT-FUTURES&granularity=${BG_TF[base]}&limit=200&endTime=${end - k*200*s*1000}`)));
+      const m = new Map();
+      for (const page of res) for (const k of page||[]) m.set(+k[0]/1000, {time:+k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]});
+      let raw = [...m.values()].sort((a,b)=>a.time-b.time).filter(b=>!spotClosed(b.time*1000));
+      if (tf==='240') raw = aggregate(raw, '240');
+      return raw;
+    },
+    stream(tf, onTick){
+      const iv = setInterval(async()=>{ try{ const d = await bgGet(`symbol-price?symbol=${symbol}&productType=USDT-FUTURES`); onTick(+d[0].indexPrice, +d[0].ts); }catch(e){} }, 2000);
+      return () => clearInterval(iv);
+    }
+  };
+}
+/* start every candidate feed at once and keep the best one that answers: a higher-priority feed gets `grace` ms
+   after a lower one has data, so a slow/blocked primary never stalls the chart (before: 8–10 s timeout per feed, one by one) */
+function raceFeeds(order, run, grace=1000){
+  return new Promise((resolve)=>{
+    const st = order.map(()=>({done:false, ok:false, v:null})); let timer = null, fin = false;
+    const decide = (force)=>{
+      if (fin) return;
+      for (let i=0;i<order.length;i++){
+        if (st[i].ok){ fin = true; clearTimeout(timer); return resolve({name:order[i], hist:st[i].v}); }
+        if (!st[i].done && !force){ if (st.some(x=>x.ok) && !timer) timer = setTimeout(()=>decide(true), grace); return; }
+      }
+      if (st.every(x=>x.done)){ fin = true; clearTimeout(timer); resolve(null); }
+    };
+    order.forEach((n,i)=>Promise.resolve().then(()=>run(n)).then(v=>{ if (!v || !v.length) throw new Error('empty'); st[i].ok = true; st[i].v = v; })
+      .catch(e=>console.warn('feed fail', n, e && e.message || e)).finally(()=>{ st[i].done = true; decide(false); }));
+  });
 }
 const Feeds = {
   /* PRIMARY: OKX index XAU-USD = spot gold in USD aggregated from spot venues (CORS *, no key).
@@ -179,16 +227,16 @@ const Feeds = {
         ws.onclose = ()=>{ clearInterval(ping); if (closed) return; startPoll(); setTimeout(open, Math.min(15000, 1000*(++retry))); };
       };
       open();
-      const wd = setInterval(()=>{ if (Date.now()-last > 10000) startPoll(); }, 5000);   // WS silent → REST
+      last = Date.now();                                                                // REST snapshot is already on screen
+      const wd = setInterval(()=>{ if (Date.now()-last > 5000) startPoll(); }, 2500);   // WS silent/blocked → REST poll
       return () => { closed=true; clearInterval(ping); clearInterval(wd); stopPoll(); try{ws.close()}catch(e){} };
     }
   },
   binance: {
     name:'binance', label:'Binance XAUUSDT', adjust:true,
     async history(tf, limit=500){
-      const r = await fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=XAUUSDT&interval=${TF[tf].bn}&limit=${limit}`);
-      if(!r.ok) throw new Error('binance '+r.status);
-      return (await r.json()).map(k=>({time:k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]}));
+      const j = await fetchJSON(`https://fapi.binance.com/fapi/v1/klines?symbol=XAUUSDT&interval=${TF[tf].bn}&limit=${limit}`);
+      return j.map(k=>({time:k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]}));
     },
     stream(tf, onBar){
       let ws, closed=false, retry=0, poll;
@@ -205,8 +253,8 @@ const Feeds = {
   okx: {
     name:'okx', label:'OKX XAU-USDT-SWAP', adjust:true,
     async history(tf, limit=300){
-      const r = await fetch(`https://www.okx.com/api/v5/market/candles?instId=XAU-USDT-SWAP&bar=${TF[tf].okx}&limit=${Math.min(limit,300)}`);
-      const j = await r.json(); if (j.code!=='0') throw new Error('okx '+j.msg);
+      const j = await fetchJSON(`https://www.okx.com/api/v5/market/candles?instId=XAU-USDT-SWAP&bar=${TF[tf].okx}&limit=${Math.min(limit,300)}`);
+      if (j.code!=='0') throw new Error('okx '+j.msg);
       return j.data.map(k=>({time:+k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4]})).reverse();
     },
     stream(tf, onBar){
@@ -222,8 +270,9 @@ const Feeds = {
       return () => { closed=true; clearInterval(ping); clearInterval(poll); try{ws.close()}catch(e){} };
     }
   },
+  bitget: bitgetIndex('XAUUSDT', 'Bitget XAUUSDT index (สำรอง)', true),
 };
-const ORDER = (qs.get('feed') ? [qs.get('feed')] : ['okxidx','binance','okx']).filter(f=>Feeds[f]);
+const ORDER = (qs.get('feed') ? [qs.get('feed')] : ['okxidx','binance','bitget','okx']).filter(f=>Feeds[f]);
 
 /* ---------------- Lightweight chart ---------------- */
 let chart, cs, e20, e50, zoneLines = [], stopStream = null;
@@ -276,7 +325,8 @@ function onIndexTick(p, ms){
   cs.update(adj(S.raw[S.raw.length-1]));
   const d = S.raw.slice(-300).map(adj); const x20 = ema(d,20), x50 = ema(d,50);
   e20.update(x20[x20.length-1]); e50.update(x50[x50.length-1]);
-  trackDay(p); setPrice(p); S.lastTickAt = Date.now();
+  S.ticks.push([Date.now(), p]); if (S.ticks.length>600) S.ticks.shift();
+  trackDay(p - S.offset); setPrice(p - S.offset); S.lastTickAt = Date.now();
 }
 /* every 60 s re-read the newest bars from REST (exact OHLC incl. ticks the browser missed) */
 async function resyncTail(){
@@ -394,31 +444,34 @@ async function loadOpt(){ try{ S.opt = await getJSON('options_levels.json'); }ca
 async function loadFeed(){
   if (stopStream){ stopStream(); stopStream=null; }
   S.raw = []; S.ticks = []; S.offsetSamples = []; S.offset = 0; $('lwStatus').textContent = 'กำลังโหลด…';
-  for (const name of ORDER){
+  const tfAtStart = S.tf;
+  const won = await raceFeeds(ORDER, (n)=>withTimeout(Feeds[n].history(S.tf), 6000));
+  if (tfAtStart !== S.tf) return;                           // user switched TF meanwhile
+  if (won){
     try{
-      const f = Feeds[name];
-      const tfAtStart = S.tf;
-      const hist = await withTimeout(f.history(S.tf), 8000);
-      if (tfAtStart !== S.tf) return;                       // user switched TF meanwhile
-      if (!hist.length) throw new Error('empty');
-      S.feed = f; S.raw = hist;
+      const f = Feeds[won.name], hist = won.hist;
+      if (f.adjust && !S.spot) await Promise.race([spotP, new Promise(r=>setTimeout(r,1500))]);
+      S.feed = f; S.raw = hist; window.AITD_LIB.okxSlow = won.name!=='okxidx';   // NAS skips waiting for OKX too
       S.ticks.push([Date.now(), hist[hist.length-1].close]);
       S.offset = 0;
       if (f.adjust && S.spot && S.offsetMode==='auto'){ S.offset = hist[hist.length-1].close - S.spot; S.offsetSamples=[S.offset]; }
       redrawAll(); chart.timeScale().scrollToRealTime();
-      stopStream = f.stream(S.tf, f.adjust ? onBar : onIndexTick);
-      loadDay(f);
-      $('lwStatus').textContent = '';
-      renderFeedInfo(); return;
-    }catch(e){ console.warn('feed fail', name, e); }
+      stopStream = f.stream(S.tf, f.adjust && !f.ticks ? onBar : onIndexTick);
+      S.lastTickAt = Date.now();
+      setTimeout(()=>loadDay(f), 1500);                     // after first paint, not in the startup burst
+      $('lwStatus').textContent = won.name==='okxidx' ? '' : 'สำรอง: '+f.label;
+      renderFeedInfo(); goldReady(); return;
+    }catch(e){ console.warn('feed fail', won.name, e); }
   }
   // fallback: spot polling only (+ static seed for M15)
   S.feed = {name:'gold-api', label:'gold-api.com (spot)'}; S.offset = 0;
   if (['15','60','240'].includes(S.tf)){ try{ const s = await getJSON('candles_seed.json'); const c = s.candles.map(c=>({...c})); S.raw = S.tf==='15' ? c : aggregate(c, S.tf); }catch(e){} }
   redrawAll(); if (S.spot) onSpotOnlyTick(S.spot, Date.now());
   $('lwStatus').textContent = 'โหมดสำรอง: อัปเดตจาก spot ทุก ~30 วิ';
-  renderFeedInfo();
+  renderFeedInfo(); goldReady();
 }
+/* js/nas.js waits for this (max ~1 s) so the NAS chart never competes with the gold chart's first load */
+let goldReady; window.AITD_GOLD_READY = new Promise(r=>goldReady=r);
 async function loadDay(f){
   try{ S.dayRaw = await f.history('15', 120); recomputeDay(); }catch(e){}
 }
@@ -865,6 +918,7 @@ function wire(){
   document.querySelectorAll('#tfs button').forEach(b=>b.classList.toggle('active', b.dataset.tf===S.tf));
 }
 
+let spotP = Promise.resolve();
 async function main(){
   const [z, e] = await Promise.allSettled([getJSON('zones.json'), getJSON('events.json')]);
   if (z.status==='fulfilled'){ S.zones = z.value; $('zonesDate').textContent = `· ${S.zones.date||''}`; $('zonesMeta').textContent = (S.zones.auto?'โซนอัตโนมัติจากแท่ง H1 ดัชนี OKX XAU-USD (High/Low เมื่อวาน, Pivot, เอเชีย, swing H1/H4, เลขกลม) · ':'') + (S.zones.bias?('มุมมอง: '+S.zones.bias+' · '):'') + 'อัปเดต '+thDT(S.zones.generated_at||S.zones.date); }
@@ -873,11 +927,13 @@ async function main(){
   wire(); tickClock(); setInterval(tickClock, 1000);
   renderGuard(); setInterval(renderChecklist, 30000);   // checklist expiry
   WIDGETS.calendar(document.querySelector('[data-widget=calendar]'));   // load first: avoids a TradingView CDN 403 seen when it loads after other TV widgets
-  initChart(); setView(S.view); loadOpt(); loadNews(); loadVP(true);
+  initChart(); setView(S.view); loadOpt(); loadNews();
+  spotP = pollSpot(); setInterval(pollSpot, 15000);        // runs alongside the candle load (was awaited first)
+  const vpStart = ()=>loadVP(true);
+  window.AITD_GOLD_READY.then(()=>setTimeout(vpStart, 2500));   // volume profile after both charts have painted
   setInterval(()=>loadVP(false), 60000);                                    // volume profile: newest candles + basis every minute
   setInterval(()=>{ if (S.vpOn) loadVP(true); }, 15*60000);                 // full rebuild (drops candles older than the period start)
   setInterval(renderNews, 60000);                                           // relative times
-  await pollSpot(); setInterval(pollSpot, 15000);
   await loadFeed();
   setInterval(renderFeedInfo, 2000);
   setInterval(()=>{ if(S.feed && S.feed.name!=='gold-api') loadDay(S.feed); }, 5*60000);
@@ -888,7 +944,7 @@ async function main(){
   setInterval(()=>{ if (S.opt) renderOpt(); }, 15000);   // refresh distance-to-price
 }
 /* shared helpers for js/nas.js (NAS100 chart) — same formatting, market hours, H4 anchoring and OKX client as the gold chart */
-window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF };
+window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, bitgetIndex, raceFeeds };
 main();
 window.__AITD = S;
 })();

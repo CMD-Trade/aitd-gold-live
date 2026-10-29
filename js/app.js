@@ -196,6 +196,14 @@ async function fetchJSON(url, ms=4000){
   finally{ clearTimeout(t); }
 }
 const OKX = 'https://www.okx.com/api/v5/market/';
+/* Hyperliquid public info API (POST JSON, CORS *, no key) — used for trade.xyz XYZ100 (Nasdaq-100) by js/nas.js */
+const HL_INFO = 'https://api.hyperliquid.xyz/info';
+async function hlPost(body, ms=5000){
+  const ac = new AbortController(), t = setTimeout(()=>ac.abort(), ms);
+  try{ const r = await fetch(HL_INFO, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body), cache:'no-store', signal:ac.signal});
+    if (!r.ok) throw new Error('hyperliquid '+r.status); return await r.json(); }
+  finally{ clearTimeout(t); }
+}
 async function okxGet(url, tries=3){
   for (let i=0;;i++){
     const j = await fetchJSON(url, 4000);                       // network error / timeout → fail fast, no retry
@@ -886,7 +894,7 @@ function loadTape(){
 
 /* ---------------- Volume Profile engine (gold + NAS100) ----------------
    Volume comes from crypto-exchange perpetuals (the only free, CORS-open, no-key candle volume):
-   gold: OKX XAU-USDT-SWAP → Bitget XAUUSDT → Binance XAUUSDT;  NAS100: OKX US100-USDT-SWAP → Bitget NDX100USDT.
+   gold: OKX XAU-USDT-SWAP → Bitget XAUUSDT → Binance XAUUSDT;  NAS100: Hyperliquid xyz:XYZ100 → OKX US100-USDT-SWAP → Bitget NDX100USDT.
    All sources are requested at once (4 s fetch timeout each, raceFeeds); the first one in priority order that answers wins —
    in Thailand okx.com is blocked, so Bitget/Binance take over instead of the profile staying blank.
    The perp trades at a different price than the chart (basis, and for NAS the Skilling offset), so the profile is shifted onto
@@ -900,6 +908,7 @@ function vpStart(p, now=Date.now()){
   if (p==='week'){ for (let i=0;i<7 && tzParts('America/New_York', new Date(t+3600e3)).wd!=='Sun'; i++) t -= 86400000; }
   return t;
 }
+const VP_BAR_MS = { '5m':300000, '15m':900000 };
 const vpRow = (t,h,l,c,v) => ({t:+t, h:+h, l:+l, c:+c, v:+v});
 const VP_SRC = {
   okx: (instId) => async (bar, start, full) => {             // k[6] = volCcy (oz for XAU, index units for US100)
@@ -918,6 +927,11 @@ const VP_SRC = {
     const j = await fetchJSON(`https://api.bitget.com/api/v2/mix/market/candles?symbol=${symbol}&productType=USDT-FUTURES&granularity=${bar}&limit=${full?1000:3}${full?`&startTime=${start}`:''}`);
     if (j.code!=='00000' || !Array.isArray(j.data)) throw new Error('bitget '+j.code);
     return j.data.map(k=>vpRow(k[0],k[2],k[3],k[4],k[5]));
+  },
+  hl: (coin) => async (bar, start, full) => {                 // Hyperliquid candles, v = base volume (index units)
+    const now = Date.now(), j = await hlPost({type:'candleSnapshot', req:{coin, interval:bar, startTime: full ? start : now - 3*VP_BAR_MS[bar], endTime: now}}, full ? 8000 : 4000);
+    if (!Array.isArray(j)) throw new Error('hyperliquid candles');
+    return j.map(k=>vpRow(k.t, k.h, k.l, k.c, k.v));
   },
   binance: (symbol) => async (bar, start, full) => {          // k[5] = base volume (oz)
     const j = await fetchJSON(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${bar}&limit=${full?1500:3}${full?`&startTime=${start}`:''}`);
@@ -1142,7 +1156,7 @@ async function main(){
   }, 15000);
 }
 /* shared helpers for js/nas.js (NAS100 chart) — same formatting, market hours, H4 anchoring and OKX client as the gold chart */
-window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, bitgetIndex, raceFeeds, createVP, VP_SRC };
+window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, hlPost, bitgetIndex, raceFeeds, createVP, VP_SRC };
 main();
 window.__AITD = S;
 })();

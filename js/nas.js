@@ -1,5 +1,11 @@
 /* AiTD Gold Live — NAS100 chart (same look/behaviour as the gold "กราฟ + โซน" chart). Client-only, no API keys.
-   Primary feed : OKX index US100-USDT (CORS ok, no key) — REST history-index-candles + WebSocket index-tickers.
+   Primary feed : Hyperliquid trade.xyz XYZ100 (Nasdaq-100 perp, CORS *, no key, not blocked in Thailand) — candleSnapshot
+                  history + WebSocket candle/activeAssetCtx. Checked 27–29 Oct 2026 against Dukascopy USA100 −5 (= Skilling US100 /
+                  MT5): after the offset, M15 high/low within median 2–3 / p90 5–7 pts (OKX index 2.5–3 / 7–8; Bitget NDX100
+                  index 4–7 / 35–44, its gap to Skilling swings +25…+100 within hours — the old fallback, which made candles wrong).
+                  Live offset: XYZ100 mid − oracle (live premium, ~3 pts) + oracle − Skilling (5.5, measured), so it follows the
+                  perp's premium instead of a fixed number.
+   Second       : OKX index US100-USDT (CORS ok, no key) — REST history-index-candles + WebSocket index-tickers.
                   Checked 28 Oct 2026: tracks CFD NAS100 quotes (Capital.com/Pepperstone/FOREX.com) within ~5-10 pts and
                   closed within ~5 pts of the ^NDX cash close at 16:00 NY. OANDA:NAS100USD ran ~20 pts higher.
    Fallbacks    : Bitget NDX100USDT index (CORS *, ~10-25 pts above OKX) — needed in Thailand, where ISPs block okx.com;
@@ -17,16 +23,71 @@
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
 const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createVP, VP_SRC } = L;
 const NEAR = 15;
-const DEF_OFF = { okxidx:-12, bitget:-36, perp:-30 };   // feed → Skilling US100 (measured 28 Oct 2026, see header)
+const DEF_OFF = { hl:-9, okxidx:-10, bitget:-45, perp:-30 };   // feed → Skilling US100 (measured 27–29 Oct 2026, see header)
+const HL_COIN = 'xyz:XYZ100', HL_K = 5.5;                // trade.xyz oracle − Skilling US100 (median 27–29 Oct 2026; hourly 3.3…8.5)
+const median = (a) => { const s = [...a].sort((x,y)=>x-y), n = s.length; return n ? (n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2) : null; };
 const ZONE_SHIFT = -5;                                   // ^NDX cash levels → Skilling US100 CFD
 const userOff = (name) => { const v = parseFloat(LS.get('nas_off_'+name, '')); return isFinite(v) ? v : null; };
-const offFor = (name) => userOff(name) ?? DEF_OFF[name] ?? 0;
+const prem = [];                                         // XYZ100 mid − oracle samples (live premium of the perp)
+const onPrem = (mid, oracle) => { if (mid>0 && oracle>0 && Math.abs(mid-oracle) < 60){ prem.push(mid-oracle); if (prem.length > 60) prem.shift(); } };
+const liveOff = () => prem.length >= 3 ? Math.round(Math.min(-3, Math.max(-20, -(HL_K + median(prem))))*10)/10 : null;
+const offFor = (name) => userOff(name) ?? (name==='hl' ? liveOff() : null) ?? DEF_OFF[name] ?? 0;
 const shiftBar = (b, d) => ({time:b.time, open:b.open+d, high:b.high+d, low:b.low+d, close:b.close+d});                                   // inline warning when price is inside a band or within this many points
 const N = { tf: TF[qs.get('nastf')] ? qs.get('nastf') : (TF[LS.get('nas_tf','15')] ? LS.get('nas_tf','15') : '15'),
   view: LS.get('nas_view','zone'), raw: [], dayRaw: [], off: 0, price: null, prev: null, feed: null, zones: null, lastTickAt: 0, hi: null, lo: null };
 
 /* ---------------- feeds ---------------- */
+const HL_TF = { '1':'1m', '5':'5m', '15':'15m', '30':'30m', '60':'1h' };
+async function hlBars(tf, n){                              // tf as chart TF ('240' → 1h bars, aggregated by the caller)
+  const base = tf==='240' ? '60' : tf, s = TF[base].s, now = Date.now();
+  const j = await L.hlPost({type:'candleSnapshot', req:{coin:HL_COIN, interval:HL_TF[base], startTime: now - (n+1)*s*1000, endTime: now}}, 6000);
+  if (!Array.isArray(j) || !j.length) throw new Error('hyperliquid candles');
+  return j.map(k=>({time:k.t/1000, open:+k.o, high:+k.h, low:+k.l, close:+k.c})).filter(b=>!spotClosed(b.time*1000));
+}
 const Feeds = {
+  hl: {
+    name:'hl', label:'Hyperliquid XYZ100 (Nasdaq-100)',
+    async history(tf, bars=500){
+      let raw = await hlBars(tf, tf==='240' ? 1100 : Math.round(bars*1.4));   // ×1.4: the daily break / weekend bars are dropped
+      if (tf==='240') raw = aggregate(raw, '240');
+      return raw;
+    },
+    stream(onTick){
+      let ws, closed=false, retry=0, ping, poll, last=0, cur=null;
+      const tick = (px) => { if (isFinite(px) && px>0){ last=Date.now(); onTick(px, Date.now()); } };
+      const onCandle = (c) => {                            // feed the 1m candle's new extremes first so wicks match the history bars
+        const h = +c.h, l = +c.l, x = +c.c;
+        if (!cur || cur.t!==c.t) cur = {t:c.t, h:x, l:x};
+        if (h > cur.h){ cur.h = h; tick(h); }
+        if (l < cur.l){ cur.l = l; tick(l); }
+        tick(x);
+      };
+      const pollOnce = async()=>{ try{
+        const [m, ctx] = await L.hlPost({type:'metaAndAssetCtxs', dex:'xyz'}, 4000);
+        const i = m.universe.findIndex(a=>a.name===HL_COIN); if (i<0) return; const c = ctx[i];
+        onPrem(+c.midPx, +c.oraclePx); tick(+(c.midPx || c.markPx));
+      }catch(e){} };
+      const startPoll = () => { if (!poll) poll = setInterval(pollOnce, 3000); };
+      const stopPoll = () => { if (poll){ clearInterval(poll); poll=null; } };
+      const open = () => {
+        try{ ws = new WebSocket('wss://api.hyperliquid.xyz/ws'); }catch(e){ startPoll(); return; }
+        ws.onopen = ()=>{
+          ws.send(JSON.stringify({method:'subscribe', subscription:{type:'candle', coin:HL_COIN, interval:'1m'}}));
+          ws.send(JSON.stringify({method:'subscribe', subscription:{type:'activeAssetCtx', coin:HL_COIN}}));
+          clearInterval(ping); ping = setInterval(()=>{ try{ ws.send(JSON.stringify({method:'ping'})); }catch(e){} }, 30000);
+        };
+        ws.onmessage = (m)=>{ let j; try{ j = JSON.parse(m.data); }catch(e){ return; }
+          if (j.channel==='candle' && j.data && j.data.s===HL_COIN){ retry=0; stopPoll(); onCandle(j.data); }
+          else if (j.channel==='activeAssetCtx' && j.data && j.data.ctx){ last = Date.now(); onPrem(+j.data.ctx.midPx, +j.data.ctx.oraclePx); } };
+        ws.onclose = ()=>{ clearInterval(ping); if (closed) return; startPoll(); setTimeout(open, Math.min(15000, 1000*(++retry))); };
+      };
+      open(); pollOnce();
+      last = Date.now();
+      const wd = setInterval(()=>{ if (Date.now()-last > 8000) startPoll(); }, 4000);   // WS silent/blocked → REST poll
+      return () => { closed=true; clearInterval(ping); clearInterval(wd); stopPoll(); try{ws.close()}catch(e){} };
+    },
+    async tail(tf){ return (await hlBars(tf, tf==='240' ? 5 : 3)).slice(tf==='240' ? -5 : -3); }
+  },
   okxidx: {
     name:'okxidx', label:'OKX US100-USDT index',
     async history(tf, bars=500){
@@ -77,15 +138,16 @@ const Feeds = {
     }
   }
 };
-const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')] : ['okxidx','bitget','perp'];
+const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')] : ['hl','okxidx','bitget','perp'];
 
 /* ---------------- chart (same options as the gold chart) ---------------- */
 let chart, cs, e20, e50, stop = null;
-/* Volume Profile (same engine/look as gold): OKX US100-USDT-SWAP → Bitget NDX100USDT perp volume, shifted onto the
+/* Volume Profile (same engine/look as gold): Hyperliquid XYZ100 → OKX US100-USDT-SWAP → Bitget NDX100USDT perp volume, shifted onto the
    (Skilling-offset) NAS candles; 5-point bins. */
 const NVP = createVP({
   key:'nas_vp', qsOn:'nasvp', qsPeriod:'nasvpp', ids:{tg:'nasTgVp', period:'nasVpPeriod', info:'nasVpInfo'}, bin:5, unit:'US100', volDigits:2,
-  sources:[ {name:'okx', short:'OKX', label:'OKX US100-USDT perp', fetch:VP_SRC.okx('US100-USDT-SWAP')},
+  sources:[ {name:'hl', short:'Hyperliquid', label:'Hyperliquid XYZ100 perp', fetch:VP_SRC.hl(HL_COIN)},
+            {name:'okx', short:'OKX', label:'OKX US100-USDT perp', fetch:VP_SRC.okx('US100-USDT-SWAP')},
             {name:'bitget', short:'Bitget', label:'Bitget NDX100USDT perp', fetch:VP_SRC.bitget('NDX100USDT')} ],
   tf:()=>N.tf, chartBars:()=>N.raw, series:()=>cs, onChange:()=>drawZones(),
 });
@@ -146,7 +208,7 @@ async function loadFeed(){
   N.raw = []; $('nasStatus').textContent = 'กำลังโหลด…';
   const tf0 = N.tf;
   N.loading = true;
-  const won = await raceFeeds(ORDER, (n)=>withTimeout(Feeds[n].history(N.tf), 6000), L.okxSlow ? 0 : 1000);
+  const won = await raceFeeds(ORDER, (n)=>withTimeout(Feeds[n].history(N.tf), 6000), 2000);   // Hyperliquid first: a faster Bitget answer waits ≤2 s for it (Bitget candles are off)
   if (tf0 !== N.tf) return;
   N.loading = false;
   if (won){
@@ -155,7 +217,7 @@ async function loadFeed(){
     N.feed = f; N.raw = won.hist.map(b=>shiftBar(b, N.off)); renderCal(); redraw(); chart.timeScale().scrollToRealTime(); NVP.realign();
     stop = f.stream(onTick); N.lastTickAt = Date.now();
     setTimeout(()=>loadDay(f), 2000);
-    $('nasStatus').textContent = won.name==='okxidx' ? '' : 'สำรอง: '+f.label; renderBadge(); return;
+    $('nasStatus').textContent = won.name===ORDER[0] ? '' : 'สำรอง: '+f.label; renderBadge(); return;
   }
   N.feed = null; renderBadge();
   $('nasStatus').textContent = 'โหลดข้อมูล NAS100 ไม่ได้ — เปิดแท็บ TradingView ให้แทน';
@@ -176,7 +238,8 @@ function renderCal(){
   const el = $('nasCalInfo'); if (!el) return;
   if (!N.feed){ el.textContent = ''; return; }
   const own = userOff(N.feed.name) != null;
-  el.textContent = `ปรับ ${sgn(N.off, Number.isInteger(N.off)?0:1)} จุด (${own ? 'ตั้งเอง' : 'ค่าเริ่มต้น ≈ Skilling'})`;
+  const live = !own && N.feed.name==='hl' && liveOff()!=null;
+  el.textContent = `ปรับ ${sgn(N.off, Number.isInteger(N.off)?0:1)} จุด (${own ? 'ตั้งเอง' : live ? 'วัดสด ≈ Skilling' : 'ค่าเริ่มต้น ≈ Skilling'})`;
   el.title = `ราคาแหล่ง ${N.feed.label} ${N.off>=0?'+':'−'} ${Math.abs(N.off)} จุด`;
 }
 function wireCal(){
@@ -338,6 +401,10 @@ function start(){
   Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(()=>{ loadFeed(); NVP.start(2500); });   // VP after the NAS candles
   setInterval(renderBadge, 2000);
   setInterval(resyncTail, 60000);
+  setInterval(()=>{                                        // follow the XYZ100 premium (live offset), unless the user set their own
+    if (!N.feed || N.feed.name!=='hl' || N.loading || userOff('hl')!=null) return;
+    const v = liveOff(); if (v!=null && Math.abs(v - N.off) >= 0.5) setOff(v); else renderCal();
+  }, 5000);
   setInterval(()=>{ if (N.feed) loadDay(N.feed); }, 5*60000);
   setInterval(loadZones, 600000);
 }

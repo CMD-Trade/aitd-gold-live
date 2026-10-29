@@ -252,3 +252,26 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 .nas-zones .zone .rng{font-size:14px;text-align:right}
 .nas-zones .zone .note{font-size:11.5px}
 .nas-note{font-size:11.5px;border-top:1px dashed var(--line);padding-top:8px}
+
+/* multi-timeframe trend panel (gold + NAS100) */
+.trend{margin-top:8px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#0f1218}
+.trend.tr-agree-box{border-color:#6b5520;box-shadow:0 0 0 1px rgba(212,175,55,.18) inset}
+.tr-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:6px}
+.tr-title{color:var(--gold2);font-weight:600;font-size:13.5px}
+.tr-sum{font-size:13px;color:var(--mut)}
+.tr-sum b{font-weight:600}
+.tr-sum .up,.tr-chip.up b{color:var(--green)}.tr-sum .down,.tr-chip.down b{color:var(--red)}.tr-sum .side,.tr-chip.side b{color:#9aa3b5}
+.tr-agree{display:inline-block;margin-left:2px;padding:1px 8px;border-radius:999px;border:1px solid var(--gold);color:var(--gold2);font-size:12px;font-weight:600;background:rgba(212,175,55,.10)}
+.tr-agree.up{box-shadow:inset 0 0 0 99px rgba(38,166,154,.10)}.tr-agree.down{box-shadow:inset 0 0 0 99px rgba(239,83,80,.10)}
+.tr-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.tr-chip{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;border-radius:8px;background:#141821;border:1px solid var(--line);cursor:help;min-width:0}
+.tr-chip small{font-family:var(--mono);font-size:11px;color:var(--mut)}
+.tr-chip b{font-size:13px;white-space:nowrap}
+.tr-chip i{font-style:normal;font-size:11px}
+.tr-chip.up{background:rgba(38,166,154,.10);border-color:rgba(38,166,154,.35)}
+.tr-chip.down{background:rgba(239,83,80,.10);border-color:rgba(239,83,80,.35)}
+.tr-chip.na b{color:var(--mut)}
+.tr-note{margin-top:6px;font-size:11px;color:var(--mut);line-height:1.4}
+@media(max-width:420px){.tr-row{gap:4px}.tr-chip b{font-size:12px}.tr-chip i{font-size:10px}.tr-sum{font-size:12.5px}}
+.tr-chip.sel{outline:1px solid var(--gold);outline-offset:1px}
+.tr-detail{margin-top:6px;font-size:12px;color:var(--txt);font-family:var(--mono);line-height:1.45;word-break:break-word}

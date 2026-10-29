@@ -1062,6 +1062,110 @@ const GVP = createVP({
 S.vpOn = GVP.on; S.vp = null; window.__AITD_GVP = GVP;
 function drawVP(ctx, paneW, paneH){ if (S.view==='zone') GVP.draw(ctx, paneW, paneH); }
 
+/* ---------------- multi-timeframe trend (gold + NAS100) ----------------
+   M15/M30/H1/H4/D1 trend from the same candle feed as the chart (o.feed()), closed candles only:
+   - M15 & M30 from one M15 history; H1, H4 (17:00-NY anchored) and D1 (17:00-NY trading day) from one H1 history.
+   - Swing points = fractals (a high/low beyond the 2 bars on each side). Last two swing highs and lows:
+       HH + HL = ขึ้น, LH + LL = ลง, anything else = ไซด์เวย์.
+   - A close beyond the last swing high/low counts as the next HH/LL (break of structure), so a fresh breakdown is not
+     reported as ไซด์เวย์ just because the fractal needs 2 more bars to confirm.
+   - Confirmation: ขึ้น needs close > EMA50 of that TF (ลง: close < EMA50); otherwise ไซด์เวย์. D1 has < 60 bars, so it uses EMA20.  Not enough bars → "—" (no guess).
+   A constant price offset (OANDA/Skilling) does not change any of this, so raw feed prices are used. */
+const TREND_TF = [ {k:'15', label:'M15', s:900}, {k:'30', label:'M30', s:1800}, {k:'60', label:'H1', s:3600}, {k:'240', label:'H4', s:14400}, {k:'D', label:'D1', s:86400} ];
+const _d1Cache = new Map();
+function d1Start(t){ const hk = Math.floor(t/3600); let ds = _d1Cache.get(hk);
+  if (ds===undefined){ ds = dayStartMs(new Date(t*1000+1000))/1000; _d1Cache.set(hk, ds); if (_d1Cache.size>5000) _d1Cache.clear(); } return ds; }
+function aggD1(bars){ const out = [];
+  for (const b of bars){ const t = d1Start(b.time), l = out[out.length-1];
+    if (l && l.time===t){ l.high=Math.max(l.high,b.high); l.low=Math.min(l.low,b.low); l.close=b.close; }
+    else out.push({time:t, open:b.open, high:b.high, low:b.low, close:b.close}); }
+  return out; }
+function trendOf(bars, k=2){
+  if (!bars || bars.length < 20) return null;
+  const w = bars.slice(-120), hs = [], ls = [];
+  for (let i=k; i<w.length-k; i++){
+    let isH = true, isL = true;
+    for (let j=1; j<=k; j++){
+      if (!(w[i].high > w[i-j].high && w[i].high >= w[i+j].high)) isH = false;
+      if (!(w[i].low < w[i-j].low && w[i].low <= w[i+j].low)) isL = false;
+    }
+    if (isH) hs.push(w[i].high); if (isL) ls.push(w[i].low);
+  }
+  const n = bars.length >= 60 ? 50 : bars.length >= 25 ? 20 : 0;
+  const c = bars[bars.length-1].close, e = n ? ema(bars, n).pop().value : null;
+  const r = {close:c, ema:e, emaN:n, sh:hs.slice(-2), sl:ls.slice(-2), dir:'side', why:''};
+  if (hs.length < 2 || ls.length < 2){ r.why = 'swing ยังไม่พอ'; return r; }
+  const [h1, h2] = r.sh, [l1, l2] = r.sl;
+  // a close beyond the last swing counts as the next swing already made (break of structure; fractals confirm 2 bars late)
+  const hh = c > h2 ? true : h2 > h1, hl = c < l2 ? false : l2 > l1;
+  const up = hh && hl, dn = !hh && !hl;
+  r.why = `${hh?'HH':'LH'}+${hl?'HL':'LL'}` + (c > h2 ? ' (ปิดทะลุ swing high)' : c < l2 ? ' (ปิดหลุด swing low)' : '');
+  if (up && (e==null || c > e)) r.dir = 'up';
+  else if (dn && (e==null || c < e)) r.dir = 'down';
+  else if (up || dn) r.why += ` · ปิด${up?'ใต้':'เหนือ'} EMA${n}`;
+  return r;
+}
+/* o: { el (container id), feed:()=>feed with history(tf, bars), digits } */
+function createTrend(o){
+  const T = { res:{}, at:0, busy:false, feedName:null };
+  const el = () => $(o.el);
+  const closed = (bars, s, now) => bars.filter(b => b.time + s <= now);
+  T.load = async () => {
+    const f = o.feed(); if (!f || !f.history || T.busy) return;
+    T.busy = true; const now = Date.now()/1000, res = {};
+    const [m15, h1] = await Promise.allSettled([withTimeout(f.history('15', 600), 12000), withTimeout(f.history('60', 1200), 15000)]);
+    if (f !== o.feed()){ T.busy = false; return; }
+    const ok = (x) => x.status==='fulfilled' && Array.isArray(x.value) && x.value.length;
+    if (ok(m15)){ const b = m15.value; res['15'] = trendOf(closed(b, 900, now)); res['30'] = trendOf(closed(aggregate(b, '30'), 1800, now)); }
+    if (ok(h1)){ const b = h1.value; res['60'] = trendOf(closed(b, 3600, now)); res['240'] = trendOf(closed(aggregate(b, '240'), 14400, now)); res['D'] = trendOf(closed(aggD1(b), 86400, now)); }
+    T.res = res; T.at = Date.now(); T.feedName = f.name; T.busy = false; T.render();
+  };
+  const W = { up:{cls:'up', ar:'▲', th:'ขึ้น'}, down:{cls:'down', ar:'▼', th:'ลง'}, side:{cls:'side', ar:'◆', th:'ไซด์เวย์'} };
+  T.render = () => {
+    const f = (v) => v==null ? '—' : fmt(v, o.digits ?? 2);
+    let cnt = {up:0, down:0, side:0}, n = 0, html = '<div class="tr-row">';
+    for (const tf of TREND_TF){
+      const r = T.res[tf.k];
+      if (!r){ html += `<div class="tr-chip na" title="ยังไม่มีข้อมูลพอ"><small>${tf.label}</small><b>—</b></div>`; continue; }
+      const w = W[r.dir]; cnt[r.dir]++; n++; T.tips = T.tips || {};
+      const tip = `${tf.label}: ${w.th} · ${r.why}` + (r.sh.length ? ` · swing high ${r.sh.map(f).join(' → ')}` : '') + (r.sl.length ? ` · swing low ${r.sl.map(f).join(' → ')}` : '') + (r.ema!=null ? ` · ปิด ${f(r.close)} ${r.close>r.ema?'>':'<'} EMA${r.emaN} ${f(r.ema)}` : '');
+      T.tips[tf.k] = tip;
+      html += `<div class="tr-chip ${w.cls}${T.sel===tf.k?' sel':''}" data-tf="${tf.k}" title="${esc(tip)}"><small>${tf.label}</small><b><i>${w.ar}</i> ${w.th}</b></div>`;
+    }
+    html += '</div>';
+    let sum;
+    if (!n) sum = 'ภาพรวม: —';
+    else if (cnt.up > cnt.down && cnt.up >= cnt.side) sum = `ภาพรวม: <b class="up">▲ ขึ้น ${cnt.up}/${n} TF</b>`;
+    else if (cnt.down > cnt.up && cnt.down >= cnt.side) sum = `ภาพรวม: <b class="down">▼ ลง ${cnt.down}/${n} TF</b>`;
+    else sum = `ภาพรวม: <b class="side">◆ ไซด์เวย์/ผสม</b> (ขึ้น ${cnt.up} · ลง ${cnt.down} · ไซด์เวย์ ${cnt.side})`;
+    const a = ['30','60','240'].map(k=>T.res[k] && T.res[k].dir);
+    const agree = a.every(d=>d && d===a[0]) ? a[0] : null;
+    if (agree==='up' || agree==='down') sum += ` <span class="tr-agree ${agree}">M30 · H1 · H4 ตรงกัน: ${W[agree].ar} ${W[agree].th}</span>`;
+    const t = T.at ? new Date(T.at + 7*3600e3).toISOString().slice(11,16) : '';
+    const box = el(); if (!box) return;
+    box.innerHTML = `<div class="tr-head"><span class="tr-title">เทรนด์ตาม TF</span><span class="tr-sum">${sum}</span></div>${html}` +
+      `<div class="tr-detail" ${T.sel && T.res[T.sel] ? '' : 'hidden'}>${T.sel && T.tips ? esc(T.tips[T.sel]||'') : ''}</div>` +
+      `<div class="tr-note">โครงสร้าง swing ของแท่งที่ปิดแล้ว (HH+HL = ขึ้น · LH+LL = ลง) ยืนยันด้วยราคาปิดเทียบ EMA50 (D1 ใช้ EMA20) · แตะที่แต่ละ TF เพื่อดูรายละเอียด · อัปเดต ${t} น.</div>`;
+    if (!box.dataset.wired){ box.dataset.wired = '1';
+      box.addEventListener('click', (ev)=>{ const c = ev.target.closest('.tr-chip[data-tf]'); if (!c) return; T.sel = T.sel===c.dataset.tf ? null : c.dataset.tf; T.render(); }); }
+    box.classList.toggle('tr-agree-box', agree==='up' || agree==='down');
+  };
+  T.start = () => {
+    if (!el()) return;
+    T.render();
+    let lastQ = 0;
+    setInterval(() => {                                    // refresh after every M15 close (+20 s) and at least every 3 min
+      const now = Date.now(), q = Math.floor((now - 20000) / 900000), f = o.feed();
+      if (!f) return;
+      if (f.name !== T.feedName || q !== lastQ || now - T.at > 180000){ lastQ = q; T.load(); }
+    }, 10000);
+    T.load();
+  };
+  return T;
+}
+const GTR = createTrend({ el:'goldTrend', feed:()=> S.feed && S.feed.name!=='gold-api' ? S.feed : null, digits:2 });
+window.__AITD_GTR = GTR;
+
 /* ---------------- gold news (news.json: public RSS headlines, automatic keyword tags) ---------------- */
 S.newsFilter = LS.get('news_filter', 'all');
 function relTime(iso){
@@ -1146,6 +1250,7 @@ async function main(){
   setInterval(renderFeedInfo, 2000);
   setInterval(()=>{ if(S.feed && S.feed.name!=='gold-api') loadDay(S.feed); }, 5*60000);
   setInterval(resyncTail, 60000);
+  GTR.start();
   loadTape(); renderZones(); renderCalc();
   // reload data files every 10 min (daily update script)
   setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); renderGuard(); }catch(e){} loadOpt(); loadNews(); }, 600000);
@@ -1156,7 +1261,7 @@ async function main(){
   }, 15000);
 }
 /* shared helpers for js/nas.js (NAS100 chart) — same formatting, market hours, H4 anchoring and OKX client as the gold chart */
-window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, hlPost, bitgetIndex, raceFeeds, createVP, VP_SRC };
+window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, hlPost, bitgetIndex, raceFeeds, createVP, VP_SRC, createTrend };
 main();
 window.__AITD = S;
 })();

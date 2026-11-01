@@ -24,12 +24,13 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://cmd-trade.github.io/aitd-gold-live/img/og-image.jpg">
 </head>
-<body>
+<body data-page="gold">
 <div class="sticky-top">
 <header class="topbar">
-  <div class="brand"><img class="brand-mark" src="img/aitd-mark.png" width="39" height="44" alt=""><div class="brand-txt"><h1 class="brand-name"><img class="brand-word" src="img/aitd-wordmark.png" width="83" height="22" alt="AiTD"><b>Gold Live</b></h1><small>GOLD • NAS100 · เวลาไทย</small></div></div>
+  <div class="brand"><img class="brand-mark" src="img/aitd-mark.png" width="39" height="44" alt=""><div class="brand-txt"><h1 class="brand-name"><img class="brand-word" src="img/aitd-wordmark.png" width="83" height="22" alt="AiTD"><b>Gold Live</b></h1><small>ทองคำ XAUUSD · เวลาไทย</small></div></div>
   <div class="clock"><span id="clock">--:--:--</span><small id="clockDate">—</small></div>
 </header>
+<nav class="pnav" aria-label="เลือกตลาด"><a href="./" class="on" aria-current="page"><i class="pdot gold"></i>ทองคำ XAUUSD</a><span class="psep" aria-hidden="true">|</span><a href="nas100.html"><i class="pdot nas"></i>NAS100</a></nav>
 <!-- ZONE GUARD: live price vs support/resistance (zones.json + option walls + VAH/VAL) -->
 <div class="guard wait" id="guard" role="status" aria-live="polite">
   <div class="g-body">
@@ -64,6 +65,7 @@
       <div class="card-h">เซสชัน</div>
       <div class="sessions" id="sessions"></div>
       <div class="mywin" id="myWin">—</div>
+      <div class="sub dst-note" id="dstNote">🇺🇸 สหรัฐใช้เวลาฤดูหนาวแล้ว: ตลาดหุ้น US (cash) เปิด <b>21:30</b> น. ไทย · ข่าวเศรษฐกิจสหรัฐส่วนใหญ่ <b>20:30</b> น. ไทย · เวลาเซิร์ฟเวอร์ MT5 ตอนนี้ <b>UTC+2</b> (เวลาไทย = เวลาเซิร์ฟเวอร์ + 5 ชม.)</div>
     </div>
     <div class="card event-card" id="eventCard">
       <div class="card-h">ข่าวแรงถัดไป <span class="dot red"></span></div>
@@ -74,9 +76,7 @@
     </div>
   </section>
 
-  <!-- CHARTS: gold + NAS100 side by side on wide screens, NAS stacked right under gold on mobile -->
-  <div class="chart-pair">
-  <!-- CHART -->
+  <!-- GOLD CHART (NAS100 has its own page: nas100.html) -->
   <section class="card chart-card gold-card" id="goldCard">
     <!-- gold price header: same layout/classes as the NAS100 header so the two cards line up -->
     <div class="nas-top">
@@ -102,7 +102,7 @@
     <div class="chart-wrap hidden" id="tvView"><div id="tvChart" class="tvc"></div></div>
     <div class="trend" id="goldTrend" aria-live="polite"></div>
     <div class="opt-toggles" id="optToggles">
-      <span class="label">เส้นออปชัน:</span>
+      <span class="label">เส้นออปชันละเอียด (ทุก wall):</span>
       <label><input type="checkbox" id="tgGld"> <i class="sw gld"></i>GLD · Cboe</label>
       <label><input type="checkbox" id="tgShfe"> <i class="sw shfe"></i>SHFE · เซี่ยงไฮ้</label>
       <span class="okey"><i class="k call"></i>Call wall <i class="k put"></i>Put wall <i class="k mp"></i>Max pain</span>
@@ -120,47 +120,27 @@
     <div class="sub" id="chartNote">โซนจาก zones.json · เส้น EMA20/50 คำนวณจากแท่งเทียนบนกราฟ</div>
   </section>
 
-  <!-- NAS100 CHART (js/nas.js): OKX US100-USDT index candles + bands from nas_zones.json, same look as gold -->
-  <section class="card chart-card nas-card" id="nasCard">
-    <div class="nas-top">
-      <div class="nas-title"><b>NAS100</b> <span id="nasBadge" class="badge">กำลังเชื่อมต่อ…</span> <span class="nas-cal"><span id="nasCalInfo" class="label"></span> <button type="button" id="nasCalBtn" class="nas-cal-btn">ปรับให้ตรง MT5</button> <span id="nasCalMsg" class="label"></span> <span id="nasCalBox" class="nas-cal-box hidden"><input id="nasCalIn" type="text" inputmode="decimal" placeholder="ราคา MT5 ตอนนี้" aria-label="ราคา NAS100 ใน MT5 ตอนนี้"> <button type="button" id="nasCalSet">ตั้ง</button> <button type="button" id="nasCalReset">ค่าเริ่มต้น</button></span></span>
-        <div class="nas-px"><span class="nas-price" id="nasPrice">—</span> <span class="chg" id="nasChg"></span></div>
-        <div class="nas-hl"><span class="label">สูง / ต่ำวันนี้ (ตั้งแต่ 17:00 NY)</span> <b id="nasHL">—</b></div>
-      </div>
+  <!-- KEY LEVELS from options (createKeyLevels in js/app.js) -->
+  <section class="card kl-card" id="klCard">
+    <div class="card-h">ระดับสำคัญจากออปชัน <small id="klSrc">GLD · Cboe (proxy)</small>
+      <span class="spacer"></span>
+      <label class="mini kl-tg"><input type="checkbox" id="klLines"> เส้นบนกราฟ</label>
     </div>
-    <div class="chart-head">
-      <div class="tabs" role="tablist">
-        <button class="ntab active" data-nview="zone">กราฟ + โซน</button>
-        <button class="ntab" data-nview="tv">TradingView (Skilling)</button>
-      </div>
-      <div class="tfs" id="nasTfs">
-        <button data-tf="1">M1</button><button data-tf="5">M5</button><button data-tf="15" class="active">M15</button><button data-tf="30">M30</button><button data-tf="60">H1</button><button data-tf="240">H4</button>
-      </div>
-    </div>
-    <div class="chart-wrap" id="nasZoneView">
-      <div id="nasLw" class="lw"></div>
-      <canvas id="nasCanvas" class="zone-canvas"></canvas>
-      <div class="legend"><span class="ema20">EMA20</span><span class="ema50">EMA50</span><span id="nasStatus"></span></div>
-    </div>
-    <div class="chart-wrap hidden" id="nasTvView"><div id="nasTv" class="tvc"></div></div>
-    <div class="trend" id="nasTrend" aria-live="polite"></div>
-    <div class="opt-toggles vp-toggles" id="nasVpToggles">
-      <label><input type="checkbox" id="nasTgVp"> <i class="sw vp"></i>Volume Profile</label>
-      <select id="nasVpPeriod" class="vp-sel" aria-label="ช่วงเวลา Volume Profile NAS100">
-        <option value="today">วันนี้ (ตั้งแต่ 17:00 NY)</option><option value="asia">ตั้งแต่เปิดเอเชีย 07:00</option><option value="h24">24 ชม.ล่าสุด</option><option value="week">สัปดาห์นี้</option>
-      </select>
-      <span class="okey"><i class="k poc"></i>POC <i class="k va"></i>VAH/VAL (70%)</span>
-      <span class="vpinfo" id="nasVpInfo">กำลังโหลด…</span>
-    </div>
-    <div class="sub vp-note">Volume Profile NAS100 = ปริมาณซื้อขายของสัญญา perp บนกระดานคริปโต: <b>OKX US100-USDT</b> → สำรอง <b>Bitget NDX100USDT</b> (ขอพร้อมกัน ใช้ตัวแรกที่ตอบ) · เลื่อนราคาให้ตรงแท่งเทียนบนกราฟ ซึ่งปรับเป็นราคา Skilling แล้ว (รวมค่า “ปรับให้ตรง MT5”) · ช่องละ 5 จุด · <b>volume ของ perp NAS บนคริปโตมีน้อยมาก ใช้ดูคร่าว ๆ ว่าราคาวนอยู่ตรงไหน ไม่ใช่ volume ตลาดจริง/โบรกเกอร์</b> · อัปเดตทุก 1 นาที</div>
-    <div class="nas-guard" id="nasGuard">—</div>
-    <details class="nas-lv" id="nasLvBox"><summary>ระดับอ้างอิง NAS100 <small id="nasDate"></small></summary>
-      <div class="zones nas-zones" id="nasZones"><div class="sub">กำลังโหลด nas_zones.json…</div></div>
-      <div class="sub" id="nasMeta"></div>
+    <div class="kl-exp" id="klExp"></div>
+    <div id="klBody"><div class="sub">กำลังโหลด options_levels.json…</div></div>
+    <div class="kl-key"><i class="k kc"></i>Call Wall <i class="k kp"></i>Put Wall <i class="k kv"></i>Pivot <i class="k ks"></i>±1SD</div>
+    <details class="kl-how"><summary>วิธีอ่าน</summary>
+      <ul>
+        <li><b>Pivot (Max pain)</b> — ราคาที่ทำให้ผู้ถือออปชันรวมกันขาดทุนมากที่สุดตอนหมดอายุ ราคามักถูกดึงเข้าหาแถวนี้ช่วงใกล้วันหมดอายุ · <b>Max OI</b> = strike ที่ OI รวม Call+Put มากที่สุด</li>
+        <li><b>Call Wall</b> — strike เหนือราคาที่มี OI ฝั่ง Call มากที่สุด มักทำหน้าที่เป็น<b>แนวต้าน</b></li>
+        <li><b>Put Wall</b> — strike ใต้ราคาที่มี OI ฝั่ง Put มากที่สุด มักทำหน้าที่เป็น<b>แนวรับ</b></li>
+        <li><b>±1SD</b> — กรอบที่ตลาดออปชันคาดว่าราคาจะอยู่ (~68%) จนถึงวันหมดอายุ = ราคา × IV (ATM) × √(วันถึงหมดอายุ/365) · หลุดกรอบ = เคลื่อนแรงกว่าที่ตลาดคาด</li>
+        <li><b>Breakout / Breakdown</b> — แท่ง <b>H1 ปิด</b>เหนือ Call Wall = ทะลุ (กำแพงอาจกลับเป็นแนวรับ) · H1 ปิดใต้ Put Wall = หลุด (อาจกลับเป็นแนวต้าน) · ไส้เทียนแตะเฉย ๆ ยังไม่นับ</li>
+        <li>ตัวเลข “ห่าง” = ระยะจากราคาตอนนี้ (หน่วยดอลลาร์) · OI อัปเดตวันละครั้ง จึงเป็นภาพของ “เมื่อวาน” ไม่ใช่สด</li>
+      </ul>
     </details>
-    <div class="sub nas-note" id="nasNote">ราคา/แท่งเทียน: <b>ดัชนี OKX US100-USDT</b> (เรียลไทม์, ไม่ต้องใช้คีย์; สำรอง Bitget NDX100) <b>ปรับให้ใกล้ Skilling US100 / MT5</b> ตามค่า “ปรับ” ด้านบน — ถ้ายังไม่ตรง กด “ปรับให้ตรง MT5” แล้วใส่ราคาใน MT5 ครั้งเดียว ตัดช่วงที่โบรกปิด (ศ. 17:00 → อา. 18:00 และ 17:00–18:00 นิวยอร์กทุกวัน) · โซนจาก nas_zones.json (ดัชนี ^NDX: High/Low/Close เมื่อวาน, Pivot, High/Low สัปดาห์นี้/ก่อน, เลขกลม 100 จุด, แถบ ±10 จุด) · แท็บ TradingView = SKILLING:US100 (ตรงกับโบรก) · แถบเตือนด้านบนใช้กับทองเท่านั้น · ไม่ใช่สัญญาณซื้อขาย</div>
+    <div class="sub kl-note">ที่มา: ออปชันกองทุน <b>GLD</b> (SPDR Gold Shares) จาก <a href="https://www.cboe.com/delayed_quotes/gld/quote_table" target="_blank" rel="noopener">Cboe delayed quotes</a> (OI รายวันจาก OCC, IV ของ Cboe) แปลงเป็นราคา spot XAUUSD ด้วยอัตราส่วน spot/GLD ณ เวลาข้อมูล — <b>เป็นตัวแทน (proxy) ไม่ใช่ข้อมูลออปชันทอง CME/COMEX</b> · รายละเอียดทุก strike ของ GLD และ SHFE ดูการ์ด “ระดับจากออปชัน” ด้านล่าง · <b>ข้อมูลเพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุนหรือสัญญาณซื้อขาย</b></div>
   </section>
-  </div>
 
   <!-- ZONES -->
   <section class="card">
@@ -241,13 +221,12 @@
 <footer>
   <p><b>แหล่งข้อมูล</b> · กราฟ TradingView: OANDA:XAUUSD (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) ·
   กราฟ + โซน: แท่งเทียนเรียลไทม์จาก OKX XAU/USD spot index (ราคา spot ดอลลาร์ ไม่ต้องปรับฐาน, ตัดช่วงตลาดปิดออก, H4 เริ่ม 17:00 นิวยอร์กแบบโบรก) ตรวจเทียบกับ <a href="https://gold-api.com" target="_blank" rel="noopener">gold-api.com</a> · สำรอง: Binance/OKX perp ปรับฐาน ·
-  ข่าว: ForexFactory · NAS100: แท่งเทียนเรียลไทม์จากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> US100-USDT (สำรอง: Bitget NDX100, OKX US100-USDT perp; ปรับให้ใกล้ Skilling) + แท็บ TradingView SKILLING:US100, โซนจากแท่งรายวันดัชนี ^NDX (Yahoo Finance) · ระดับออปชัน: <a href="https://www.cboe.com/delayed_quotes/gld/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (GLD)</a> และ <a href="https://www.shfe.com.cn/" target="_blank" rel="noopener">SHFE</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) · โซน: อัตโนมัติจากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> XAU-USD ทุกเช้าวันทำการ (หรือโซนของ AiTD เมื่อมี) · Volume Profile: OKX XAU-USDT perp (ประมาณการ) · หัวข้อข่าว: Google News RSS, investingLive, Kitco/FXStreet/Reuters (ผ่าน Google News) — ลิงก์ไปยังต้นฉบับ · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
+  ข่าว: ForexFactory · NAS100 อยู่ที่หน้า <a href="nas100.html">nas100.html</a> · ระดับออปชัน + ±1SD: <a href="https://www.cboe.com/delayed_quotes/gld/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (GLD)</a> และ <a href="https://www.shfe.com.cn/" target="_blank" rel="noopener">SHFE</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) · โซน: อัตโนมัติจากดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> XAU-USD ทุกเช้าวันทำการ (หรือโซนของ AiTD เมื่อมี) · Volume Profile: OKX XAU-USDT perp (ประมาณการ) · หัวข้อข่าว: Google News RSS, investingLive, Kitco/FXStreet/Reuters (ผ่าน Google News) — ลิงก์ไปยังต้นฉบับ · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
   <p>ราคาบนเว็บอาจต่างจากราคาโบรกเกอร์ของคุณเล็กน้อย · ข้อมูลเพื่อประกอบการตัดสินใจเท่านั้น ไม่ใช่คำแนะนำการลงทุน</p>
   <p class="muted">AiTD Gold Live · <span id="buildInfo"></span></p>
 </footer>
 
 <script src="vendor/lightweight-charts.standalone.production.js"></script>
 <script src="js/app.js"></script>
-<script src="js/nas.js"></script>
 </body>
 </html>

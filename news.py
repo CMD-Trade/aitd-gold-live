@@ -18,6 +18,10 @@ TH = dt.timezone(dt.timedelta(hours=7))
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
       "Accept": "application/rss+xml, application/xml;q=0.9, */*;q=0.8", "Accept-Encoding": "gzip"}
 MAX_ITEMS, MAX_AGE_H = 30, 48
+# nas_news.py reuses this module and overrides these (plus FEEDS / regexes) for the NAS100 page
+LEAN = ("ทองบวก", "ทองลบ")
+GOOD_ONLY = ("gn_gold", "gn_fed")   # Google-News feeds that keep well-known outlets only
+SUBJECT = "gold"                      # gn_kitco-style feeds keep headlines mentioning this word
 
 
 def gn(q, th=False):
@@ -133,7 +137,7 @@ def tag(title):
     if not CORE.search(title):
         return tags or ["ทั่วไป"], "กลาง"
     u, d = len(UP.findall(title)), len(DOWN.findall(title))
-    lean = "ทองบวก" if u > d else "ทองลบ" if d > u else "กลาง"
+    lean = LEAN[0] if u > d else LEAN[1] if d > u else "กลาง"
     return tags or ["ทั่วไป"], lean
 
 
@@ -154,10 +158,10 @@ def main(argv):
             if filt:
                 fresh = [x for x in fresh if RELEVANT.search(x["title"])]
             fresh = [x for x in fresh if not NOISE.search(x["title"]) and "{" not in x["title"] and not BAD_SRC.search(x["source"])]
-            if fid in ("gn_gold", "gn_fed"):
+            if fid in GOOD_ONLY:
                 fresh = [x for x in fresh if GOOD_SRC.search(x["source"])]
             if fid == "gn_kitco":
-                fresh = [x for x in fresh if re.search(r"gold", x["title"], re.I)]
+                fresh = [x for x in fresh if re.search(SUBJECT, x["title"], re.I)]
             fresh.sort(key=lambda x: x["t"], reverse=True)
             for x in fresh[:cap]:
                 x["feed"] = fid
@@ -175,7 +179,7 @@ def main(argv):
         except Exception:
             old = []
     if not new:
-        print("news: no feed returned items; previous news.json kept", file=sys.stderr)
+        print(f"news: no feed returned items; previous {OUT.name} kept", file=sys.stderr)
         for r in report: print(" ", r, file=sys.stderr)
         return 0
     seen, merged = set(), []
@@ -195,14 +199,14 @@ def main(argv):
         merged.append(x)
     merged = merged[:MAX_ITEMS]
     doc = {"generated_at": now.isoformat(timespec="seconds"),
-           "note": "หัวข้อข่าวและลิงก์จาก RSS สาธารณะเท่านั้น · หมวดและ ทองบวก/ทองลบ/กลาง ติดอัตโนมัติจากคำในหัวข้อ (keyword) ไม่ใช่บทวิเคราะห์",
+           "note": f"หัวข้อข่าวและลิงก์จาก RSS สาธารณะเท่านั้น · หมวดและ {LEAN[0]}/{LEAN[1]}/กลาง ติดอัตโนมัติจากคำในหัวข้อ (keyword) ไม่ใช่บทวิเคราะห์",
            "sources": report, "items": merged,
-           "_format": "items: {title (original), source, link, published (ISO +07:00), feed, tags[Thai], lean: ทองบวก|ทองลบ|กลาง}"}
+           "_format": f"items: {{title (original), source, link, published (ISO +07:00), feed, tags[Thai], lean: {LEAN[0]}|{LEAN[1]}|กลาง}}"}
     txt = json.dumps(doc, ensure_ascii=False, indent=1) + "\n"
     if "--dry" in argv:
         print(txt); return 0
     OUT.write_text(txt, encoding="utf-8")
-    print(f"wrote news.json: {len(merged)} items; feeds ok: " + ", ".join(f"{r['id']}={r.get('used', 'x')}" for r in report))
+    print(f"wrote {OUT.name}: {len(merged)} items; feeds ok: " + ", ".join(f"{r['id']}={r.get('used', 'x')}" for r in report))
     return 0
 
 

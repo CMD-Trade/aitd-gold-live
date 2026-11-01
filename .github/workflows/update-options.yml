@@ -5,9 +5,9 @@ on:
     # SHFE au options: day session closes 15:00 Beijing (14:00 Thai); file posted ~15:25 Beijing (14:25 Thai)
     - cron: "40 7 * * 1-5"    # 07:40 UTC = 14:40 Thai, Mon-Fri
     - cron: "10 9 * * 1-5"    # 09:10 UTC = 16:10 Thai, Mon-Fri (SHFE retry)
-    # Cboe GLD: OI is refreshed from OCC before the US open; quotes final after the 16:00 New York close
+    # Cboe GLD + QQQ (+ _NDX price for the NAS100 conversion): OI is refreshed from OCC before the US open; quotes final after the 16:00 New York close
     - cron: "0 15 * * 1-5"    # 15:00 UTC = 22:00 Thai, Mon-Fri (new OI, after US open in EDT and EST)
-    - cron: "30 21 * * 1-5"   # 21:30 UTC = 04:30 Thai next day (closing GLD price for the spot/GLD ratio)
+    - cron: "30 21 * * 1-5"   # 21:30 UTC = 04:30 Thai next day (closing GLD/QQQ/NDX prices for the ratios)
   workflow_dispatch:
 
 permissions:
@@ -20,13 +20,13 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Build options_levels.json (stdlib only; keeps last good block on failure)
+      - name: Build options_levels.json — gld, shfe, qqq blocks (stdlib only; a failed block keeps its last data, marked stale)
         run: python3 options_levels.py
       - name: Commit if changed
         run: |

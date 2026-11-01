@@ -21,7 +21,7 @@
 (() => {
 'use strict';
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
-const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createVP, VP_SRC, createTrend } = L;
+const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createVP, VP_SRC, createTrend, createKeyLevels } = L;
 const NEAR = 15;
 const DEF_OFF = { hl:-9, okxidx:-10, bitget:-45, perp:-30 };   // feed → Skilling US100 (measured 27–29 Oct 2026, see header)
 const HL_COIN = 'xyz:XYZ100', HL_K = 5.5;                // trade.xyz oracle − Skilling US100 (median 27–29 Oct 2026; hourly 3.3…8.5)
@@ -153,6 +153,11 @@ const NVP = createVP({
 });
 /* M15…D1 trend panel (engine in app.js): same feed as the NAS chart (Hyperliquid XYZ100 first); offset-free structure */
 const NTR = createTrend({ el:'nasTrend', feed:()=>N.feed, digits:1 });
+/* key levels from Cboe QQQ options (options_levels.json "qqq": strike × NDX/QQQ − 5 = Skilling US100), drawn on this chart */
+const NKL = createKeyLevels({ src:'qqq', lsKey:'kl_nas', digits:1, series:()=>cs || null, price:()=>N.price,
+  h1:()=>{ const r = NTR.res && NTR.res['60']; return r && isFinite(r.close) ? r.close + N.off : null; },   // trend bars are raw feed prices
+  convNote:(b)=>{ const c = b.conversion||{}; return `แปลง: strike QQQ × ${fmt(c.ratio,3)} (NDX ${fmt(c.ndx_price)} ÷ QQQ ${fmt(c.qqq_price)} ณ ${esc(thDT(b.quote_time))}) ${c.skilling_shift<0?'−':'+'} ${Math.abs(c.skilling_shift??5)} จุด = ราคา Skilling US100`; } });
+async function loadKL(){ try{ NKL.set(await getJSON('options_levels.json')); }catch(e){ NKL.render(); } }
 function initChart(){
   const LW = window.LightweightCharts;
   chart = LW.createChart($('nasLw'), {
@@ -399,6 +404,7 @@ function start(){
   document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>setView(b.dataset.nview));
   document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===N.tf); b.onclick=()=>setTF(b.dataset.tf); });
   wireCal(); NVP.wire(); initChart(); setView(N.view); loadZones();
+  NKL.wire(); loadKL(); setInterval(loadKL, 600000); setInterval(NKL.render, 15000);   // distance + H1 breakout hint
   // gold first: start NAS when the gold chart has painted, or after 1 s at most
   Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(()=>{ loadFeed(); NVP.start(2500); });   // VP after the NAS candles
   setInterval(renderBadge, 2000);
@@ -412,5 +418,5 @@ function start(){
   setInterval(loadZones, 600000);
 }
 start();
-window.__AITD_NAS = N; window.__AITD_NVP = NVP; window.__AITD_NTR = NTR;
+window.__AITD_NAS = N; window.__AITD_NVP = NVP; window.__AITD_NTR = NTR; window.__AITD_NKL = NKL;
 })();

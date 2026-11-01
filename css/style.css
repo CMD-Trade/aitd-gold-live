@@ -275,3 +275,57 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 @media(max-width:420px){.tr-row{gap:4px}.tr-chip b{font-size:12px}.tr-chip i{font-size:10px}.tr-sum{font-size:12.5px}}
 .tr-chip.sel{outline:1px solid var(--gold);outline-offset:1px}
 .tr-detail{margin-top:6px;font-size:12px;color:var(--txt);font-family:var(--mono);line-height:1.45;word-break:break-word}
+
+/* ---------------- page nav: ทองคำ XAUUSD | NAS100 (index.html / nas100.html) ---------------- */
+.pnav{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 12px;background:rgba(11,13,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.pnav a{flex:1;max-width:220px;display:flex;align-items:center;justify-content:center;gap:7px;padding:7px 10px;border-radius:10px;color:var(--mut);text-decoration:none;font-weight:600;font-size:14px;background:#11141b;border:1px solid var(--line);transition:background .15s,color .15s}
+.pnav a:hover{color:var(--txt);background:#171c26}
+.pnav a.on{color:#14110a;background:linear-gradient(90deg,var(--gold2),var(--gold));border-color:transparent}
+.pnav .psep{color:#3a4152;font-weight:300}
+.pdot{display:inline-block;width:8px;height:8px;border-radius:50%}
+.pdot.gold{background:var(--gold)}.pdot.nas{background:var(--blue)}
+.pnav a.on .pdot{background:#14110a}
+.dst-note{margin-top:10px;padding:8px 10px;border-radius:10px;background:#11151d;border:1px solid var(--line);color:#b8bfcc}
+.dst-note b{color:var(--gold2);font-family:var(--mono);font-weight:700}
+
+/* ---------------- key levels from options (createKeyLevels) ---------------- */
+.kl-card .card-h small{color:var(--mut)}
+.kl-tg{cursor:pointer}
+.kl-tg input{width:auto;padding:0}
+.kl-exp{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.kl-exp:empty{display:none}
+.kl-exp .otab{border:1px solid var(--line)}
+.kl-meta{font-size:12.5px;color:var(--mut);margin-bottom:8px;line-height:1.6}
+.kl-meta b{color:var(--txt)}
+.kl-ladder{display:flex;flex-direction:column;gap:5px}
+.kl-row{display:grid;grid-template-columns:6px minmax(92px,auto) auto 1fr auto;gap:4px 10px;align-items:center;padding:8px 11px 8px 0;border-radius:11px;background:#171c26;overflow:hidden}
+.kl-row>i{align-self:stretch;border-radius:0 3px 3px 0}
+.kl-n{font-weight:600;font-size:13.5px;display:flex;flex-direction:column;line-height:1.25}
+.kl-n small{color:var(--mut);font-weight:400;font-size:11px}
+.kl-v{font-family:var(--mono);font-size:16px;color:var(--txt)}
+.kl-s{color:var(--mut);font-size:11.5px}
+.kl-d{font-family:var(--mono);font-size:12px;color:var(--mut);text-align:right;white-space:nowrap}
+.kl-call .kl-n{color:#ff6b6b}.kl-put .kl-n{color:#3ddc97}.kl-pivot .kl-n{color:#ffd54f}.kl-up .kl-n,.kl-dn .kl-n{color:#64b5f6}
+.kl-up,.kl-dn{background:#141922}
+.kl-now{align-self:center;font-size:12px;color:var(--gold2);padding:2px 12px;border-radius:99px;border:1px dashed rgba(243,210,122,.45);background:rgba(212,175,55,.07);font-family:var(--mono)}
+.kl-status{margin-top:10px;padding:9px 11px;border-radius:10px;font-size:13px;line-height:1.55;background:#11151d;border:1px solid var(--line)}
+.kl-status.up{background:rgba(61,220,151,.1);border-color:rgba(61,220,151,.45)}
+.kl-status.down{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.45)}
+.kl-status b{font-family:var(--mono)}
+.kl-warn{padding:9px 11px;border-radius:10px;background:rgba(240,180,41,.12);color:var(--pivot);font-size:13px}
+.kl-sd b{color:#64b5f6;font-family:var(--mono)}
+.kl-key{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11.5px;color:var(--mut);margin-top:10px}
+.k.kc{border-top:2px solid #ff6b6b}.k.kp{border-top:2px solid #3ddc97}.k.kv{border-top:2px solid #ffd54f}.k.ks{border-top:2px dashed #64b5f6}
+.kl-how{margin-top:8px;font-size:12.5px;color:#b8bfcc}
+.kl-how summary{cursor:pointer;color:var(--gold2);font-weight:600}
+.kl-how ul{margin:6px 0 0;padding-left:18px;line-height:1.65}
+.kl-how b{color:var(--txt)}
+@media(max-width:560px){
+  .kl-row{grid-template-columns:6px 1fr auto auto;gap:2px 10px;padding-right:10px}
+  .kl-row>i{grid-row:1 / 3}
+  .kl-n{grid-column:2;grid-row:1;flex-direction:row;align-items:baseline;gap:6px}
+  .kl-v{grid-column:3;grid-row:1;font-size:15px}
+  .kl-d{grid-column:4;grid-row:1}
+  .kl-s{grid-column:2 / 5;grid-row:2}
+  .pnav a{font-size:13.5px;padding:7px 8px}
+}

@@ -5,6 +5,7 @@ const $ = (id) => document.getElementById(id);
 const TH_OFF = 7 * 3600;                  // chart shows Thai time (UTC+7)
 const PPL = 100;                          // $ per $1 move per 1.00 lot (XAUUSD)
 const qs = new URLSearchParams(location.search);
+const PAGE = (document.body && document.body.dataset.page) || 'gold';   // 'gold' = index.html, 'nas' = nas100.html (js/nas.js runs the chart)
 /* ---- Zone guard settings ---- */
 const ZONE_NEAR_USD = 3;                  // banner fires when price is inside a level/zone or within this many $ of it
 const ALERT_COOLDOWN_MS = 60000;          // min gap between two beeps/notifications for the same state
@@ -91,11 +92,20 @@ function tickClock(){
     return `<div class="sess ${on?'on':''} ${closed?'closed':''}"><b>${s.n}${on?' ●':''}</b>${hm(r[0])}–${hm(r[1])}</div>`; }).join('');
   const inMine = MYWIN.find(w=>inRange(th.min,w));
   const mw = $('myWin');
-  if (closed) { mw.className='mywin'; mw.textContent='ตลาดทองปิด (สุดสัปดาห์)'; }
+  if (closed) { mw.className='mywin'; mw.textContent= PAGE==='nas' ? 'ตลาด NAS100 ปิด (สุดสัปดาห์)' : 'ตลาดทองปิด (สุดสัปดาห์)'; }
   else if (inMine) { mw.className='mywin on'; mw.textContent=`อยู่ในช่วงเทรดของคุณ ${hm(inMine[0])}–${hm(inMine[1])} · เหลือ ${dur(((inMine[1]-th.min)*60-th.s)*1000).replace(/^00:/,'')}`; }
   else { const nexts = MYWIN.map(w=>((w[0]-th.min+1440)%1440)*60-th.s).sort((a,b)=>a-b);
     mw.className='mywin'; mw.textContent=`ช่วงเทรดของคุณ 08:00–12:00 · 14:00–17:00 · เริ่มอีก ${dur(nexts[0]*1000)}`; }
-  tickEvent(now);
+  tickEvent(now); renderDst(now);
+}
+/* US daylight saving: cash open 09:30 NY, most US data 08:30 NY, MT5 server (NY close = 00:00) = UTC+2 winter / UTC+3 summer */
+let _dstKey = '';
+function renderDst(now){
+  const el = $('dstNote'); if (!el) return;
+  const ny = tzOffsetMin('America/New_York', now), k = String(ny); if (k === _dstKey) return; _dstKey = k;
+  const shift = 420 - ny, srv = (ny + 420) / 60, thMinusSrv = 7 - srv;   // srv: server UTC offset = NY offset + 7 h
+  el.innerHTML = `🇺🇸 สหรัฐใช้เวลา${ny === -300 ? 'ฤดูหนาว' : 'ฤดูร้อน'}: ตลาดหุ้น US (cash) เปิด <b>${hm(9*60+30+shift)}</b> น. ไทย · ข่าวเศรษฐกิจสหรัฐส่วนใหญ่ <b>${hm(8*60+30+shift)}</b> น. ไทย · ` +
+    `เวลาเซิร์ฟเวอร์ MT5 ตอนนี้ <b>UTC+${srv}</b> (เวลาไทย = เวลาเซิร์ฟเวอร์ + ${thMinusSrv} ชม.)`;
 }
 function tickEvent(now){
   const evs = S.events; if(!evs.length){ $('evTitle').textContent='ไม่มีข้อมูลข่าว'; return; }
@@ -509,7 +519,7 @@ const optNow = () => S.optNowOverride ?? Date.now();            // ?optnow=ISO f
 if (qs.get('optnow')) S.optNowOverride = Date.parse(qs.get('optnow'));
 const optFront = (src, b) => (b && b.expiries || []).find(e=>optAlive(src, e)) || null;   // first not-yet-expired block
 let optLines = [];
-S.opt = null; S.optTab = qs.get('opt') || LS.get('optTab','gld'); S.optOn = {gld: LS.get('opt_gld', true), shfe: LS.get('opt_shfe', true)};
+S.opt = null; S.optTab = qs.get('opt') || LS.get('optTab','gld'); S.optOn = {gld: LS.get('optd_gld', false), shfe: LS.get('optd_shfe', false)};   // detailed walls (all strikes); off by default, the key-level card draws the main levels
 function drawOptLines(){
   if (!cs) return;
   optLines.forEach(l=>{ try{ cs.removePriceLine(l); }catch(e){} }); optLines = [];
@@ -524,6 +534,77 @@ function drawOptLines(){
     if (e.max_pain) add(e.max_pain.level_spot, st.mp, `${st.tag} MaxPain`, src==='gld'?3:1);
   }
 }
+/* ---------------- key levels from options (gold page: GLD block · NAS page: qqq block of options_levels.json) ----------------
+   Pivot (max pain) · Call wall · Put wall · ±1SD weekly range (ATM IV) · Breakout/Breakdown = H1 close beyond the outer wall.
+   Levels come pre-converted by options_levels.py ("key" in every expiry block: level = chart price). Drawn as price lines. */
+const KL_STYLE = { call:{c:'#ff6b6b', t:'Call Wall', ls:0, w:2}, put:{c:'#3ddc97', t:'Put Wall', ls:0, w:2}, pivot:{c:'#ffd54f', t:'Pivot', ls:0, w:2},
+  up:{c:'#64b5f6', t:'+1SD', ls:2, w:1}, dn:{c:'#64b5f6', t:'−1SD', ls:2, w:1} };
+const KL_STALE_H = 96;
+/* o: { src:'gld'|'qqq', series:()=>LW series or null, price:()=>live chart price, h1:()=>last closed H1 close (chart price), digits, name, lsKey } */
+function createKeyLevels(o){
+  const K = { block:null, sel:LS.get(o.lsKey+'_exp', null), on:LS.get(o.lsKey, true), lines:[], series:null };
+  const d = o.digits ?? 2;
+  const list = () => (K.block && K.block.expiries || []).filter(e=>e.key && optAlive('gld', e));   // Cboe expiries: 16:00 New York
+  const cur = () => { const l = list(); return l.find(e=>e.expiry===K.sel) || l[0] || null; };
+  K.set = (opt) => { K.block = opt && opt[o.src] || null; K.draw(); K.render(); };
+  K.levels = () => {
+    const e = cur(); if (!e) return [];
+    const k = e.key, out = [];
+    if (k.call_wall) out.push({id:'call', lv:k.call_wall.level, sub:`strike ${k.call_wall.strike} · OI ${fmt(k.call_wall.oi,0)}`, th:'แนวต้าน'});
+    if (k.sd1) out.push({id:'up', lv:k.sd1.upper, sub:`+${fmt(k.sd1.move, d)}`, th:'ขอบบนกรอบ'});
+    if (k.pivot) out.push({id:'pivot', lv:k.pivot.level, sub:`max pain · strike ${k.pivot.strike}` + (k.max_oi ? ` · Max OI ${k.max_oi.strike} (${fmt(k.max_oi.level, d)})` : ''), th:'แม่เหล็ก'});
+    if (k.sd1) out.push({id:'dn', lv:k.sd1.lower, sub:`−${fmt(k.sd1.move, d)}`, th:'ขอบล่างกรอบ'});
+    if (k.put_wall) out.push({id:'put', lv:k.put_wall.level, sub:`strike ${k.put_wall.strike} · OI ${fmt(k.put_wall.oi,0)}`, th:'แนวรับ'});
+    return out.filter(x=>isFinite(x.lv)).sort((a,b)=>b.lv-a.lv);
+  };
+  K.draw = () => {
+    const s = o.series(); if (!s) return;
+    K.lines.forEach(l=>{ try{ (K.series||s).removePriceLine(l); }catch(e){} }); K.lines = []; K.series = s;
+    if (!K.on) return;
+    for (const x of K.levels()){ const st = KL_STYLE[x.id];
+      K.lines.push(s.createPriceLine({price:x.lv, color:st.c, lineWidth:st.w, lineStyle:st.ls, axisLabelVisible:true, title:st.t})); }
+  };
+  K.render = () => {
+    const box = $('klBody'); if (!box) return;
+    const b = K.block, l = list(), e = cur();
+    const ex = $('klExp');
+    if (ex) { ex.innerHTML = l.length > 1 ? l.map(x=>`<button class="otab ${x===e?'active':''}" data-e="${esc(x.expiry)}">${esc(x.expiry.slice(5).replace('-','/'))} · ${x.kind.includes('monthly')?'รายเดือน':x.kind.includes('next')?'สัปดาห์หน้า':'รายสัปดาห์'}</button>`).join('') : '';
+      ex.querySelectorAll('button').forEach(bt=>bt.onclick=()=>{ K.sel = bt.dataset.e; LS.set(o.lsKey+'_exp', K.sel); K.draw(); K.render(); }); }
+    if (!b){ box.innerHTML = '<div class="sub">ยังไม่มีข้อมูลออปชัน (options_levels.json) — รอรอบอัปเดตถัดไป</div>'; return; }
+    if (!e){ box.innerHTML = `<div class="kl-warn">⚠️ ออปชันชุดล่าสุดหมดอายุแล้ว — รออัปเดตข้อมูลรอบถัดไป (ข้อมูล ${esc(thDT(b.quote_time))})</div>`; return; }
+    const ageH = (Date.now() - Date.parse(b.quote_time)) / 3600e3, stale = b.stale || !(ageH < KL_STALE_H);
+    const p = o.price(), h1 = o.h1(), k = e.key;
+    let html = `<div class="kl-meta">หมดอายุ <b>${esc(thDT(e.expires_at_th || e.expiry))}</b> (${esc(e.kind)}) · ข้อมูล Cboe ${esc(thDT(b.quote_time))}` +
+      (stale ? ` <span class="badge warn">⚠️ ข้อมูลเก่า${b.stale?' (ดึงรอบล่าสุดไม่สำเร็จ)':''} — ใช้อย่างระวัง</span>` : ` <span class="badge">อัปเดตแล้ว</span>`) + `</div>`;
+    html += '<div class="kl-ladder">';
+    let placed = false;
+    for (const x of K.levels()){
+      if (p!=null && !placed && x.lv < p){ html += `<div class="now-row">ราคาตอนนี้ <b>${fmt(p, d)}</b></div>`; placed = true; }
+      const st = KL_STYLE[x.id], dist = p!=null ? x.lv - p : null;
+      html += `<div class="kl-row kl-${x.id}"><i style="background:${st.c}"></i><span class="kl-n">${st.t}<small>${x.th}</small></span><b class="kl-v">${fmt(x.lv, d)}</b><span class="kl-s">${esc(x.sub)}</span><span class="kl-d">${dist==null?'':'ห่าง '+sgn(dist, d)}</span></div>`;
+    }
+    if (p!=null && !placed) html += `<div class="now-row">ราคาตอนนี้ <b>${fmt(p, d)}</b></div>`;
+    html += '</div>';
+    const cw = k.call_wall && k.call_wall.level, pw = k.put_wall && k.put_wall.level;
+    let st = 'in', msg;
+    if (h1==null || !isFinite(h1)) msg = `รอแท่ง H1 ที่ปิดแล้ว… · ทะลุ = H1 ปิดเหนือ ${fmt(cw, d)} · หลุด = H1 ปิดใต้ ${fmt(pw, d)}`;
+    else if (cw!=null && h1 > cw){ st = 'up'; msg = `🚀 <b>Breakout</b> — H1 ล่าสุดปิด ${fmt(h1, d)} เหนือ Call Wall ${fmt(cw, d)} · กำแพงอาจกลายเป็นแนวรับ`; }
+    else if (pw!=null && h1 < pw){ st = 'down'; msg = `🔻 <b>Breakdown</b> — H1 ล่าสุดปิด ${fmt(h1, d)} ใต้ Put Wall ${fmt(pw, d)} · กำแพงอาจกลายเป็นแนวต้าน`; }
+    else msg = `อยู่ในกรอบ Put–Call Wall (H1 ล่าสุดปิด ${fmt(h1, d)}) · ทะลุ = H1 ปิดเหนือ <b>${fmt(cw, d)}</b> · หลุด = H1 ปิดใต้ <b>${fmt(pw, d)}</b>`;
+    html += `<div class="kl-status ${st}">${msg}</div>`;
+    if (k.sd1) html += `<div class="sub kl-sd">กรอบ ±1SD ถึงวันหมดอายุ: <b>${fmt(k.sd1.lower, d)} – ${fmt(k.sd1.upper, d)}</b> (±${fmt(k.sd1.move, d)}) · IV ATM ${fmt(k.sd1.atm_iv*100, 1)}% · ${fmt(k.sd1.days, 1)} วัน · อ้างอิงราคา ${fmt(k.spot_ref, d)} ณ เวลาข้อมูล</div>`;
+    if (o.convNote) html += `<div class="sub">${o.convNote(b)}</div>`;
+    box.innerHTML = html;
+  };
+  K.wire = () => {
+    const t = $('klLines'); if (!t) return;
+    t.checked = K.on; t.onchange = () => { K.on = t.checked; LS.set(o.lsKey, K.on); K.draw(); };
+  };
+  return K;
+}
+const GKL = createKeyLevels({ src:'gld', lsKey:'kl_gold', digits:2, series:()=>cs || null, price:()=>S.price,
+  h1:()=>{ const r = GTR.res && GTR.res['60']; return r && isFinite(r.close) ? r.close - S.offset : null; },
+  convNote:(b)=>{ const c = b.conversion||{}; return `แปลง: strike GLD × ${fmt(c.ratio,4)} (spot ${fmt(c.spot)} ÷ GLD ${fmt(c.gld_price)} ณ ${esc(thDT(c.spot_time))})`; } });
 const thDT = (iso) => { if(!iso) return '—'; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleString('th-TH',{timeZone:'Asia/Bangkok', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) + ' น.'; };
 function renderOpt(){
   document.querySelectorAll('.otab').forEach(b=>b.classList.toggle('active', b.dataset.src===S.optTab));
@@ -567,7 +648,7 @@ function renderOpt(){
   html += `<div class="ometa">${stale} ข้อมูลวันที่ <b>${b.data_date}</b> · ${esc(b.source)} · ${esc(b.oi_note||'')} · ${conv} · ดึงเมื่อ ${thDT(b.fetched_at)}</div>`;
   body.innerHTML = html;
 }
-async function loadOpt(){ try{ S.opt = await getJSON('options_levels.json'); }catch(e){ } drawOptLines(); renderOpt(); renderGuard(); }
+async function loadOpt(){ try{ S.opt = await getJSON('options_levels.json'); }catch(e){ } drawOptLines(); renderOpt(); renderGuard(); GKL.set(S.opt); }
 
 async function loadFeed(){
   if (stopStream){ stopStream(); stopStream=null; }
@@ -884,11 +965,13 @@ function withTV(fn){
 
 const WIDGETS = {
   overview: (el)=>tvEmbed(el,'embed-widget-market-quotes.js',{colorTheme:'dark', isTransparent:true, width:'100%', height:el.clientHeight||470, locale:'th_TH', showSymbolLogo:true,
-    symbolsGroups:[{name:'ตลาดที่เกี่ยวกับทอง', symbols:[{name:'OANDA:XAUUSD',displayName:'ทองคำ'},{name:'OANDA:XAGUSD',displayName:'เงิน'},{name:'CAPITALCOM:DXY',displayName:'ดัชนีดอลลาร์ DXY'},{name:'OANDA:USB10YUSD',displayName:'T-Note 10 ปี (สวนทาง yield)'},{name:'TVC:USOIL',displayName:'น้ำมัน WTI'},{name:'OANDA:NAS100USD',displayName:'Nasdaq 100'},{name:'BITSTAMP:BTCUSD',displayName:'Bitcoin'}]}]}),
+    symbolsGroups: PAGE==='nas' ? [{name:'ตลาดที่เกี่ยวกับ NAS100', symbols:[{name:'SKILLING:US100',displayName:'NAS100 (Skilling)'},{name:'OANDA:SPX500USD',displayName:'S&P 500'},{name:'OANDA:US30USD',displayName:'Dow 30'},{name:'CAPITALCOM:DXY',displayName:'ดัชนีดอลลาร์ DXY'},{name:'OANDA:USB10YUSD',displayName:'T-Note 10 ปี (สวนทาง yield)'},{name:'CAPITALCOM:VIX',displayName:'VIX'},{name:'NASDAQ:NVDA',displayName:'Nvidia'},{name:'OANDA:XAUUSD',displayName:'ทองคำ'}]}] :
+    [{name:'ตลาดที่เกี่ยวกับทอง', symbols:[{name:'OANDA:XAUUSD',displayName:'ทองคำ'},{name:'OANDA:XAGUSD',displayName:'เงิน'},{name:'CAPITALCOM:DXY',displayName:'ดัชนีดอลลาร์ DXY'},{name:'OANDA:USB10YUSD',displayName:'T-Note 10 ปี (สวนทาง yield)'},{name:'TVC:USOIL',displayName:'น้ำมัน WTI'},{name:'OANDA:NAS100USD',displayName:'Nasdaq 100'},{name:'BITSTAMP:BTCUSD',displayName:'Bitcoin'}]}]}),
   calendar: (el)=>tvEmbed(el,'embed-widget-events.js',{colorTheme:'dark', isTransparent:false, width:'100%', height:el.clientHeight||470, locale:'th_TH', importanceFilter:'0,1', countryFilter:'us,eu,gb,cn,jp'}),
 };
+const TAPE_NAS = [{proName:'SKILLING:US100',title:'NAS100'},{proName:'OANDA:SPX500USD',title:'S&P 500'},{proName:'CAPITALCOM:DXY',title:'DXY'},{proName:'OANDA:USB10YUSD',title:'T-Note 10Y'},{proName:'CAPITALCOM:VIX',title:'VIX'},{proName:'NASDAQ:NVDA',title:'NVDA'},{proName:'OANDA:XAUUSD',title:'ทอง'}];
 function loadTape(){
-  tvEmbed($('tape'),'embed-widget-tickers.js',{symbols:[{proName:'OANDA:XAUUSD',title:'ทอง'},{proName:'OANDA:XAGUSD',title:'เงิน'},{proName:'CAPITALCOM:DXY',title:'DXY'},{proName:'OANDA:USB10YUSD',title:'T-Note 10Y'},{proName:'TVC:USOIL',title:'น้ำมัน'},{proName:'OANDA:NAS100USD',title:'NQ'},{proName:'BITSTAMP:BTCUSD',title:'BTC'}],
+  tvEmbed($('tape'),'embed-widget-tickers.js',{symbols: PAGE==='nas' ? TAPE_NAS : [{proName:'OANDA:XAUUSD',title:'ทอง'},{proName:'OANDA:XAGUSD',title:'เงิน'},{proName:'CAPITALCOM:DXY',title:'DXY'},{proName:'OANDA:USB10YUSD',title:'T-Note 10Y'},{proName:'TVC:USOIL',title:'น้ำมัน'},{proName:'OANDA:NAS100USD',title:'NQ'},{proName:'BITSTAMP:BTCUSD',title:'BTC'}],
     showSymbolLogo:true, isTransparent:true, colorTheme:'dark', locale:'th_TH'});
 }
 
@@ -1167,7 +1250,10 @@ const GTR = createTrend({ el:'goldTrend', feed:()=> S.feed && S.feed.name!=='gol
 window.__AITD_GTR = GTR;
 
 /* ---------------- gold news (news.json: public RSS headlines, automatic keyword tags) ---------------- */
-S.newsFilter = LS.get('news_filter', 'all');
+const _nc = document.getElementById('newsCard');
+const NEWS_SRC = (_nc && _nc.dataset.src) || 'news.json';                                   // nas100.html: nas_news.json
+const NEWS_LEAN = ((_nc && _nc.dataset.lean) || 'ทองบวก,ทองลบ').split(',');
+S.newsFilter = LS.get(PAGE==='nas' ? 'nas_news_filter' : 'news_filter', 'all');
 function relTime(iso){
   const m = Math.round((Date.now() - Date.parse(iso)) / 60000);
   if (!isFinite(m)) return '';
@@ -1177,24 +1263,25 @@ function relTime(iso){
 function renderNews(){
   const box = $('newsList'); if (!box) return;
   const N = S.news;
-  if (!N || !N.items){ box.innerHTML = '<div class="sub">ยังไม่มี news.json</div>'; return; }
+  if (!N || !N.items){ box.innerHTML = `<div class="sub">ยังไม่มี ${esc(NEWS_SRC)}</div>`; return; }
   const items = N.items;
   const counts = {}; items.forEach(x=>(x.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));
   const lean = {}; items.forEach(x=>lean[x.lean]=(lean[x.lean]||0)+1);
-  const chips = [['all','ทั้งหมด',items.length], ['lean:ทองบวก','ทองบวก',lean['ทองบวก']||0], ['lean:ทองลบ','ทองลบ',lean['ทองลบ']||0],
+  const [UPL, DNL] = NEWS_LEAN;
+  const chips = [['all','ทั้งหมด',items.length], ['lean:'+UPL,UPL,lean[UPL]||0], ['lean:'+DNL,DNL,lean[DNL]||0],
     ...Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([t,n])=>['tag:'+t, t, n])];
   if (!chips.some(c=>c[0]===S.newsFilter)) S.newsFilter = 'all';
-  $('newsFilters').innerHTML = chips.map(([k,l,n])=>`<button class="nchip ${k===S.newsFilter?'active':''} ${k.startsWith('lean:')?(l==='ทองบวก'?'up':'dn'):''}" data-k="${esc(k)}">${esc(l)} <small>${n}</small></button>`).join('');
-  $('newsFilters').querySelectorAll('.nchip').forEach(b=>b.onclick=()=>{ S.newsFilter=b.dataset.k; LS.set('news_filter', S.newsFilter); renderNews(); });
+  $('newsFilters').innerHTML = chips.map(([k,l,n])=>`<button class="nchip ${k===S.newsFilter?'active':''} ${k.startsWith('lean:')?(l===UPL?'up':'dn'):''}" data-k="${esc(k)}">${esc(l)} <small>${n}</small></button>`).join('');
+  $('newsFilters').querySelectorAll('.nchip').forEach(b=>b.onclick=()=>{ S.newsFilter=b.dataset.k; LS.set(PAGE==='nas' ? 'nas_news_filter' : 'news_filter', S.newsFilter); renderNews(); });
   const f = S.newsFilter, sel = items.filter(x=> f==='all' || (f.startsWith('lean:') && x.lean===f.slice(5)) || (f.startsWith('tag:') && (x.tags||[]).includes(f.slice(4))));
-  const LC = {'ทองบวก':'up','ทองลบ':'dn','กลาง':'flat'};
+  const LC = {[UPL]:'up',[DNL]:'dn','กลาง':'flat'};
   box.innerHTML = sel.map(x=>`<div class="nitem"><span class="nlean ${LC[x.lean]||'flat'}">${esc(x.lean||'กลาง')}</span>
     <div class="nmain"><a href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">${esc(x.title)}</a>
     <div class="nmeta"><span>${esc(x.source||'')}</span> · <span title="${esc(thDT(x.published))}">${relTime(x.published)}</span>${(x.tags||[]).filter(t=>t!=='ทั่วไป').map(t=>` <i class="ntag">${esc(t)}</i>`).join('')}</div></div></div>`).join('') || '<div class="sub">ไม่มีข่าวในหมวดนี้</div>';
   const ok = (N.sources||[]).filter(s=>s.ok && s.used>0).map(s=>s.name);
   $('newsMeta').textContent = `อัปเดต ${thDT(N.generated_at)} · ${items.length} หัวข้อใน 48 ชม. · แหล่ง: ${ok.join(', ')||'—'}`;
 }
-async function loadNews(){ try{ S.news = await getJSON('news.json'); }catch(e){} renderNews(); }
+async function loadNews(){ try{ S.news = await getJSON(NEWS_SRC); }catch(e){} renderNews(); }
 
 /* ---------------- UI wiring ---------------- */
 function setView(v){
@@ -1225,8 +1312,8 @@ function wire(){
   $('zoneLot').value = LS.get('zoneLot', 0.1);
   $('zoneLot').addEventListener('input', ()=>{ LS.set('zoneLot', $('zoneLot').value); renderZones(); });
   document.querySelectorAll('.otab').forEach(b=>b.onclick=()=>{ S.optTab=b.dataset.src; LS.set('optTab',S.optTab); renderOpt(); });
-  [['tgGld','gld'],['tgShfe','shfe']].forEach(([id,k])=>{ $(id).checked = S.optOn[k]; $(id).onchange = ()=>{ S.optOn[k] = $(id).checked; LS.set('opt_'+k, S.optOn[k]); drawOptLines(); }; });
-  GVP.wire();
+  [['tgGld','gld'],['tgShfe','shfe']].forEach(([id,k])=>{ $(id).checked = S.optOn[k]; $(id).onchange = ()=>{ S.optOn[k] = $(id).checked; LS.set('optd_'+k, S.optOn[k]); drawOptLines(); }; });
+  GVP.wire(); GKL.wire();
   $('cUseLive').onclick = ()=>{ if (S.price){ $('cEntry').value = S.price.toFixed(2); renderCalc(); } };
   const io = new IntersectionObserver((ents)=>ents.forEach(e=>{ if(e.isIntersecting){ WIDGETS[e.target.dataset.widget](e.target); io.unobserve(e.target);} }), {rootMargin:'300px'});
   document.querySelectorAll('.lazy-widget[data-widget=overview]').forEach(el=>io.observe(el));
@@ -1255,13 +1342,26 @@ async function main(){
   // reload data files every 10 min (daily update script)
   setInterval(async()=>{ try{ S.zones = await getJSON('zones.json'); drawZones(); renderZones(); renderGuard(); }catch(e){} loadOpt(); loadNews(); }, 600000);
   let optKey = '';
-  setInterval(()=>{ if (!S.opt) return; renderOpt();     // refresh distance-to-price
+  setInterval(()=>{ if (!S.opt) return; renderOpt(); GKL.render();     // refresh distance-to-price + H1 breakout hint
     const k = ['gld','shfe'].map(x=>{ const e = optFront(x, S.opt[x]); return e ? (e.expiry||e.series) : '-'; }).join('|');
-    if (k !== optKey){ optKey = k; drawOptLines(); renderGuard(); }   // an expiry just passed → roll lines + alert levels
+    if (k !== optKey){ optKey = k; drawOptLines(); renderGuard(); GKL.draw(); }   // an expiry just passed → roll lines + alert levels
   }, 15000);
 }
 /* shared helpers for js/nas.js (NAS100 chart) — same formatting, market hours, H4 anchoring and OKX client as the gold chart */
-window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, hlPost, bitgetIndex, raceFeeds, createVP, VP_SRC, createTrend };
-main();
+/* nas100.html: clock/sessions, US events, tape, widgets, NAS news here; the NAS chart, trend, VP and key levels are in js/nas.js */
+async function commonMain(){
+  try{ const e = await getJSON('events.json'); S.events = (e.events||[]).map(x=>({...x, ms:Date.parse(x.time)})).filter(x=>isFinite(x.ms)).sort((x,y)=>x.ms-y.ms); }catch(e){}
+  goldReady();                                                   // nothing gold to wait for: let nas.js start its feed now
+  tickClock(); setInterval(tickClock, 1000);
+  WIDGETS.calendar(document.querySelector('[data-widget=calendar]'));
+  const io = new IntersectionObserver((ents)=>ents.forEach(e=>{ if(e.isIntersecting){ WIDGETS[e.target.dataset.widget](e.target); io.unobserve(e.target);} }), {rootMargin:'300px'});
+  document.querySelectorAll('.lazy-widget[data-widget=overview]').forEach(el=>io.observe(el));
+  loadNews(); setInterval(renderNews, 60000); setInterval(loadNews, 600000);
+  loadTape();
+  $('buildInfo').textContent = `events ${S.events.length ? thDT(S.events[0].time).replace(/ น\.$/,'') + ' →' : '—'}`;
+}
+/* shared helpers for js/nas.js (NAS100 chart) — same formatting, market hours, H4 anchoring and OKX client as the gold chart */
+window.AITD_LIB = { $, qs, LS, fmt, sgn, esc, thDT, tzParts, dayStartMs, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, fetchJSON, hlPost, bitgetIndex, raceFeeds, createVP, VP_SRC, createTrend, createKeyLevels, PAGE };
+if (PAGE === 'nas') commonMain(); else main();
 window.__AITD = S;
 })();

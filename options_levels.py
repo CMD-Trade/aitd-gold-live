@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AiTD Gold Live — option open-interest levels -> options_levels.json  (Python stdlib only).
 
-Two PROXY sources (neither is CME/COMEX; CME blocks automated access):
+Three PROXY sources (none is CME/COMEX; CME blocks automated access):
   gld  : Cboe delayed quotes  https://cdn.cboe.com/api/global/delayed_quotes/options/GLD.json
          (SPDR Gold Shares ETF options; OI as published by Cboe/OCC = positions at the previous settlement)
   shfe : Shanghai Futures Exchange daily option data  https://www.shfe.com.cn/data/tradedata/option/dailydata/kxYYYYMMDD.dat
@@ -16,14 +16,26 @@ Conversion to spot XAUUSD (what the chart shows, OKX XAU-USD spot index):
   spot : OKX index candles  https://www.okx.com/api/v5/market/history-index-candles?instId=XAU-USD (1m close)
   fx   : https://api.frankfurter.dev (ECB reference rate), fallback https://open.er-api.com (documentation only)
 
+  qqq  : Cboe delayed quotes  https://cdn.cboe.com/api/global/delayed_quotes/options/QQQ.json  (Invesco QQQ ETF options,
+         proxy for Nasdaq-100 / NAS100) + https://cdn.cboe.com/api/global/delayed_quotes/options/_NDX.json for the ^NDX
+         price at the same delayed quote time.  level_spot = strike * NDX/QQQ + SKILLING_SHIFT (-5: ^NDX cash -> Skilling US100,
+         the same shift the site uses for nas_zones.json).
+
+Key levels ("key" in every Cboe expiry block, for the site's key-level card):
+  pivot     = max-pain strike (also max_oi = the strike with the largest call+put OI within the window)
+  call_wall = largest call-OI strike at/above the underlying (resistance); put_wall = largest put-OI strike at/below it (support)
+  atm_iv    = mean Cboe implied vol of the call+put at the 2 strikes nearest the underlying (that expiry)
+  1SD move  = underlying * atm_iv * sqrt(days_to_expiry / 365), days from the quote time to 16:00 New York on expiry day
+  breakout / breakdown = call wall / put wall (an H1 close beyond them is the hint the site shows)
+
 Walls = largest OI strikes within +-WINDOW of the underlying (far-OTM lottery strikes are listed in top_any).
 Max pain = strike that minimises total intrinsic value paid to holders (sum over calls+puts of OI*intrinsic).
 If a source fails, the previous good block is kept and marked "stale": true with the error.
 No account / balance data is read or written.
 
-Usage: python3 options_levels.py [--only gld|shfe]
+Usage: python3 options_levels.py [--only gld|shfe|qqq]
 """
-import json, sys, time, gzip, datetime as dt, urllib.request, re
+import json, sys, time, gzip, math, datetime as dt, urllib.request, re
 from pathlib import Path
 
 SITE = Path(__file__).resolve().parent
@@ -36,6 +48,7 @@ UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, 
 WINDOW = 0.10
 TOP = 5
 OZ = 31.1034768
+SKILLING_SHIFT = -5.0    # ^NDX cash -> Skilling US100 CFD (same as ZONE_SHIFT in js/nas.js)
 
 
 def now_th():
@@ -103,12 +116,12 @@ def max_pain(calls, puts):
     return best[0] if best else None
 
 
-def summarise(calls, puts, under, ratio, chg=None, unit=""):
+def summarise(calls, puts, under, ratio, chg=None, unit="", shift=0.0):
     """calls/puts: {strike: oi}. Returns metrics dict."""
     lo, hi = under * (1 - WINDOW), under * (1 + WINDOW)
     rnd = lambda x: round(x, 2)
     def lv(k, oi, typ):
-        d = {"type": typ, "strike": k, "level_spot": rnd(k * ratio), "oi": int(oi)}
+        d = {"type": typ, "strike": k, "level_spot": rnd(k * ratio + shift), "oi": int(oi)}
         if chg is not None and (typ, k) in chg:
             d["oi_chg"] = int(chg[(typ, k)])
         return d
@@ -120,12 +133,53 @@ def summarise(calls, puts, under, ratio, chg=None, unit=""):
         "underlying": under, "window_pct": WINDOW * 100,
         "call_oi_total": int(tc), "put_oi_total": int(tp),
         "pc_oi_ratio": round(tp / tc, 3) if tc else None,
-        "max_pain": {"strike": mp, "level_spot": rnd(mp * ratio)} if mp is not None else None,
+        "max_pain": {"strike": mp, "level_spot": rnd(mp * ratio + shift)} if mp is not None else None,
         "call_walls": [lv(k, v, "call") for k, v in near(calls)],
         "put_walls": [lv(k, v, "put") for k, v in near(puts)],
         "top_any": {"call": [[k, int(v)] for k, v in anyk(calls)], "put": [[k, int(v)] for k, v in anyk(puts)]},
         "strike_unit": unit,
     }
+
+
+def atm_iv(civ, piv, under):
+    """mean implied vol (fraction) of call+put at the 2 strikes nearest the underlying; None if Cboe has no IV there"""
+    ks = sorted(set(civ) | set(piv), key=lambda k: abs(k - under))[:2]
+    v = [x for k in ks for x in (civ.get(k), piv.get(k)) if x and 0.01 < x < 3]
+    return round(sum(v) / len(v), 4) if v else None
+
+
+def key_levels(calls, puts, civ, piv, under, ratio, expiry_close, quote_dt, shift=0.0, digits=2):
+    """Pivot / Call wall / Put wall / weekly 1SD range for one expiry, converted to the chart's price (strike*ratio+shift)."""
+    lo, hi = under * (1 - WINDOW), under * (1 + WINDOW)
+    cv = lambda k: round(k * ratio + shift, digits)
+    near = lambda side: {k: v for k, v in side.items() if lo <= k <= hi and v > 0}
+    nc, np_ = near(calls), near(puts)
+    out = {"underlying": under, "spot_ref": cv(under)}
+    mp = max_pain(calls, puts)
+    if mp is not None:
+        out["pivot"] = {"strike": mp, "level": cv(mp), "method": "max pain"}
+    tot = {k: nc.get(k, 0) + np_.get(k, 0) for k in set(nc) | set(np_)}
+    if tot:
+        k = max(tot, key=tot.get)
+        out["max_oi"] = {"strike": k, "level": cv(k), "oi": int(tot[k])}
+    up = {k: v for k, v in nc.items() if k >= under} or nc
+    dn = {k: v for k, v in np_.items() if k <= under} or np_
+    if up:
+        k = max(up, key=up.get); out["call_wall"] = {"strike": k, "level": cv(k), "oi": int(up[k])}
+    if dn:
+        k = max(dn, key=dn.get); out["put_wall"] = {"strike": k, "level": cv(k), "oi": int(dn[k])}
+    iv = atm_iv(civ, piv, under)
+    days = (expiry_close - quote_dt).total_seconds() / 86400
+    if iv and days > 0:
+        sd = under * iv * math.sqrt(days / 365)
+        out["sd1"] = {"atm_iv": iv, "days": round(days, 2), "move_underlying": round(sd, 3), "move": round(sd * ratio, digits),
+                      "upper": cv(under + sd), "lower": cv(under - sd),
+                      "formula": "underlying * ATM IV * sqrt(days/365), converted like the strikes"}
+    if "call_wall" in out:
+        out["breakout"] = {"level": out["call_wall"]["level"], "rule": "H1 close above the Call wall"}
+    if "put_wall" in out:
+        out["breakdown"] = {"level": out["put_wall"]["level"], "rule": "H1 close below the Put wall"}
+    return out
 
 
 # ---------------------------------------------------------------- GLD (Cboe)
@@ -179,33 +233,45 @@ def shfe_last_trade(ser):
         d -= dt.timedelta(days=1)
 
 
-def do_gld(prev_block):
-    url = "https://cdn.cboe.com/api/global/delayed_quotes/options/GLD.json"
-    d = get_json(url, timeout=60)
-    q = d["data"]
+def ny_close(e):
+    """16:00 New York on expiry day e (aware datetime)"""
+    return dt.datetime.combine(e, dt.time(16), dt.timezone(dt.timedelta(hours=us_eastern_offset(e))))
+
+
+def cboe_chain(sym, root):
+    """Cboe delayed option chain -> (url, quote dict, quote time (NY aware), {expiry: (call_oi, put_oi, call_iv, put_iv)})"""
+    url = f"https://cdn.cboe.com/api/global/delayed_quotes/options/{sym}.json"
+    q = get_json(url, timeout=90)["data"]
     ltt = dt.datetime.fromisoformat(q["last_trade_time"])            # New York local time
-    et = dt.timezone(dt.timedelta(hours=us_eastern_offset(ltt.date())))
-    ltt = ltt.replace(tzinfo=et)
-    gld_px = float(q["current_price"])
-    spot, spot_ms = spot_at(int(ltt.timestamp() * 1000))
-    ratio = spot / gld_px
+    ltt = ltt.replace(tzinfo=dt.timezone(dt.timedelta(hours=us_eastern_offset(ltt.date()))))
     by = {}
+    rx = re.compile(root + r"(\d{6})([CP])(\d{8})$")
     for o in q["options"]:
-        m = re.match(r"GLD(\d{6})([CP])(\d{8})$", o["option"])
+        m = rx.match(o["option"])
         if not m:
             continue
         e = dt.datetime.strptime(m.group(1), "%y%m%d").date()
-        by.setdefault(e, ({}, {}))[0 if m.group(2) == "C" else 1][int(m.group(3)) / 1000] = fnum(o.get("open_interest")) or 0.0
-    # Auto-roll: keep only expiries that have NOT expired yet, judged by the clock (New York), not by the quote date —
-    # a GLD option stops trading at 16:00 ET on its expiry day. So the expiring weekly stays on its last day (it pins
-    # price that session) and drops out at the first run after 16:00 ET (21:30 UTC cron = 04:30 Thai next morning).
+        i = 0 if m.group(2) == "C" else 1
+        k = int(m.group(3)) / 1000
+        sides = by.setdefault(e, ({}, {}, {}, {}))
+        sides[i][k] = fnum(o.get("open_interest")) or 0.0
+        iv = fnum(o.get("iv"))
+        if iv:
+            sides[2 + i][k] = iv
+    return url, q, ltt, by
+
+
+def pick_expiries(by):
+    """Auto-roll: keep only expiries that have NOT expired yet, judged by the clock (New York), not by the quote date —
+    a Cboe equity/ETF option stops trading at 16:00 ET on its expiry day. So the expiring weekly stays on its last day
+    (it pins price that session) and drops out at the first run after 16:00 ET (21:30 UTC cron = 04:30 Thai next morning)."""
     today_et, now_et = et_now()
     alive = lambda e: e > today_et or (e == today_et and now_et.hour < 16)
-    exps = sorted(e for e in by if alive(e) and sum(by[e][0].values()) + sum(by[e][1].values()) > 0)
-    if not exps:
-        raise RuntimeError("no live GLD expiries")
     tot = lambda e: sum(by[e][0].values()) + sum(by[e][1].values())
-    # GLD lists daily expiries; "front weekly" = the biggest-OI expiry within the next 8 days (normally Friday)
+    exps = sorted(e for e in by if alive(e) and tot(e) > 0)
+    if not exps:
+        raise RuntimeError("no live expiries")
+    # daily expiries are listed; "front weekly" = the biggest-OI expiry within the next 8 days (normally Friday)
     wk = [e for e in exps if (e - today_et).days <= 8] or exps[:1]
     front = max(wk, key=tot)
     pick = [(front, "front weekly")]
@@ -219,40 +285,92 @@ def do_gld(prev_block):
         pick.append((mon, "monthly"))
     elif mon == front:
         pick[0] = (mon, "front weekly + monthly")
+    return pick
 
-    # OI change vs the previous distinct Cboe OI snapshot (Cboe has no change field)
+
+def oi_changes(name, by, pick, ltt):
+    """OI change vs the previous distinct Cboe OI snapshot (Cboe has no change field). Returns (prev_quote, {expiry: chg})"""
     st = json.loads(STATE.read_text()) if STATE.exists() else {}
     cur = {e.isoformat(): {"C": {str(k): v for k, v in by[e][0].items()}, "P": {str(k): v for k, v in by[e][1].items()}} for e, _ in pick}
     sig = json.dumps(cur, sort_keys=True)
-    g = st.get("gld", {})
+    g = st.get(name, {})
     if g.get("sig_cur") != sig:
         g = {"prev": g.get("cur"), "prev_quote": g.get("cur_quote"), "cur": cur, "cur_quote": ltt.isoformat(), "sig_cur": sig}
-        st["gld"] = g
+        st[name] = g
         STATE.write_text(json.dumps(st, separators=(",", ":")) + "\n")
     prev = g.get("prev") or {}
-
-    exp_out = []
-    for e, kind in pick:
-        chg = None
+    out = {}
+    for e, _ in pick:
         pe = prev.get(e.isoformat())
         if pe:
             chg = {}
-            for typ, side, key in (("call", by[e][0], "C"), ("put", by[e][1], "P")):
+            for typ, side, k2 in (("call", by[e][0], "C"), ("put", by[e][1], "P")):
                 for k, v in side.items():
-                    chg[(typ, k)] = v - float(pe[key].get(str(k), 0))
-        s = summarise(by[e][0], by[e][1], gld_px, ratio, chg, "USD per GLD share")
-        s.update({"expiry": e.isoformat(), "kind": kind, "expires_at_th": gld_close_th(e)})
+                    chg[(typ, k)] = v - float(pe[k2].get(str(k), 0))
+            out[e] = chg
+    return g.get("prev_quote"), out
+
+
+def cboe_expiries(name, by, under, ratio, ltt, unit, shift=0.0, digits=2):
+    pick = pick_expiries(by)
+    prev_q, chg = oi_changes(name, by, pick, ltt)
+    exp_out = []
+    for e, kind in pick:
+        c, p, civ, piv = by[e]
+        s = summarise(c, p, under, ratio, chg.get(e), unit, shift)
+        s.update({"expiry": e.isoformat(), "kind": kind, "expires_at_th": ny_close(e).astimezone(TH).isoformat(timespec="minutes"),
+                  "key": key_levels(c, p, civ, piv, under, ratio, ny_close(e), ltt, shift, digits)})
         exp_out.append(s)
+    return prev_q, exp_out
+
+
+def do_gld(prev_block):
+    url, q, ltt, by = cboe_chain("GLD", "GLD")
+    gld_px = float(q["current_price"])
+    spot, spot_ms = spot_at(int(ltt.timestamp() * 1000))
+    ratio = spot / gld_px
+    prev_q, exp_out = cboe_expiries("gld", by, gld_px, ratio, ltt, "USD per GLD share")
     return {
         "source": "Cboe delayed quotes GLD.json (SPDR Gold Shares ETF options; proxy, not CME)",
         "source_url": url,
         "quote_time": ltt.isoformat(), "quote_time_th": ltt.astimezone(TH).isoformat(timespec="minutes"),
         "data_date": ltt.date().isoformat(),
         "oi_note": "OI = OCC open interest published by Cboe (positions as of the previous settlement)",
-        "oi_chg_vs": g.get("prev_quote"),
+        "oi_chg_vs": prev_q,
+        "iv30": fnum(q.get("iv30")),
         "conversion": {"method": "level_spot = strike * spot / GLD", "gld_price": gld_px, "spot": spot,
                        "spot_time": dt.datetime.fromtimestamp(spot_ms / 1000, TH).isoformat(timespec="minutes"),
                        "spot_source": "OKX XAU-USD index 1m close", "ratio": round(ratio, 5)},
+        "expiries": exp_out, "fetched_at": now_th(), "stale": False,
+    }
+
+
+# ---------------------------------------------------------------- QQQ (Cboe) -> NAS100 (Skilling US100)
+def do_qqq(prev_block):
+    url, q, ltt, by = cboe_chain("QQQ", "QQQ")
+    qqq_px = float(q["current_price"])
+    nd = get_json("https://cdn.cboe.com/api/global/delayed_quotes/options/_NDX.json", timeout=120)["data"]
+    ndx_px = float(nd["current_price"])
+    ndx_t = dt.datetime.fromisoformat(nd["last_trade_time"])
+    ndx_t = ndx_t.replace(tzinfo=dt.timezone(dt.timedelta(hours=us_eastern_offset(ndx_t.date()))))
+    if abs((ndx_t - ltt).total_seconds()) > 6 * 3600:
+        raise RuntimeError(f"NDX quote {ndx_t} too far from QQQ quote {ltt}")
+    ratio = ndx_px / qqq_px
+    if not 30 < ratio < 50:
+        raise RuntimeError(f"odd NDX/QQQ ratio {ratio}")
+    prev_q, exp_out = cboe_expiries("qqq", by, qqq_px, ratio, ltt, "USD per QQQ share", SKILLING_SHIFT, 1)
+    return {
+        "source": "Cboe delayed quotes QQQ.json (Invesco QQQ ETF options; proxy for Nasdaq-100, not CME/NDX futures options)",
+        "source_url": url,
+        "quote_time": ltt.isoformat(), "quote_time_th": ltt.astimezone(TH).isoformat(timespec="minutes"),
+        "data_date": ltt.date().isoformat(),
+        "oi_note": "OI = OCC open interest published by Cboe (positions as of the previous settlement)",
+        "oi_chg_vs": prev_q,
+        "iv30": fnum(q.get("iv30")),
+        "conversion": {"method": "level_spot (Skilling US100) = strike * NDX/QQQ + skilling_shift", "qqq_price": qqq_px,
+                       "ndx_price": ndx_px, "ndx_time": ndx_t.isoformat(), "ndx_source": "Cboe delayed quotes _NDX.json",
+                       "ratio": round(ratio, 5), "skilling_shift": SKILLING_SHIFT,
+                       "note": "^NDX cash index -5 points = Skilling US100 CFD (as measured for the site's NAS chart)"},
         "expiries": exp_out, "fetched_at": now_th(), "stale": False,
     }
 
@@ -345,7 +463,7 @@ def main(argv):
     old = json.loads(OUT.read_text()) if OUT.exists() else {}
     new = dict(old)
     changed = False
-    for name, fn in (("gld", do_gld), ("shfe", do_shfe)):
+    for name, fn in (("gld", do_gld), ("shfe", do_shfe), ("qqq", do_qqq)):
         if only and name != only:
             continue
         try:
@@ -365,7 +483,8 @@ def main(argv):
     if changed or not OUT.exists():
         new["generated_at"] = now_th()
         new["_note"] = ("Option open-interest levels from PROXY markets (GLD ETF options via Cboe; SHFE au options). "
-                        "Not CME/COMEX data, not trade signals. level_spot = strike converted to spot XAUUSD.")
+                        "Not CME/COMEX data, not trade signals. level_spot = strike converted to spot XAUUSD (gld, shfe) "
+                        "or to Skilling US100 points (qqq: QQQ options, strike * NDX/QQQ - 5).")
         OUT.write_text(json.dumps(new, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print("wrote options_levels.json")
     return 0

@@ -1,6 +1,15 @@
 # AiTD Gold Live
 
-Static XAUUSD live-chart site (Thai, dark, mobile-first). No server, no API keys. Works on GitHub Pages.
+Static XAUUSD + NAS100 live-chart site (Thai, dark, mobile-first). No server, no API keys. Works on GitHub Pages.
+
+## Pages
+Top nav on both pages: **ทองคำ XAUUSD | NAS100**. `<body data-page="gold|nas">` tells `js/app.js` which page it is on.
+| Page | URL | Shows |
+|---|---|---|
+| Gold | `index.html` (`/`) | zone guard banner, checklist, sessions + US-time note, US high-impact events, XAUUSD chart + zones (tab TradingView `OANDA:XAUUSD`), trend M15–D1, Volume Profile, **key levels from GLD options** (Pivot / Call wall / Put wall / ±1SD / breakout hint, drawn on the chart), zones list, detailed GLD + SHFE option panel, gold news (`news.json`), Lot calculator + account (localStorage only), markets/calendar widgets |
+| NAS100 | `nas100.html` | NAS100 chart + ^NDX bands (Skilling US100 points; tab TradingView `SKILLING:US100`), trend M15–D1, Volume Profile, zone status + levels list, **key levels from QQQ options** (same card, converted to Skilling US100), sessions + US-time note, US high-impact events, NAS100 / US-stocks news (`nas_news.json`), NAS-related markets/calendar widgets. No account card |
+
+The sessions card shows the US daylight-saving note, computed from the browser clock: US winter (EST) = US cash open 21:30 Thai, most US data 20:30 Thai, MT5 server UTC+2 (Thai = server + 5 h); US summer (EDT) = 20:30 / 19:30 / UTC+3 (+4 h).
 
 ## What is live vs static
 | Part | Source | Live? |
@@ -14,8 +23,10 @@ Static XAUUSD live-chart site (Thai, dark, mobile-first). No server, no API keys
 | Event list ("ข่าวแรงถัดไป") | `events.json` from ForexFactory weekly JSON (`update_data.py --events-only`) | Hourly 07:05–23:05 Thai weekdays (`update-news.yml`) |
 | Gold news panel "ข่าวทองล่าสุด" | `news.json` from `news.py`: public RSS headlines (Google News EN/TH, Reuters/Kitco/FXStreet via Google News, investingLive) with automatic keyword tags | Hourly 07:05–23:05 Thai weekdays (`update-news.yml`) |
 | Volume Profile (chart overlay, toggle + period) | Shared engine `createVP` in `js/app.js`. Perp 5m/15m candle volume (oz) from **OKX `XAU-USDT-SWAP` → Bitget `XAUUSDT` → Binance `XAUUSDT`**, all requested at once (4 s timeouts, `raceFeeds`), first in that order wins — works in Thailand where okx.com is blocked. Source shown after “ที่มา”. Shifted onto the chart candles by median(perp close − chart close) over bars that close together, $1 bins, POC + 70 % value area. If every source fails: “Volume Profile โหลดไม่ได้” under the chart and on it, retried every minute | Client-side, every 60 s |
-| NAS100 chart card (next to the gold chart: side by side ≥1100 px, directly under gold on mobile) | `js/nas.js`: **OKX index `US100-USDT`** (CORS, no key) — history `/api/v5/market/history-index-candles`, live WebSocket `index-tickers` (REST poll fallback), tail resync every 60 s; fallback OKX `US100-USDT-SWAP` perp. Same chart options, EMA20/50, M1/M5/M15/M30/H1/H4 (H4 anchored 17:00 NY) and broker-hours filter as gold. Bands from `nas_zones.json` drawn on the chart like gold zones (colour follows live price), inline NAS-only zone status (±15 pts), collapsible level list, second tab TradingView `SKILLING:US100` (the user's broker). Candles/price shifted per feed to Skilling US100 points (defaults OKX −12, Bitget −36, perp −30; user can set their own with “ปรับให้ตรง MT5”, saved in localStorage); ^NDX bands shifted −5. Volume Profile like gold (own toggle + period; OKX `US100-USDT-SWAP` → Bitget `NDX100USDT` perp volume, 5-pt bins, shifted onto the Skilling-offset candles so it follows “ปรับให้ตรง MT5”; crypto-perp NAS volume is tiny, so it is a rough guide only). No option lines for NAS (no free NDX option OI). Price can differ from MT5 by tens of points | Live; levels weekday 07:00 Thai with `update-zones.yml` |
-| Option OI levels (chart price lines + panel "ระดับจากออปชัน") | `options_levels.json` from `options_levels.py`: **Cboe delayed GLD options** + **SHFE au gold options** (proxies, not CME) | Daily (GitHub Actions `update-options.yml`) |
+| NAS100 chart card (`nas100.html`) | `js/nas.js`: **OKX index `US100-USDT`** (CORS, no key) — history `/api/v5/market/history-index-candles`, live WebSocket `index-tickers` (REST poll fallback), tail resync every 60 s; fallback OKX `US100-USDT-SWAP` perp. Same chart options, EMA20/50, M1/M5/M15/M30/H1/H4 (H4 anchored 17:00 NY) and broker-hours filter as gold. Bands from `nas_zones.json` drawn on the chart like gold zones (colour follows live price), inline NAS-only zone status (±15 pts), collapsible level list, second tab TradingView `SKILLING:US100` (the user's broker). Candles/price shifted per feed to Skilling US100 points (defaults OKX −12, Bitget −36, perp −30; user can set their own with “ปรับให้ตรง MT5”, saved in localStorage); ^NDX bands shifted −5. Volume Profile like gold (own toggle + period; OKX `US100-USDT-SWAP` → Bitget `NDX100USDT` perp volume, 5-pt bins, shifted onto the Skilling-offset candles so it follows “ปรับให้ตรง MT5”; crypto-perp NAS volume is tiny, so it is a rough guide only). Key-level lines from Cboe QQQ options (see below). Price can differ from MT5 by tens of points | Live; levels weekday 07:00 Thai with `update-zones.yml` |
+| Key-level card "ระดับสำคัญจากออปชัน" (both pages; chart price lines, toggle "เส้นบนกราฟ") | `createKeyLevels` in `js/app.js` reads the `key` object of the first not-expired expiry in `options_levels.json` → `gld` (gold page) / `qqq` (NAS page). Pivot = max pain (+ Max OI strike), Call wall (largest call OI ≥ underlying), Put wall (largest put OI ≤ underlying), ±1SD = underlying × ATM IV × √(days/365) to expiry, Breakout/Breakdown hint = last **closed H1** (from the trend engine) beyond the Call/Put wall. Colours: Call #ff6b6b, Put #3ddc97, Pivot #ffd54f, ±1SD #64b5f6 dashed. Badge “ข้อมูลเก่า” when the block is `stale` or the quote is > 96 h old | Daily (`update-options.yml`); card refreshes distances every 15 s, file every 10 min |
+| Option OI levels detail (panel "ระดับจากออปชัน" + optional per-wall lines, off by default) | `options_levels.json` from `options_levels.py`: **Cboe delayed GLD options** + **SHFE au gold options** (proxies, not CME) | Daily (GitHub Actions `update-options.yml`) |
+| NAS100 news panel "ข่าว NAS100 / หุ้นสหรัฐ" | `nas_news.json` from `nas_news.py` (same engine as `news.py`: Google News Nasdaq / megacap tech / Fed / Thai, Reuters + CNBC via Google News, investingLive; lean NASบวก/NASลบ/กลาง by keyword) | Hourly 07:05–23:05 Thai weekdays (`update-news.yml`) |
 | Balance, floor, daily stop, today's P/L | typed by the user, saved in that browser's localStorage only | Never published |
 | Clock, sessions, countdown | browser clock, `Asia/Bangkok` | Live |
 
@@ -35,18 +46,23 @@ URL options: `?nastf=1|5|15|30|60|240`, `?nasvp=0|1`, `?nasvpp=today|asia|h24|we
 
 - `nas_zones.json` — `{date, auto, symbol:"^NDX", chart_symbol, source, last_close:{date,close}, prev_day:{date,open,high,low,close}, week:{start,days,high,low}|null, prev_week:{start,high,low,close}, pivot, levels:[{price, type:"resistance"|"support"|"pivot", label, note}], zones:[{zone:[price-10, price+10], type, level, label, note}], generated_at}`.
   Built by `nas_zones.py` from completed US cash sessions only: previous day high/low/close, classic pivot, this/previous week high/low, 3 round-100 levels above and below the last close; levels within 20 points merged. Cash index ≠ broker CFD (can differ by tens of points). Keeps the old file on failure. Gold zone banner/checklist ignore it.
-- `options_levels.json` — `{gld:{...}, shfe:{...}, generated_at}`; each block: `source, source_url, data_date, conversion{...}, expiries:[{expiry|series, kind, underlying, call_oi_total, put_oi_total, pc_oi_ratio, max_pain{strike,level_spot}, call_walls:[{strike, level_spot, oi, oi_chg}], put_walls:[...], top_any}], fetched_at, stale`.
+- `options_levels.json` — `{gld:{...}, shfe:{...}, qqq:{...}, generated_at}`; each block: `source, source_url, data_date, conversion{...}, expiries:[{expiry|series, kind, underlying, call_oi_total, put_oi_total, pc_oi_ratio, max_pain{strike,level_spot}, call_walls:[{strike, level_spot, oi, oi_chg}], put_walls:[...], top_any}], fetched_at, stale`.
   Walls = top-5 OI strikes within ±10 % of the underlying. `level_spot` = strike × ratio (GLD: spot/GLD at the GLD quote time; SHFE: spot at 15:00 Beijing / au futures close, which bakes in USDCNY and the SHFE premium; both inputs are written in `conversion`). A failed source keeps its last good block with `stale: true`.
+  Every Cboe expiry (gld, qqq) also has `key: {underlying, spot_ref, pivot{strike,level,method}, max_oi{strike,level,oi}, call_wall{strike,level,oi}, put_wall{...}, sd1{atm_iv, days, move_underlying, move, upper, lower}, breakout{level,rule}, breakdown{level,rule}}` — `level` is already in chart price.
+  ATM IV = mean Cboe `iv` of the call + put at the 2 strikes nearest the underlying for that expiry; days = quote time → 16:00 New York on expiry day.
+  `qqq` = **Cboe delayed QQQ options** (proxy for Nasdaq-100; not NDX options, not CME NQ): `level = strike × NDX/QQQ − 5`, where NDX comes from Cboe `_NDX.json` at the same delayed quote time and −5 = ^NDX cash → Skilling US100 (same shift as `nas_zones.json`). `conversion` stores `qqq_price, ndx_price, ndx_time, ratio, skilling_shift`. If `_NDX` fails or the quotes are > 6 h apart the block is kept from the last run with `stale: true`.
+  CME gold/NQ option OI is not used: CME blocks automated access and has no free, licence-clean feed.
+- `nas_news.json` — same format as `news.json`, `lean: "NASบวก"|"NASลบ"|"กลาง"`.
 - `options_oi_state.json` — previous Cboe per-strike OI snapshot, used for GLD OI change (SHFE gives the change itself).
 
 ## Option levels automation
-`.github/workflows/update-options.yml` runs `python3 options_levels.py` Mon–Fri at 07:40 & 09:10 UTC (14:40 / 16:10 Thai, after SHFE posts ~14:25 Thai) and 15:00 & 21:30 UTC (22:00 / 04:30 Thai, Cboe GLD after the OCC OI refresh and after the US close), plus manual `workflow_dispatch`, and commits `options_levels.json` + `options_oi_state.json` if they changed (default `GITHUB_TOKEN`, `contents: write`). Stdlib only. Manual: `python3 options_levels.py [--only gld|shfe]`.
+`.github/workflows/update-options.yml` runs `python3 options_levels.py` Mon–Fri at 07:40 & 09:10 UTC (14:40 / 16:10 Thai, after SHFE posts ~14:25 Thai) and 15:00 & 21:30 UTC (22:00 / 04:30 Thai, Cboe GLD after the OCC OI refresh and after the US close), plus manual `workflow_dispatch`, and commits `options_levels.json` + `options_oi_state.json` if they changed (default `GITHUB_TOKEN`, `contents: write`). Stdlib only. Cboe QQQ + `_NDX` are fetched in the same run (`qqq` block), so NAS100 levels refresh on the same schedule. Manual: `python3 options_levels.py [--only gld|shfe|qqq]`.
 
 **Expiry roll-over.** GLD: only expiries that have not expired by the clock are used (a GLD option stops at 16:00 New York on its expiry day = 03:00 Thai next day in EDT, 04:00 Thai in EST). The expiring weekly therefore stays on its last day and is dropped by the first run after the US close (21:30 UTC = 04:30 Thai). Front weekly = biggest-OI expiry within 8 days; when it expires within 2 days the file also carries the **next weekly** (`kind: "next weekly"`); the monthly is the next 3rd-Friday expiry. Each GLD block has `expires_at_th`. SHFE: series come from the daily SHFE file (expired series disappear); each block carries `expiry_est` (≈ 5th-last weekday of the month before delivery, Chinese holidays ignored). The site re-checks expiry every 15 s: an expired block is hidden (note “หมดอายุแล้ว … แสดงสัญญาถัดไปแทน”) and the chart lines / alert levels switch to the next block; if all blocks are expired they stay visible, dimmed, with “หมดอายุแล้ว — รอข้อมูลรอบใหม่”; within 24 h of expiry a badge shows the Thai expiry time. Test the clock with `OPT_NOW=2026-10-30T21:30:00+00:00 python3 options_levels.py` and `?optnow=2026-10-31T05:00:00%2B07:00` on the site.
 
 ## Zones + news automation
 - `.github/workflows/update-zones.yml`: `python3 zones_auto.py` at 00:00 UTC Mon–Fri (07:00 Thai) + `workflow_dispatch`; commits `zones.json` if changed.
-- `.github/workflows/update-news.yml`: `python3 news.py` and `python3 update_data.py --events-only` at :05 every hour 00–16 UTC Mon–Fri (07:05–23:05 Thai) + `workflow_dispatch`; commits `news.json` + `events.json` if changed.
+- `.github/workflows/update-news.yml`: `python3 news.py`, `python3 nas_news.py` and `python3 update_data.py --events-only` at :05 every hour 00–16 UTC Mon–Fri (07:05–23:05 Thai) + `workflow_dispatch`; commits `news.json` + `nas_news.json` + `events.json` if changed.
 GitHub may start scheduled runs several minutes late. All scripts are stdlib-only and need no secrets beyond the default `GITHUB_TOKEN` (`contents: write`).
 
 ## Daily update
@@ -57,6 +73,7 @@ python3 update_data.py --no-net   # skip live ForexFactory fetch, use /workspace
 python3 update_data.py --events-only  # events.json only (keeps the old file if ForexFactory fails)
 python3 zones_auto.py [--force] [--dry]   # automatic zones.json from OKX index candles
 python3 news.py [--dry]           # news.json from public RSS
+python3 nas_news.py [--dry]       # nas_news.json (Nasdaq / US-stocks headlines) for nas100.html
 python3 nas_zones.py [--dry]      # nas_zones.json (NAS100 reference levels) from Yahoo ^NDX daily bars
 ```
 If `/workspace/gold_zones.json` is missing, `update_data.py` falls back to `zones_auto.py`.
@@ -69,7 +86,7 @@ No account data (balance, P/L, journal) is ever read or written by this script.
 4. Site: `https://<user>.github.io/<repo>/`. Daily: run `update_data.py`, commit `zones.json` + `events.json`, push.
 
 ## Local test
-`python3 -m http.server 8765` then open http://localhost:8765/ (opening the file directly will not load the JSON files).
+`python3 -m http.server 8765` then open http://localhost:8765/ and http://localhost:8765/nas100.html (opening the file directly will not load the JSON files).
 
 ## Zone guard + เช็กก่อนกด
 - แบนเนอร์ติดหัวจอ (sticky) เทียบราคาสด OKX XAU-USD index กับ: โซน `support`/`resistance` ใน zones.json (ไม่นับ pivot), Put wall/Call wall ของ GLD และ SHFE (expiry/ซีรีส์แรกเท่านั้น), VAL/VAH ของ Volume Profile (เมื่อเปิด VP)

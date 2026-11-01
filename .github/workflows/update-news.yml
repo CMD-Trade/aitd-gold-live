@@ -1,4 +1,4 @@
-name: Update gold news + calendar
+name: Update gold + NAS100 news + calendar
 
 on:
   schedule:
@@ -23,14 +23,16 @@ jobs:
           python-version: "3.12"
       - name: Build news.json from public RSS (stdlib only; keeps last file if all feeds fail)
         run: python3 news.py
+      - name: Build nas_news.json (Nasdaq / US-stocks headlines for nas100.html; keeps last file if all feeds fail)
+        run: python3 nas_news.py || true
       - name: Refresh events.json from ForexFactory weekly calendar (keeps last file on failure)
         run: python3 update_data.py --events-only || true
       - name: Commit if changed
         run: |
-          if git diff --quiet -- news.json events.json; then echo "no change"; exit 0; fi
+          if git diff --quiet -- news.json nas_news.json events.json; then echo "no change"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
-          git add news.json events.json
+          git add news.json nas_news.json events.json
           git commit -m "news: $(date -u +%Y-%m-%dT%H:%MZ)"
           for i in 1 2 3; do git pull --rebase --autostash && git push && exit 0; sleep 5; done
           exit 1

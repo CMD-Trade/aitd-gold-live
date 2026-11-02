@@ -1,52 +1,43 @@
 {
- "generated_at": "2026-10-31T00:47:08+07:00",
+ "generated_at": "2026-11-02T11:49:51+07:00",
  "source": "ForexFactory (live)",
  "_format": "events: list of {title, country, impact, time (ISO with +07:00), forecast, previous}",
  "events": [
   {
-   "title": "Fed ประกาศดอกเบี้ย",
-   "title_en": "Federal Funds Rate",
+   "title": "Congressional Elections",
+   "title_en": "Congressional Elections",
    "country": "USD",
    "impact": "High",
-   "time": "2026-10-29T01:00:00+07:00",
-   "forecast": "4.00%",
-   "previous": "4.00%"
-  },
-  {
-   "title": "แถลงการณ์ FOMC",
-   "title_en": "FOMC Statement",
-   "country": "USD",
-   "impact": "High",
-   "time": "2026-10-29T01:00:00+07:00",
+   "time": "2026-11-03T22:16:00+07:00",
    "forecast": "",
    "previous": ""
   },
   {
-   "title": "แถลงข่าวประธาน Fed (FOMC)",
-   "title_en": "FOMC Press Conference",
+   "title": "Average Hourly Earnings m/m",
+   "title_en": "Average Hourly Earnings m/m",
    "country": "USD",
    "impact": "High",
-   "time": "2026-10-29T01:30:00+07:00",
-   "forecast": "",
-   "previous": ""
-  },
-  {
-   "title": "GDP สหรัฐ (ล่วงหน้า)",
-   "title_en": "Advance GDP q/q",
-   "country": "USD",
-   "impact": "High",
-   "time": "2026-10-29T19:30:00+07:00",
-   "forecast": "3.2%",
-   "previous": "1.5%"
-  },
-  {
-   "title": "Core PCE m/m",
-   "title_en": "Core PCE Price Index m/m",
-   "country": "USD",
-   "impact": "High",
-   "time": "2026-10-29T19:30:00+07:00",
+   "time": "2026-11-06T20:30:00+07:00",
    "forecast": "0.3%",
-   "previous": "0.2%"
+   "previous": "0.1%"
+  },
+  {
+   "title": "Non-Farm Payrolls",
+   "title_en": "Non-Farm Employment Change",
+   "country": "USD",
+   "impact": "High",
+   "time": "2026-11-06T20:30:00+07:00",
+   "forecast": "63K",
+   "previous": "29K"
+  },
+  {
+   "title": "อัตราว่างงานสหรัฐ",
+   "title_en": "Unemployment Rate",
+   "country": "USD",
+   "impact": "High",
+   "time": "2026-11-06T20:30:00+07:00",
+   "forecast": "4.2%",
+   "previous": "4.2%"
   }
  ]
 }

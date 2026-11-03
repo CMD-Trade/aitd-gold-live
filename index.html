@@ -95,6 +95,7 @@
       </div>
     </div>
     <div class="chart-wrap" id="zoneView">
+      <canvas id="pdCanvas" class="pd-canvas"></canvas>
       <div id="lwChart" class="lw"></div>
       <canvas id="zoneCanvas" class="zone-canvas"></canvas>
       <div class="legend"><span class="ema20">EMA20</span><span class="ema50">EMA50</span><span id="lwStatus"></span></div>
@@ -102,9 +103,11 @@
     <div class="chart-wrap hidden" id="tvView"><div id="tvChart" class="tvc"></div></div>
     <div class="swing-bar" id="swingBar">
       <label class="swing-tg"><input type="checkbox" id="tgSwing" checked> Swing Finder (RSI)</label>
+      <label class="swing-tg"><input type="checkbox" id="tgPd" checked> Premium/Discount + Fibo</label>
       <div class="swing-sum" id="swingSum" aria-live="polite">กำลังคำนวณจุด swing…</div>
     </div>
     <div class="sub swing-note">Swing Finder (RSI 7, 70/30) — จุด swing ล่าสุดยังขยับได้จนกว่า RSI จะข้ามไปอีกฝั่ง ไม่ใช่สัญญาณ Buy/Sell สำเร็จรูป</div>
+    <div class="sub swing-note" id="pdNote">Premium/Discount วัดจากสวิง H1 ล่าสุดที่ยืนยัน · Buy ในโซน Discount, Sell ในโซน Premium · 1.618 เป็นเป้าไกล ใช้เป็นแนวทาง ไม่ใช่สัญญาณ</div>
     <div class="trend" id="goldTrend" aria-live="polite"></div>
     <div class="opt-toggles" id="optToggles">
       <span class="label">เส้นออปชันละเอียด (ทุก wall):</span>

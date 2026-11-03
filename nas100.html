@@ -55,6 +55,7 @@
       </div>
     </div>
     <div class="chart-wrap" id="nasZoneView">
+      <canvas id="nasPdCanvas" class="pd-canvas"></canvas>
       <div id="nasLw" class="lw"></div>
       <canvas id="nasCanvas" class="zone-canvas"></canvas>
       <div class="legend"><span class="ema20">EMA20</span><span class="ema50">EMA50</span><span id="nasStatus"></span></div>
@@ -62,9 +63,11 @@
     <div class="chart-wrap hidden" id="nasTvView"><div id="nasTv" class="tvc"></div></div>
     <div class="swing-bar" id="nasSwingBar">
       <label class="swing-tg"><input type="checkbox" id="nasTgSwing" checked> Swing Finder (RSI)</label>
+      <label class="swing-tg"><input type="checkbox" id="nasTgPd" checked> Premium/Discount + Fibo</label>
       <div class="swing-sum" id="nasSwingSum" aria-live="polite">กำลังคำนวณจุด swing…</div>
     </div>
     <div class="sub swing-note">Swing Finder (RSI 7, 70/30) — จุด swing ล่าสุดยังขยับได้จนกว่า RSI จะข้ามไปอีกฝั่ง ไม่ใช่สัญญาณ Buy/Sell สำเร็จรูป</div>
+    <div class="sub swing-note" id="nasPdNote">Premium/Discount วัดจากสวิง H1 ล่าสุดที่ยืนยัน · Buy ในโซน Discount, Sell ในโซน Premium · 1.618 เป็นเป้าไกล ใช้เป็นแนวทาง ไม่ใช่สัญญาณ</div>
     <div class="trend" id="nasTrend" aria-live="polite"></div>
     <div class="opt-toggles vp-toggles" id="nasVpToggles">
       <label><input type="checkbox" id="nasTgVp"> <i class="sw vp"></i>Volume Profile</label>

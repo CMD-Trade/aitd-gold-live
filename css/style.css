@@ -285,6 +285,8 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 .swing-sum .tag{font-family:'IBM Plex Sans Thai',system-ui,sans-serif}
 .swing-sum .up{color:var(--green)}.swing-sum .down{color:var(--red)}.swing-sum .side{color:#9aa3b5}
 .swing-note{font-size:11.5px}
+.pd-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.lw{z-index:1}
 
 /* ---------------- page nav: ทองคำ XAUUSD | NAS100 (index.html / nas100.html) ---------------- */
 .pnav{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 12px;background:rgba(11,13,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}

@@ -376,7 +376,7 @@ function initChart(){
   const LW = window.LightweightCharts;
   chart = LW.createChart($('lwChart'), {
     autoSize:true,
-    layout:{background:{type:'solid',color:'#0d1016'}, textColor:'#8b93a5', fontFamily:"'JetBrains Mono', monospace", fontSize:11, attributionLogo:true},
+    layout:{background:{type:'solid',color:'rgba(13,16,22,0)'}, textColor:'#8b93a5', fontFamily:"'JetBrains Mono', monospace", fontSize:11, attributionLogo:true},
     grid:{vertLines:{color:'rgba(255,255,255,0.03)'}, horzLines:{color:'rgba(255,255,255,0.04)'}},
     rightPriceScale:{borderColor:'#232937', scaleMargins:{top:0.08,bottom:0.08}},
     timeScale:{borderColor:'#232937', timeVisible:true, secondsVisible:false, rightOffset:6},
@@ -466,10 +466,16 @@ function onSpotOnlyTick(p, at){
 }
 
 /* Swing Finder (RSI 7, 70/30) on the zone chart. Same candle series and timeframe as the candles. */
+const TF_LABEL = { '1':'M1', '5':'M5', '15':'M15', '30':'M30', '60':'H1', '240':'H4' };
 const GSW = ($('tgSwing') && window.AITD_SWING) ? window.AITD_SWING.createSwingOverlay({
   lsKey:'swing_on', tgId:'tgSwing', sumId:'swingSum', digits:2, LS, fmt, timeShift:TH_OFF,
   bars:()=>S.raw.map(b=>({time:b.time, open:b.open-S.offset, high:b.high-S.offset, low:b.low-S.offset, close:b.close-S.offset})),
   chart:()=>chart, series:()=>cs, onChange:()=>drawZones(),
+  pdKey:'pd_on', pdTgId:'tgPd', pdCv:'pdCanvas', wrapId:'zoneView', noteId:'pdNote',
+  tf:()=>S.tf, tfLabel:()=>TF_LABEL[S.tf] || S.tf, price:()=>S.price, feedKey:()=>S.feed && S.feed.name,
+  loadH1:()=>{ const f=S.feed; if (!f || !f.history || f.name==='gold-api') return null; return f.history('60', 400); },
+  adjust:(raw)=>raw.map(b=>({time:b.time, open:b.open-S.offset, high:b.high-S.offset, low:b.low-S.offset, close:b.close-S.offset})),
+  aggregate,
 }) : null;
 window.__AITD_GSW = GSW;
 
@@ -496,6 +502,8 @@ function drawZones(){
     const lbl = {resistance:'แนวต้าน',support:'แนวรับ',pivot:'Pivot'}[z.type]||z.type;
     ctx.fillText(`${lbl} ${z.zone[0]}–${z.zone[1]}`, 8, Math.max(12, y1 - 3));
   }
+  if (GSW) GSW.paintBack();
+  if (GSW) GSW.paintMarks(ctx, paneW, paneH);
   if (GSW) GSW.paint(ctx);
   ctx.restore();
 }

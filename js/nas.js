@@ -162,7 +162,7 @@ function initChart(){
   const LW = window.LightweightCharts;
   chart = LW.createChart($('nasLw'), {
     autoSize:true,
-    layout:{background:{type:'solid',color:'#0d1016'}, textColor:'#8b93a5', fontFamily:"'JetBrains Mono', monospace", fontSize:11, attributionLogo:true},
+    layout:{background:{type:'solid',color:'rgba(13,16,22,0)'}, textColor:'#8b93a5', fontFamily:"'JetBrains Mono', monospace", fontSize:11, attributionLogo:true},
     grid:{vertLines:{color:'rgba(255,255,255,0.03)'}, horzLines:{color:'rgba(255,255,255,0.04)'}},
     rightPriceScale:{borderColor:'#232937', scaleMargins:{top:0.08,bottom:0.08}},
     timeScale:{borderColor:'#232937', timeVisible:true, secondsVisible:false, rightOffset:6},
@@ -311,9 +311,15 @@ function renderGuard(){
 }
 
 /* Swing Finder (RSI 7, 70/30) — same candles / timeframe as this chart. N.raw is already in Skilling points. */
+const TF_LABEL = { '1':'M1', '5':'M5', '15':'M15', '30':'M30', '60':'H1', '240':'H4' };
 const NSW = (document.getElementById('nasTgSwing') && window.AITD_SWING) ? window.AITD_SWING.createSwingOverlay({
   lsKey:'nas_swing_on', tgId:'nasTgSwing', sumId:'nasSwingSum', digits:2, LS:L.LS, fmt:L.fmt, timeShift:L.TH_OFF,
   bars:()=>N.raw, chart:()=>chart, series:()=>cs, onChange:()=>drawZones(),
+  pdKey:'nas_pd_on', pdTgId:'nasTgPd', pdCv:'nasPdCanvas', wrapId:'nasZoneView', noteId:'nasPdNote',
+  tf:()=>N.tf, tfLabel:()=>TF_LABEL[N.tf] || N.tf, price:()=>N.price, feedKey:()=>N.feed && N.feed.name,
+  loadH1:()=>{ const f=N.feed; if (!f || !f.history) return null; return f.history('60', 400); },
+  adjust:(raw)=>raw.map(b=>shiftBar(b, N.off)),
+  aggregate:L.aggregate,
 }) : null;
 window.__AITD_NSW = NSW;
 
@@ -345,6 +351,8 @@ function drawZones(){
     used.push(ly);
     ctx.fillText(`${TAG[t]||t} ${fmt(z.level ?? (z.zone[0]+z.zone[1])/2)} · ${z.label||''}`, 8, ly);
   }
+  if (NSW) NSW.paintBack();
+  if (NSW) NSW.paintMarks(ctx, paneW, paneH);
   if (NSW) NSW.paint(ctx);
   ctx.restore();
 }

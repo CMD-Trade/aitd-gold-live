@@ -172,6 +172,30 @@
     return `${where} · เป้า 1.618: <b>${fmt(dr.tp, digits)}</b>`;
   }
 
+  /* Drop isolated wicks before they are fed to Swing Finder. A high that sticks more than
+     `pct` above BOTH the candle body and the highs of the bars on either side is clamped
+     back to that cap (same for lows). A real push that closes at the extreme is kept,
+     because the cap includes open/close. 0.5% is enough to remove the NAS H1 wick that
+     printed 30,012 (only ~0.6% above the surrounding hour, so a 3% gate left it in place
+     and the whole leg became that wick). Anything around 3% is caught too. */
+  function sanitizeBars(bars, pct) {
+    const lim = pct == null ? 0.005 : pct;
+    if (!bars || bars.length < 5) return bars ? bars.map(b => ({ ...b })) : [];
+    const src = bars.map(b => ({ ...b }));
+    const out = src.map(b => ({ ...b }));
+    for (let i = 0; i < out.length; i++) {
+      const near = [];
+      for (let k = 1; k <= 2; k++) { if (src[i - k]) near.push(src[i - k]); if (src[i + k]) near.push(src[i + k]); }
+      if (near.length < 2) continue;
+      const capH = Math.max(out[i].open, out[i].close, ...near.map(b => b.high));
+      const capL = Math.min(out[i].open, out[i].close, ...near.map(b => b.low));
+      const mid = Math.max(1, Math.abs(out[i].close));
+      if ((out[i].high - capH) / mid > lim) out[i].high = capH;
+      if ((capL - out[i].low) / mid > lim) out[i].low = capL;
+    }
+    return out;
+  }
+
   const PD_NOTE = 'Premium/Discount วัดจากสวิง H1 ล่าสุดที่ยืนยัน · Buy ในโซน Discount, Sell ในโซน Premium · 1.618 เป็นเป้าไกล ใช้เป็นแนวทาง ไม่ใช่สัญญาณ';
 
   function roundRect(ctx, x, y, w, h, r) {
@@ -203,6 +227,10 @@
       if (!o.loadH1 || !SW.pdOn) return;
       const tf = o.tf ? o.tf() : '60';
       if (tf === '60') return;
+      if (o.aggregate && ['1', '5', '15', '30'].includes(tf)) {
+        const rolled = o.aggregate((o.bars && o.bars()) || [], '60');
+        if (rolled && rolled.length >= 24) return;          // chart candles already roll up to H1
+      }
       const feed = (o.feedKey && o.feedKey()) || '';
       if (!feed) return;
       if (SW.h1Busy) return;
@@ -217,24 +245,29 @@
         else SW.h1Fail = true;
       }).catch(() => { SW.h1Busy = false; SW.h1Fail = true; SW.h1At = Date.now(); SW.h1Feed = want; });
     };
+    /* H1 for the zone comes from the candles already on the chart (M15 and finer,
+       rolled up) so it uses the same offset and the same session filter as the picture.
+       A separate H1 download is only the fallback (H4, or not enough chart bars).
+       Either way the bars are sanitized before Swing Finder sees them. */
     const pdBars = () => {
       const tf = o.tf ? o.tf() : '';
       const label = (o.tfLabel && o.tfLabel()) || tf || 'TF';
-      if (tf === '60') return { bars: (o.bars && o.bars()) || [], tf: 'H1', source: 'chart' };
-      if (SW.h1Raw && SW.h1Raw.length && o.adjust) return { bars: o.adjust(SW.h1Raw), tf: 'H1', source: 'feed' };
       const chartBars = (o.bars && o.bars()) || [];
-      if (!SW.h1Raw && o.aggregate && ['1', '5', '15', '30'].includes(tf)) {
+      if (tf === '60') return { bars: chartBars, tf: 'H1', source: 'chart' };
+      if (o.aggregate && ['1', '5', '15', '30'].includes(tf)) {
         const h1 = o.aggregate(chartBars, '60');
         if (h1 && h1.length >= 24) return { bars: h1, tf: 'H1', source: 'agg' };
       }
+      if (SW.h1Raw && SW.h1Raw.length && o.adjust) return { bars: o.adjust(SW.h1Raw), tf: 'H1', source: 'feed' };
       return { bars: chartBars, tf: label, source: 'chart' };
     };
     const syncPd = () => {
       if (!SW.pdOn) { SW.pd = null; return; }
       ensureH1();
       const src = pdBars();
-      const found = src.bars.length ? swingFinderRSI(src.bars) : { swings: [] };
-      const dr = dealingRange(found.swings, src.bars);
+      const bars = sanitizeBars(src.bars);
+      const found = bars.length ? swingFinderRSI(bars) : { swings: [] };
+      const dr = dealingRange(found.swings, bars);
       const px = priceNow();
       SW.pd = { tf: src.tf, source: src.source, dr, zone: dr ? zoneAt(dr, px) : null, price: px };
     };
@@ -422,5 +455,5 @@
     return SW;
   }
 
-  return { rsiWilder, swingFinderRSI, structureOf, dealingRange, zoneAt, zonePhrase, createSwingOverlay };
+  return { rsiWilder, swingFinderRSI, structureOf, dealingRange, zoneAt, zonePhrase, sanitizeBars, createSwingOverlay };
 });

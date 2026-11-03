@@ -1,36 +1,63 @@
 {
- "date": "2026-11-02",
+ "date": "2026-11-03",
  "auto": true,
  "source": "อัตโนมัติ: OKX XAU-USD spot index H1 (public REST) — High/Low เมื่อวาน, Pivot, เอเชีย, swing H1/H4, เลขกลม",
- "price_at_build": 3902.89,
- "price_time": "02/11 11:00",
+ "price_at_build": 3922.38,
+ "price_time": "03/11 12:01",
  "zones": [
   {
    "zone": [
-    3965.0,
-    3968.0
+    3982.5,
+    3991.0
    ],
    "type": "resistance",
-   "score": 2.5,
-   "note": "Low เอเชีย 3966.70 · H1 swing low 3966.70 (30/10 14:00)"
+   "score": 5.5,
+   "note": "H4 swing low 3987.46 (23/10 08:00) · H4 swing low 3989.32 (26/10 20:00) · H4 swing low 3989.80 (27/10 12:00) · R1 3983.73"
   },
   {
    "zone": [
-    3923.0,
-    3926.0
+    3974.0,
+    3980.0
+   ],
+   "type": "resistance",
+   "score": 3.5,
+   "note": "H4 swing low 3976.58 (23/10 20:00) · H4 swing low 3978.86 (26/10 08:00) · เลขกลม 3975"
+  },
+  {
+   "zone": [
+    3968.5,
+    3971.5
+   ],
+   "type": "resistance",
+   "score": 7.5,
+   "note": "High เมื่อวาน 3970.21 · High สัปดาห์นี้ 3970.21 · H4 swing high 3970.21 (02/11 21:00) · H1 swing high 3970.21 (02/11 23:00)"
+  },
+  {
+   "zone": [
+    3931.5,
+    3934.5
    ],
    "type": "pivot",
-   "score": 2.5,
-   "note": "Pivot รายวัน 3924.43 · เลขกลม 3925"
+   "score": 2,
+   "note": "Pivot รายวัน 3933.06"
   },
   {
    "zone": [
-    3913.0,
-    3916.0
+    3917.5,
+    3920.5
    ],
-   "type": "resistance",
-   "score": 3,
-   "note": "High สัปดาห์นี้ 3914.68 · H1 swing high 3914.68 (02/11 08:00)"
+   "type": "support",
+   "score": 2.5,
+   "note": "High เอเชีย 3918.84 · H1 swing high 3918.84 (02/11 12:00)"
+  },
+  {
+   "zone": [
+    3891.0,
+    3897.0
+   ],
+   "type": "support",
+   "score": 3.5,
+   "note": "Low เอเชีย 3893.20 · H1 swing low 3891.77 (02/11 15:00) · S1 3895.90"
   },
   {
    "zone": [
@@ -38,38 +65,38 @@
     3884.0
    ],
    "type": "support",
-   "score": 2,
-   "note": "Low สัปดาห์นี้ 3882.38"
+   "score": 5,
+   "note": "Low เมื่อวาน 3882.38 · Low สัปดาห์นี้ 3882.38"
   },
   {
    "zone": [
     3870.5,
-    3877.0
+    3876.0
    ],
    "type": "support",
-   "score": 8.5,
-   "note": "Low เมื่อวาน 3871.33 · H4 swing low 3871.33 (31/10 00:00) · Low สัปดาห์ก่อน 3871.33 · H1 swing low 3871.33 (31/10 02:00)"
+   "score": 3.5,
+   "note": "H4 swing low 3871.33 (31/10 00:00) · Low สัปดาห์ก่อน 3871.33 · เลขกลม 3875"
   }
  ],
  "prev_day": {
-  "high": 4025.89,
-  "low": 3871.33,
-  "close": 3876.07
+  "high": 3970.21,
+  "low": 3882.38,
+  "close": 3946.58
  },
  "week": {
-  "high": 3914.68,
+  "high": 3970.21,
   "low": 3882.38
  },
  "pivot": {
-  "P": 3924.43,
-  "R1": 3977.53,
-  "S1": 3822.97
+  "P": 3933.06,
+  "R1": 3983.73,
+  "S1": 3895.9
  },
  "asia": {
-  "high": 4018.54,
-  "low": 3966.7
+  "high": 3918.84,
+  "low": 3893.2
  },
- "bias": "H1 ใต้ EMA50 (3964) · Daily ใต้ EMA20 (4076) — อัตโนมัติจากราคา ไม่ใช่สัญญาณ",
- "generated_at": "2026-11-02T11:00:16+07:00",
+ "bias": "H1 ใต้ EMA50 (3946) · Daily ใต้ EMA20 (4066) — อัตโนมัติจากราคา ไม่ใช่สัญญาณ",
+ "generated_at": "2026-11-03T12:01:57+07:00",
  "_format": "zones: list of {zone:[low,high], type: resistance|pivot|support, note, score}. prev_day/week: {high,low[,close]}. Prices = spot XAUUSD (OKX index)."
 }

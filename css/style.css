@@ -276,6 +276,16 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 .tr-chip.sel{outline:1px solid var(--gold);outline-offset:1px}
 .tr-detail{margin-top:6px;font-size:12px;color:var(--txt);font-family:var(--mono);line-height:1.45;word-break:break-word}
 
+/* Swing Finder (RSI) under the gold and NAS100 charts */
+.swing-bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:8px}
+.swing-tg{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;white-space:nowrap}
+.swing-tg input{width:auto;padding:0;margin:0;accent-color:var(--blue)}
+.swing-sum{flex:1;min-width:min(100%,240px);font-size:12.5px;line-height:1.45;padding:6px 10px;border-radius:10px;background:#0f1218;border:1px solid var(--line)}
+.swing-sum b{font-family:var(--mono);font-weight:700}
+.swing-sum .tag{font-family:'IBM Plex Sans Thai',system-ui,sans-serif}
+.swing-sum .up{color:var(--green)}.swing-sum .down{color:var(--red)}.swing-sum .side{color:#9aa3b5}
+.swing-note{font-size:11.5px}
+
 /* ---------------- page nav: ทองคำ XAUUSD | NAS100 (index.html / nas100.html) ---------------- */
 .pnav{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 12px;background:rgba(11,13,18,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .pnav a{flex:1;max-width:220px;display:flex;align-items:center;justify-content:center;gap:7px;padding:7px 10px;border-radius:10px;color:var(--mut);text-decoration:none;font-weight:600;font-size:14px;background:#11141b;border:1px solid var(--line);transition:background .15s,color .15s}

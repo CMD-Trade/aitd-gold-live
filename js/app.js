@@ -465,8 +465,17 @@ function onSpotOnlyTick(p, at){
   trackDay(p); setPrice(p); S.lastTickAt = Date.now();
 }
 
+/* Swing Finder (RSI 7, 70/30) on the zone chart. Same candle series and timeframe as the candles. */
+const GSW = ($('tgSwing') && window.AITD_SWING) ? window.AITD_SWING.createSwingOverlay({
+  lsKey:'swing_on', tgId:'tgSwing', sumId:'swingSum', digits:2, LS, fmt, timeShift:TH_OFF,
+  bars:()=>S.raw.map(b=>({time:b.time, open:b.open-S.offset, high:b.high-S.offset, low:b.low-S.offset, close:b.close-S.offset})),
+  chart:()=>chart, series:()=>cs, onChange:()=>drawZones(),
+}) : null;
+window.__AITD_GSW = GSW;
+
 /* zone bands drawn on an overlay canvas, aligned with the price scale */
 function drawZones(){
+  if (GSW) GSW.refresh();
   const cv = $('zoneCanvas'), wrap = $('zoneView');
   if (!cs || wrap.classList.contains('hidden')) return;
   const dpr = window.devicePixelRatio||1, W = wrap.clientWidth, H = wrap.clientHeight;
@@ -487,6 +496,7 @@ function drawZones(){
     const lbl = {resistance:'แนวต้าน',support:'แนวรับ',pivot:'Pivot'}[z.type]||z.type;
     ctx.fillText(`${lbl} ${z.zone[0]}–${z.zone[1]}`, 8, Math.max(12, y1 - 3));
   }
+  if (GSW) GSW.paint(ctx);
   ctx.restore();
 }
 

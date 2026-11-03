@@ -310,8 +310,16 @@ function renderGuard(){
   else el.innerHTML = `NAS100 อยู่กลางทาง · แนวรับใกล้สุด ${below?`${lv(below)} (ห่าง ${fmt(p-below.zone[1],1)})`:'—'} · แนวต้านใกล้สุด ${above?`${lv(above)} (ห่าง ${fmt(above.zone[0]-p,1)})`:'—'} · เกณฑ์ ±${NEAR} จุด${closed}`;
 }
 
+/* Swing Finder (RSI 7, 70/30) — same candles / timeframe as this chart. N.raw is already in Skilling points. */
+const NSW = (document.getElementById('nasTgSwing') && window.AITD_SWING) ? window.AITD_SWING.createSwingOverlay({
+  lsKey:'nas_swing_on', tgId:'nasTgSwing', sumId:'nasSwingSum', digits:2, LS:L.LS, fmt:L.fmt, timeShift:L.TH_OFF,
+  bars:()=>N.raw, chart:()=>chart, series:()=>cs, onChange:()=>drawZones(),
+}) : null;
+window.__AITD_NSW = NSW;
+
 /* ---------------- zone bands on the overlay canvas (same drawing as gold) ---------------- */
 function drawZones(){
+  if (NSW) NSW.refresh();
   const cv = $('nasCanvas'), wrap = $('nasZoneView');
   if (!cs || wrap.classList.contains('hidden')) return;
   const dpr = window.devicePixelRatio||1, W = wrap.clientWidth, H = wrap.clientHeight;
@@ -337,6 +345,7 @@ function drawZones(){
     used.push(ly);
     ctx.fillText(`${TAG[t]||t} ${fmt(z.level ?? (z.zone[0]+z.zone[1])/2)} · ${z.label||''}`, 8, ly);
   }
+  if (NSW) NSW.paint(ctx);
   ctx.restore();
 }
 

@@ -1,21 +1,21 @@
 {
- "generated_at": "2026-11-04T03:25:58+07:00",
+ "generated_at": "2026-11-04T12:09:35+07:00",
  "note": "หัวข้อข่าวและลิงก์จาก RSS สาธารณะเท่านั้น · หมวดและ NASบวก/NASลบ/กลาง ติดอัตโนมัติจากคำในหัวข้อ (keyword) ไม่ใช่บทวิเคราะห์",
  "sources": [
   {
    "id": "gn_nas",
    "name": "Google News (Nasdaq)",
    "ok": true,
-   "parsed": 100,
-   "fresh": 45,
+   "parsed": 90,
+   "fresh": 46,
    "used": 10
   },
   {
    "id": "gn_th",
    "name": "Google News ไทย (แนสแด็ก)",
    "ok": true,
-   "parsed": 47,
-   "fresh": 42,
+   "parsed": 20,
+   "fresh": 20,
    "used": 6
   },
   {
@@ -23,15 +23,15 @@
    "name": "Google News (megacap tech)",
    "ok": true,
    "parsed": 100,
-   "fresh": 59,
+   "fresh": 51,
    "used": 6
   },
   {
    "id": "gn_fed",
    "name": "Google News (Fed)",
    "ok": true,
-   "parsed": 41,
-   "fresh": 10,
+   "parsed": 83,
+   "fresh": 9,
    "used": 5
   },
   {
@@ -39,7 +39,7 @@
    "name": "Reuters markets (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 13,
+   "fresh": 8,
    "used": 5
   },
   {
@@ -47,7 +47,7 @@
    "name": "CNBC (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 60,
+   "fresh": 66,
    "used": 4
   },
   {
@@ -55,7 +55,7 @@
    "name": "investingLive (ForexLive) RSS",
    "ok": true,
    "parsed": 25,
-   "fresh": 8,
+   "fresh": 7,
    "used": 4
   },
   {
@@ -69,21 +69,32 @@
  ],
  "items": [
   {
-   "title": "3 Stocks That Did Well the Last Time the Fed Raised Rates Aggressively",
-   "source": "Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOemRMeklLczhQc1RjNjd5VWpZVmxSZ0F6alhSZ2VWOE40NjN1Z2Z1YkxGYk02WnRGUEdGSEY1WkpLeXNDVElTcUtZT3NsVlE1NlVJN2ZpVmZaS2JaT3Q1ZDF3Z1ZWM3NuTmUwTWZaZjZVdy1OazJBM0o3RjlISzNpaU9VcWlnQ0g1NmFVZW9qTmI?oc=5",
-   "published": "2026-11-04T02:51+07:00",
-   "feed": "gn_fed",
+   "title": "investingLive Asia-Pacific market news: Stocks slide as Trump slammed in mid terms loss",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/news/investinglive-asia-pacific-market-news-stocks-slide-as-trump-slammed-in-mid-terms-loss/",
+   "published": "2026-11-04T11:45+07:00",
+   "feed": "investinglive",
    "tags": [
-    "Fed/ดอกเบี้ย"
+    "ทั่วไป"
+   ],
+   "lean": "NASลบ"
+  },
+  {
+   "title": "Stocks Slide With Dollar on Rising Blue-Wave Bets: Markets Wrap",
+   "source": "Bloomberg.com",
+   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPLVc2azZiNTdEZEJUM0RFOERmNk1QaTRQOGdkbE5EOUM5YVE5M2pqVTFkYmJsTC13MnpKaVRSd2ZLYmowSlhpOE5VcjdJNnJleWZsTDJ2SGN2b3JTOE9pdkZLMmdCblZhSE5ucGoyd2k2SEJwOFpVZVp1aWk1aWJYSHdvQ3VTMGtGa3FXa3NYUWxiWEsz?oc=5",
+   "published": "2026-11-04T11:33+07:00",
+   "feed": "gn_nas",
+   "tags": [
+    "บอนด์/ดอลลาร์"
    ],
    "lean": "กลาง"
   },
   {
-   "title": "Amazon.com, Inc. (AMZN) Could Be Entering Its Next Growth Phase: Here’s What Investors Should Know",
-   "source": "Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOQjlDRnhEcEJFTnY0OUtqUXk4VF9CN0VMRDM0b003ZXlTT3FPa1V2cmtXNjJOa21NSnZld3k5UmRoclF5eGtHbUVlQTVtbUlSaGlOdG05cGgxcVBVbWRfbjBoVjFkYnRKY2lVdzZkWUloSm5EcVlyUkN5S0U0MXo0dVJfY20tV0VGU0xIS0gyZjB2UmxC?oc=5",
-   "published": "2026-11-04T02:46+07:00",
+   "title": "Tesla, SpaceX Shares Take Early Hit as Midterm Blue Wave Unfolds",
+   "source": "Bloomberg.com",
+   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNYXluMTVwaWh2V3V2RmdIMVNHTlBjaDI4SG83Q2FUM3pjVEc2ZlRqc1VCbjB2bFBzZlFuWUs2MHJtdTVrQVgtcUlGOFJBdF9IS0Zpd25lM3o5WUI4V19aMlFodW1uVGpzNHdzcm5mclpIN25SbHRmMEtZWnNBbEZWTmdKbVRuYnBlbVhCTEUxbXRVcEFzWnk0UXlRcWhkd2FIQXFTcHI1bWc5V1JKZWg4OUlhbmI?oc=5",
+   "published": "2026-11-04T11:28+07:00",
    "feed": "gn_tech",
    "tags": [
     "หุ้นเทค/AI"
@@ -91,233 +102,153 @@
    "lean": "กลาง"
   },
   {
-   "title": "Nvidia Stock Climbs Amid Oil Price Drop",
-   "source": "Benzinga",
-   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPSkRBWndlcW94T2ROTWJiRmlkekZxaXdrQ0pZTHJpY01BNmFBeHZORGJ2MG5haXpCaVhwSlZRLXlwSWQzUDRFdDMtNDQzblVIUXloSTlSQTcyb3F2c1JObFExRFQ1YlVxcHhkaVBpNVM5SVZGZVhhUmFJWkJ5UHhFY0tKTTJIUlJnQ0hyc1p4VVBoT2c2VjNBdklMQlRNZkxtNGc?oc=5",
-   "published": "2026-11-04T02:43+07:00",
-   "feed": "gn_tech",
+   "title": "S&P 500 แนสแด็ก เด้งขึ้นปิดบวก ในวันเลือกตั้ง หลังหุ้นชิปฟื้นตัว",
+   "source": "bangkokbiznews",
+   "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTFBFZ0J2UE1TX1lxWlU1V2ZIeFhsTnJOOWZpN09MeTkxYzFGMC1ZWGxYSWU3RzFRSVFndTE1dW9KcElWeE5LbDN2ZWxxdnJQckJJb0xJRmhONGtYT3p4aURUbVpR?oc=5",
+   "published": "2026-11-04T11:15+07:00",
+   "feed": "gn_th",
    "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Tech Stocks Rise Despite Apple Slump",
-   "source": "WSJ",
-   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQZE9BRkVuT3ZjS1NnUjAtU0RRZjUwU2JQdXdLS0YtNTNYbFRTendtTTZkaDVUR1ppVThpYUtIVmJ0NkQtOVhyVVYxbzBZTlBhai1jOGh0WGpLWnhjbWV4NXVzMEFoUHFrRE9OOC1qT3BmYlhxZUNpSlJtVWlIVTBFaVZ2YUVPS0lGS1lpQi1LdzM0X2NFbnY2WHRFbGVjUGgwNG1RWlBHVGdrYk0?oc=5",
-   "published": "2026-11-04T02:38+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Nasdaq rallies as AI heavyweights rebound ahead of midterm results",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNWVp0N2w0REZqOUJ3YkRxcmliYkhtX25yTkFtdmJDUFdSVm5CcXRQYjdMeFFLU0gxcHk1STM2R0xXaGJ6TW9ZN2ZQS2RReVRiXzNtY1B3Qm5fZ1lfTUFaMVpRM2d2ZVZodnZtbUFFLUtkcURfUEtENElyNG5YcFRGcncteEFaZFUwOGxVUmpTMWFkMEtvb09VTG50a2NSbjhLUm5Zc3EtZS1XUU5lWm9B?oc=5",
-   "published": "2026-11-04T02:35+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "งบบริษัท",
-    "หุ้นเทค/AI"
+    "ทั่วไป"
    ],
    "lean": "NASบวก"
   },
   {
-   "title": "CrowdStrike launches AI kill switch that it says can stop internal agents that go rogue",
-   "source": "CNBC",
-   "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxQY2hvQXJrTkR2WVQzQ3lkTUNrczVfcXc2VEVSbW5tQ2hhb0pQSk5MZ0xsNjBCcW5FdlJxeTZSeF80MUw3b2hhcWk3NG5LR0RxX0pkY1ZDUWdFaWdSekJnX0Npemh1ME1TbEl3WVBtUlNmVjNyNFlpWFhHcXlvWC05U3NR0gGHAUFVX3lxTE1kb2tRX0VwdjZndEhueklPNmxSOEFMdzI4d21MajNrVlh3QW02c0hGaWxiWWRnREQ3cl9fMnU4WXVpYXZkVEk2QmlQR2RldHlQUXNtVHdMdEUtUndhUjBEYTBjNkZELTVXclUtMWpIZGhfYTJnU0FpN3JObC1Wb0s0RG45UXM5SQ?oc=5",
-   "published": "2026-11-04T02:35+07:00",
-   "feed": "gn_cnbc",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "As Big Tech Sheds Billions, Meta (META) Signals a Top Buying Opportunity",
-   "source": "Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPNVNIdTFHNlVvNzhicnVvYVF1aTVIRG9MWkVFdERSZ1Awd2dHTDVaUHd1WXRVVkJBRjd5UzI4cHdJMm1nbjlMUjcyUXJ6eHJ0ckQ5NGdGZVl5b2gwdnJualZPZVRhOU5Tb3p6MUEzY2p2bzVTR3VSSkMyR1VLcWZja0M1dXVGTERwY3UwcHpRWnRWZTlpcFJ0Uw?oc=5",
-   "published": "2026-11-04T02:30+07:00",
-   "feed": "gn_tech",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Election Day: Here is the No. 1 issue we're watching as a signal for stocks",
-   "source": "CNBC",
-   "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPUUVudUcweTVMdm9FOUtvUnhlUGdGeGF3V3A2cnFVd3NnWXF6Q29feVRTWHh6WHBjdlNDVkgyQ29IS1ZPT2NxdjRia1lMNVEwU0R4LUppVU52QVp0UWI5NTBsQnVjT0lucDkxZk1ZU1lvbjZ5UUxLdzF5eGdKMl95U0x1QUVfTS1xdFlxcnVoSnMteFZYX2ZjVGFRdWhvQURtTkFsNVRxTkZ4UWtvQVp2NHU5MDRiSWwxUDlsekVtbUU?oc=5",
-   "published": "2026-11-04T02:29+07:00",
-   "feed": "gn_cnbc",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Options traders are betting heavily on these stocks ahead of election results",
-   "source": "CNBC",
-   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPZjlTWmcwbUk1UTdDRV95VTRxb2ZxdlNxajNZYUZYVnB3YmhBWE9DT1lMb3ZlT3hkeXVvU3VJYXA2WjRyRnk3eVJDNWhIQnVCY1EzMXpEMHJhdHVuUm1wNjBVNzlGN3ZRb3VDeU5NZXVpcEJxRGJpdUdJa1RiakxKWFFsX1RXTWx5V3h0czc0ZV9lclhsNUFZY3NqbXhHcnVZbmV1MWRwckRlV3UwQU1neHZPb3rSAboBQVVfeXFMTlliR0kwU2JBTGVvVS1zSEJUdUxlMlNpRVFGamRvc18wVkhTUmJaLW5vWE1yMGdpYnRwQWI5WkFEN2FNY29INlA2TlFPaFJDTFJ3TFdUMHdHOUNDRWdYSW9UUWkwVUVGQk5VQ1MzVUJxWGpJTGptNEFvSmp3R0V5aW1rVXN4TjFGenJzSVJSYVFZbldZb3VhR2hXYzdyZVlWYlV3UGlkczVwUUhMRkRwbUxUTXJrTVRUSUVR?oc=5",
-   "published": "2026-11-04T02:21+07:00",
-   "feed": "gn_cnbc",
+   "title": "US Equity Futures Inch Higher as Investors Await Midterm Results",
+   "source": "Bloomberg.com",
+   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNVzJXWTQ2RjFoeU9maDJNSE53U3o3WmdfeUFyUktDbzRuZGswVE44M1doYjh6d21BZEdGemVBVU4wclliR3ZST0hnZWMtcm9yTnhqUmRtc0NjNnB2NVdjSTBmRlFQbU44NlRYVVZZc1NlSklhci1PRjhSb1F2MWR5LXBULUNWSnpqN1NyZUh1RjBfdm1BajdjWGphYTIwMmpoUzQtcy1LN0Y1d0RuWjE2RG1GeUhSUQ?oc=5",
+   "published": "2026-11-04T10:53+07:00",
+   "feed": "gn_nas",
    "tags": [
     "งบบริษัท"
    ],
-   "lean": "กลาง"
+   "lean": "NASบวก"
   },
   {
-   "title": "November Stock Market Outlook: How to Position Your Portfolio for the Remainder of 2026",
-   "source": "Morningstar",
-   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQaVVWZXNxSXFDUmhYbGJFZjZIWlV0MElvbDZUc0pBR01Vbk44REpJVTZoRVdtdlpoc2hlNG1yYkdFbkYxR283alo3Q29raGk3bTBPMWZPS3lJblo3TERFdmZwSmRmb1A5YmkydURqbFRiY3JvQ0xqU1hlbzY2T21iY2lsSFN0NWNFXzBLUW1ad1l2OUoxcmRaOFBmUkZBQ0xfbTNHejJDa1J0a2ZN?oc=5",
-   "published": "2026-11-04T02:20+07:00",
-   "feed": "gn_tech",
-   "tags": [
-    "งบบริษัท"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Alphabet Stock Tanks After Earnings: Should Investors Buy the Dip?",
-   "source": "Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNSmdwZ0NDdGd4V2I4TXZIekU4UlFGS1diUFFBQjVOUjFkV0tHSDVUOXdYSGE1NWhCbkFPSkE2NGtuNzVMQ0NJTnE2endidWZRWk9zZE5nQnRreWlaSjFhd3JZa3NPNTRzcmU1bGFQWTRxRms3SUNIRDdPT0oxNVBES1ZlMFZjdkROYzFzektfcTA2VzRtRUltLUxJZm1DYUM2ZE9XOXozSQ?oc=5",
-   "published": "2026-11-04T02:20+07:00",
-   "feed": "gn_tech",
-   "tags": [
-    "งบบริษัท",
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Apple Inc. Stock 12‑Month Price Target Raised to $338.28",
-   "source": "TradingView",
-   "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPRThUUVM3OE41NHpLLTZ4TWZNcC1jdWpCWThGdHA4WlFONzU3X0lSd2t5M28xaEJrc3g2cFFRUURpZVZpc3pTdVpnX01HNmRGVDZWVml1T0hheTFSMHFEWEFtaTg2YXZla09EQmhVMmFBRWJjOTlRQ1hYazNOX01rOVpWVzBGS2JCbUNTME1uOUN5cWZwY1JVeUdBc3pfbGY4S0hqcHVONElHSHRTX1VrT01fTHRwcjg?oc=5",
-   "published": "2026-11-04T02:20+07:00",
-   "feed": "gn_tech",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Jim Cramer likes CrowdStrike's new 'AI kill switch' and the cyber stock",
+   "title": "Treasury yields fall as investors crowd into bonds for safety amid election stock sell-off",
    "source": "CNBC",
-   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNMGxYbmYxQldRTmQ3cHVRZlhTTnF3eFcyb2lya3hXMUNSQ1NOcTd2S2pUbXNJczdCeklxRzlEbV84QlNuZ3BaRE1Pa0NHRFg3N1AyOWN6X0lRUGRxMlhhUmt3OUJXdFlWRlA5S041NWJMX0kxTU8td2pwT3EtbWhzRFBERzF0aDZFVVlCQ1VkaXdwdHNCbms5QjgzLWNrdmxMUWdjVGdaQzdUUTY2djZIcFVpYko5UXJWMGkw?oc=5",
-   "published": "2026-11-04T01:51+07:00",
+   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQZ2FPb0VDa1pUYWotYjQwXzBBYm1nN0dhMUw1X0hLZ3B1MTRPeTh3ZnhkT1BPVDVMYS1tZDVRYjIzS19SNkh5dlFMZzZEZktrdTk2dmR4ZXYyZVA1VWxEMEJadkZXcXFLelM2VEp6c19sSjdybnZzMFgweU5lNndHemoyY29qVXgyaFh5TlBOYnQ0ZHpJS1VwbVZqanhpcDVZQXFVVdIBqgFBVV95cUxPaE54YmlQLU1IZ2hRWnFkOGZHRzg1VFJTQVlkaGxkVUVzZTlvSFdXOUplRmhUUURkMnJybkpxMkNERjFQbkFlb0xTbS1KUmJIbHBKSmw4aG9fOXF6c3pQSHl3bmE3N1lyR1VNTEhiblRKX3VMYm5qWXRsc05aYkxNaHJ3SERJT1NESjg1QTcxSnBXcVJhbVpramJSUDFydnF0dnp4bU15cmlMUQ?oc=5",
+   "published": "2026-11-04T10:24+07:00",
    "feed": "gn_cnbc",
    "tags": [
-    "หุ้นเทค/AI"
+    "บอนด์/ดอลลาร์"
    ],
    "lean": "กลาง"
   },
   {
-   "title": "What's Going On With AST SpaceMobile Stock On Tuesday?",
-   "source": "Benzinga",
-   "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQTFcwUEtUZllGQjBWUDRxNC1EcXg5Nms2MS15VHNxTFdsRVphaE5RN0hDS1FJbnBuTTJNOUZheWlNZkJncWZUVE11TEN6U25wTmdPY3ZDNDl2cWZxOW5aNEJENUMyN1dVcUowVWhMdTNrdXl5dWhIVlJwcUtZSm84QkRnWXEzcm94ZDR1T05ZM2FOQ2hYcVh2ZENvRy1yMkx2OUVhS3lMVXVSYmltT1c0ZkhtR09acHIwYWxzQ0dEWmJISmpKY1pqd29hb3NoWTdjODI0?oc=5",
-   "published": "2026-11-04T00:57+07:00",
+   "title": "US futures slide as Democrats lead midterm count, AI data centre fears hit tech",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/stock-market-update/us-futures-slide-as-democrats-lead-midterm-count-ai-data-centre-fears-hit-tech/",
+   "published": "2026-11-04T10:13+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "NASลบ"
+  },
+  {
+   "title": "Dow, S&P 500, Nasdaq Futures Fall As Markets Weigh A Potential Democratic Sweep In Midterms: DJT, AMD, SMCI, SOXL In Focus",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOVngxSURWZmVBaENhVEVDM2Z3XzRFbFRPNjBWeHNtWmpIT05FbGd4QkV3S2lBei1JV2JqY21jbnRNaGFKOVdhM2wwcWttNEV4emh5V0tndnV1NERRNFFFTk5scnI1YXJXUW5US1NHd0tXaURmc0hKRnNvMjFQNjVLRno4c3VLZkJFZWtfSW10Q2RwdHM?oc=5",
+   "published": "2026-11-04T10:09+07:00",
    "feed": "gn_nas",
    "tags": [
     "ทั่วไป"
    ],
-   "lean": "กลาง"
+   "lean": "NASลบ"
   },
   {
-   "title": "European stocks close lower as yields climb. UK FTSE leads the declines",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/stocks/european-stocks-close-lower-as-yields-climb-uk-ftse-leads-the-declines/",
-   "published": "2026-11-04T00:44+07:00",
-   "feed": "investinglive",
+   "title": "“หุ้นสหรัฐ-ดอลลาร์” ร่วง หลังผลเลือกตั้งกลางเทอมชี้เดโมแครตจ่อครองทั้ง 2 สภา",
+   "source": "LINE TODAY",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxORXNlaFhzRGIydkdmdVdTLXVERlBfbEk5UDVVbS1zYzZXRU1tZGNySU9PTUplajV4SkpRNnJLYUdtdWhJcE9jUWkxVFNweWpHTUM2QWw0aXpZN3lNMXNMSDFsTHFFMWZvdnpheVlKWXlfRUVNdWlNVUc4UWlfZWlIRg?oc=5",
+   "published": "2026-11-04T10:06+07:00",
+   "feed": "gn_th",
    "tags": [
     "บอนด์/ดอลลาร์"
    ],
    "lean": "NASลบ"
   },
   {
-   "title": "Nvidia and other Big Tech stocks lift Wall Street and make up for a drop by Apple",
-   "source": "AP News",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOekRxNGUzaWpTRy1SLXpVUmlsbkNPVWMyQ3Q4WWx2eHFvRjhvUzViNUtXcGlxLVlmdlphQUc2bk5CX2ZwVmp5RnJQNTJxaVdjd0dra051ZUJNaVpQcVFVQjBPa1MtY0tEZ0N3MG9VMGJWWXZ4cXoyRzhKSm02NHJLbDdlYUpVbE4tbnhuOEZodFlmX0k?oc=5",
-   "published": "2026-11-04T00:27+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Nasdaq 100 Gets Lift, Nvidia Overtakes Apple: Stock Market Today - Apple (NASDAQ:AAPL)",
-   "source": "Benzinga",
-   "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPSGdla1dBUTQ0bVZDRmxXNWJ1Q1pnNzBhZVNUTVdiS0dLaVdiQ2lOQ19pVzNxcXl6VlJQV2F3U2hnSmZTY0lUenZVaUxwNkw5bUg5QjVFbkluWDNpN0EwNEZsNmdrbHpHTEZ1Z3B4VXJORDBkWWNRcmVjOVdMNTk5YWctbFFGX3dydlYwSTRGWGNaQmNhVUxVM1FmY3JYVlN1UGtxNHVKQlpCWkxGbjMwV05RbkZpbE1MTE9QX3Z5YnJDbTNSZ0U0TA?oc=5",
-   "published": "2026-11-04T00:24+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "History is kind to buyers of stock markets today",
+   "title": "Nikkei drops 3% as Democratic midterm gains hit AI and chip stocks",
    "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/stocks/history-is-kind-to-buyers-of-stock-markets-today/",
-   "published": "2026-11-04T00:14+07:00",
+   "link": "https://investinglive.com/stock-market-update/nikkei-drops-3-as-democratic-midterm-gains-hit-ai-and-chip-stocks/",
+   "published": "2026-11-04T10:02+07:00",
    "feed": "investinglive",
    "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "12 Financials Stocks Moving In Tuesday's Intraday Session",
-   "source": "Benzinga",
-   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPcTlFNGtrSE9ZZWszNThVeHJJVllhck1CTEtBV2x3NEp0eFVocGVBemw1YmdHU0VWcVpuM2VOOGJSX1gzdGYzUXU3ZndRS0ZMQldpOVRiUGEtSFZqbmtGaUZfY3BJcHEwQnpDNW9EdTFPeWhmcEluVjI0Q19iU2tObi1GZlRRODBzVTd3LWtaenBvNVhDdDdqRDV3UjVfZDNTbERGVUg4Yy1lNGMyZDZrbXV5eV9RUQ?oc=5",
-   "published": "2026-11-04T00:05+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Stock market is mixed as investors await U.S. midterm results, tech trade pushes to recover",
-   "source": "Seeking Alpha",
-   "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxOUmlmd0pQN3BaVkI0X2dubmxfMjFhaFVaSmdabG55UF9jMEJsRUpUb1RxejNPNVMtSjZ1YV9KMmFwLWFhazVMMkY1SnVGZWw4V052ZVNpRGlsbVI5dkJEUmFDTmNkSklwSkRRczQ4SUVWT0JmV01UZlZaNDBVT0dlLXo2ZmZ5NWxmdlpDSUtUTnc0UQ?oc=5",
-   "published": "2026-11-03T23:46+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "งบบริษัท",
     "หุ้นเทค/AI"
    ],
    "lean": "กลาง"
   },
   {
-   "title": "‘ดาวโจนส์’ ร่วงกว่า 100 จุด หุ้นแอปเปิ้ลดิ่ง 3% ตลาดผิดหวังแนวโน้มกำไร",
-   "source": "The Bangkok Insight",
-   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTFBvSUxfQVJlN2k2bjh0OVBvTnN1b3psRFVtMjN4emtRTWJsdDRyM0JMVGV5TzlhSEVhdUdQaDBidHlVdUllRVVSRUdMckhFTTdpM2pFMkYwbXktNm9aTHdSbEJaNnpqa1htcjNRM1VLWEJkd29KSVE?oc=5",
-   "published": "2026-11-03T23:39+07:00",
-   "feed": "gn_th",
+   "title": "US stock futures fall as investors weigh a potential midterm shake-up in Washington",
+   "source": "Business Insider",
+   "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQZ0tvRDFCX1BhS2ZZTGxPVEdwc2NlalhETlcwVzJ6TE9VcDM0VXNZTW1fX2pZRVRfaWtzcmFPMFk1TmlKaXhldXpBMVlMVE4tVEtkV1JVV29PUGZsbFUzUTRkWWJYczJ1dFNucGxMd1VIdmw0eXZBV1ZJU3lBbV9jalZmYmR1c3JEX2hEMm1oVF80TXZkeGJ4dnV4THJxUTFEUlVIYkpuUUI?oc=5",
+   "published": "2026-11-04T09:32+07:00",
+   "feed": "gn_nas",
    "tags": [
-    "งบบริษัท"
+    "ทั่วไป"
    ],
    "lean": "NASลบ"
   },
   {
-   "title": "The broader US stock indices are making a play to the upside. Nasdaq indices bounce from the 200 day MAs",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/stocks/the-broader-us-stock-indices-are-making-a-play-to-the-upside-nasdaq-indices-bounce-from-the-200-day-mas/",
-   "published": "2026-11-03T22:20+07:00",
-   "feed": "investinglive",
+   "title": "“ดาวโจนส์” ปิดลบ 197 จุด หุ้น Apple กดดัน–จับตาผลเลือกตั้งสหรัฐ",
+   "source": "ข่าวหุ้นธุรกิจออนไลน์",
+   "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9qQVA1eUJaaDRVTVpUZmdZVUMyQ3RJZHdfc3o4MnA4b0V5YjlKWUdZUTJGal9Ud0JGS0FkOHpmaWxWcllLRGJJTXBudml4QTlZZ1pn?oc=5",
+   "published": "2026-11-04T09:16+07:00",
+   "feed": "gn_th",
    "tags": [
-    "ทั่วไป"
+    "หุ้นเทค/AI"
    ],
    "lean": "กลาง"
   },
   {
-   "title": "หุ้นเทคโนโลยีสหรัฐฯ ปรับตัวขึ้นอย่างแข็งแกร่ง ขณะที่ดัชนี Nasdaq Composite เตรียมยุติสถิติปรับตัวลดลงติดต่อกัน 3 วัน หลังการเลือกตั้งกลางเทอมสิ้นสุดลง และความคาดหวังเรื่องการซื้อคืนเพื่อปิดสถานะขายชอร์ตเพิ่มสูงขึ้น",
+   "title": "Sell tech, sell USD and other signals from the massive blue wave that's unfolding",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/forex/sell-tech-sell-usd-and-other-signals-from-the-massive-blue-wave-that-s-unfolding/",
+   "published": "2026-11-04T08:53+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "ดาวโจนส์ ร่วงเกือบ 200 จุด Nasdaq ฟื้นแรง หุ้นชิปหนุน S&P 500 นักลงทุนจับตาผลเลือกตั้งกลางเทอมสหรัฐฯ",
+   "source": "วารสารการเงินธนาคาร",
+   "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE45NmtXa2tqa0RwaF9rTzlFeXJfMmtGWmljQmU2cjhtNzBqTW1nUDdXN2hYc09OTmJQNkhFMXF0UFNUc1lPcFA0WVY0VFRqZkJEU0RYUw?oc=5",
+   "published": "2026-11-04T08:27+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "NASลบ"
+  },
+  {
+   "title": "Expeditors (EXPD) Stock May Be Fairly Valued As AI Demand Builds",
+   "source": "Yahoo Finance Singapore",
+   "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPU2FtTE5xTWtwQ2pGOURxR3FKNGRCcTNIa2dVMmtmOGlpOGZ3M2JIY0l4VUZFVXBHVnNiMmppakxTeUZGUGUwVF92bzYwX29IZk9oWE9MU1lkZi15RUI0QmF4VmZlekVQWU9oWTFvMVQxbm9ReklieUI0a003ZmtrdUpPZGtEV3hY?oc=5",
+   "published": "2026-11-04T08:10+07:00",
+   "feed": "gn_tech",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "‘ดาวโจนส์’ ปิดตลาดร่วงเกือบ 200 จุด แรงซื้อหุ้น AI หนุน ‘แนสแด็ก’ ปิดบวก",
+   "source": "The Bangkok Insight",
+   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5YUjNvcTVBQ0ZvaHNPOWc3enJwanU0Q3V0RTNUMXFDYkpUVzB2T3hycG84MkdaNFBFQ0xDMS1Va2t6RF9waTBrQkdqSjdvSEh6Y09sWVVQWDlmd1Fra2w2ZmdaVUxPSXktY2J2QjZjeDVYNlJJX0E?oc=5",
+   "published": "2026-11-04T08:02+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "TradingKey สรุปตลาดรายวัน: AMD พุ่งขึ้นเกือบ 5% หลังปิดตลาด, การพุ่งขึ้นของหุ้น AI หนุน Nasdaq, จับตาการเลือกตั้งกลางเทอมของสหรัฐฯ",
    "source": "TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxQSGRSSFMxZmxUT2dteFVwZTJMbElkQklxblVscGpGWnNWLWVpVkt0MVNRTFhHajZKSVkxNXhQT0p6QzJ4QmppajJ5WWdCc3RmNnJyYU9nWDYyaTk5NHN4eWZaSXhEQjRMN3JEUGtMQzQ4NDNMTmdMNTB0WC1CWDlLWWFVUTFpVGtWTWsweDVkdGNSTS1mNVNMR2QtWk1rQjdlZFhtR1lIX051R3czeTNDQlJPLWF6VXNhb2RmeUw4azhISXBFSUJmN1dnaDlqLV95Z1BuWQ?oc=5",
-   "published": "2026-11-03T22:19+07:00",
+   "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxPbWtLZ3F2R3IzVkxTRGgzNG02amRlN0FITEtLVzEwdW41Z3J0SmxhVk5lYi1EeHhuMWVsYi10UUpBREtRMDFVRUE0OWtEWS1FWEFMS1o4NmFiS2wtN3plQnJlOE5TVFc3TWpobjYzX0Q2aDFVTHJhSFB4YWlKZTVGM1ZNMGw3cUJ1amVKS1VuMTRQRUJQaTMwbHluLVpXdEVjNG5VT1pKb3I0STA2UEFmTkgwVHpUQkQ3WGdGcHdKZU1ubFhDSTRhWk9oYktFNkU?oc=5",
+   "published": "2026-11-04T07:54+07:00",
    "feed": "gn_th",
    "tags": [
     "หุ้นเทค/AI"
@@ -325,80 +256,145 @@
    "lean": "NASบวก"
   },
   {
-   "title": "Fed Rate hikes don't guarantee losses for stocks, favors diversified portfolios: Wells Fargo (SPY:NYSEARCA)",
-   "source": "Seeking Alpha",
-   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPYkZHLTVkNzBwNVJCN3ROVk12cHJicHEzekc4b2hFczVtT2JUVE9VdENpRE5UVUQ0ckdySmFESmJOOUVLSDZoUlNENHFLU2s5MjJuZWFKSXZHbTU3a1B6SW1PWWk2cHUwYVZSR05rVzVVckd5OExiZjE5UzFNTXY1cXN1LTZ2akM1Y3NfaDdveWJSbXE4M2RaRjA0eWpEZy1WTmVHSEFiVkVIRFdKb2dRZGVaR2JIZ2JRSXBJQUJZV0t5NEhfX2c?oc=5",
-   "published": "2026-11-03T21:14+07:00",
-   "feed": "gn_fed",
+   "title": "Jim Cramer talks key metrics to watch in Big Tech stocks",
+   "source": "CNBC",
+   "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPblJ6dzBpbzJMTjdvUzFGWV9sOS1Fd1hvMnF3YW5mcGhPOEVHYXFzQ0l2cXpuNDlIQllXZmtVd3BEd2VvLXA2WXdoRW9rNUFGcjV2RkY3aVZvaXZJZHJ4VDRoVkc1cUJKMjhiVlYxc09URzZlTmpvSEM4b2NWV1lsam12aWxWNUhsdEh4SW9sOHUyYnZBdDQ0OE5jTWRib09R?oc=5",
+   "published": "2026-11-04T07:44+07:00",
+   "feed": "gn_cnbc",
    "tags": [
-    "Fed/ดอกเบี้ย"
+    "หุ้นเทค/AI"
    ],
-   "lean": "NASลบ"
+   "lean": "กลาง"
   },
   {
-   "title": "Nasdaq Composite อยู่ที่ 25,164 ในวันเลือกตั้งหลังร่วง 1.07% – AMD และ Super Micro หลังตลาดปิด",
-   "source": "FinanceFeeds",
-   "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPMUd1TnlwSkJ0X3diOEU4Uk1HYkpvM3FEaEl3RTBzdkpkU0trN2VKb2kyZXFDaGhEUU5EWkhXdzlvTTIyTi1CZ1I3NkN4Vjh6R3RiQkJnMnFQaXlTRGIxZ1ZNeTFITWdieFMzM3VSRGpDWUFHTk5BV2dzM0tUbFhZSFMxMVZYWm9Dbklr?oc=5",
-   "published": "2026-11-03T21:11+07:00",
-   "feed": "gn_th",
+   "title": "Wednesday's big stock stories: What’s likely to move the market in the next trading session",
+   "source": "CNBC",
+   "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxOY3p6b005RjhTZkVMMGhkQnJsUElTbmdnWDFuOWMxQ1BQX1RSUEUwN1ltYnBMUE5VbFp4ZzNRcU5WMzJXeG1Ddl9xT0Flb01QWHRoOWhNcWpESEltNzFDejJ1bVVqV1VfMWZYSkFuSFJwbW1PRm1KQURkaVNHOWs2aXZPRkNzQk5oY0I2ZUNEN0tHVEFGaVNnWTR3eTU4UQ?oc=5",
+   "published": "2026-11-04T07:12+07:00",
+   "feed": "gn_cnbc",
    "tags": [
     "ทั่วไป"
    ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Google responds to political backlash over removing search from schools that ban AI",
+   "source": "CNBC",
+   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNenhBb3YzeXFrNE9nVmR3QUZTZ3M2RlRleVpqMjZMUll0azhuR2ZtUmwyOEcxeEluUlN4UDdQNU54ak9HTUI2ekY4azRzUk9aTVh5dUJYVnhkTVdPMGtIYjR6V0xmdWlqb3hNRmROVzFmZFNEZlJZZV9DaTRlSGQ4akRkSGxjZ1p2dV92cTFxaEUzMTVCNTByZW42T3ZGS3hUR0JOZzRaYWozM0nSAbABQVVfeXFMTktHaFBsT1hOVXFLTVo2RUhyZHNWbkVUU3FhVjdxczdRT2ZUOXFUakJCV0pHUnNkU2NycUd6NEMxS0ozT2VxRFAtbWpnc2lKUWhBZ3c0NHRFMk9vQ19pNTBxc0NCS1N3TmZqNGdwdUcwbE51by1NdEJiM1pOcl9HQXpiMmwwaklRTWhpVC02anVSMmF2QU8yZThyWVpwUWNJb1lObmVYdDc1S0x4VDFrVmQ?oc=5",
+   "published": "2026-11-04T07:08+07:00",
+   "feed": "gn_cnbc",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Tesla, Inc. (TSLA01.BK) Seasonal Returns Chart - Yahoo Finance",
+   "source": "Yahoo! Finance Canada",
+   "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTFBPQnJUUXlLSFlSOWVndkVRUDJJMkV2eDQ1UHZfeXNlek8yS1ZVMmJnOGxZbVROdEU4bXFhclM3LTgyVko3Wmg1NEdZaGZXUTV4OFpReGN3aVV6Rms3Y29sNjRPdE1rekN1?oc=5",
+   "published": "2026-11-04T06:45+07:00",
+   "feed": "gn_tech",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "S&P 500, Nasdaq Recover From AI Rout On US Midterm Election Day — META, AAPL, AMD, SKHY In Focus",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQdlBxV25yZXl0SEhYREV6S1N4UEhMOGFlb0Y2N3YzNXBFNWVoSWZ2TFdjc2dtZUt3VUFKUE94RmRYd0dweW9GTEFxc3hCWTJoazNxVF9Ka29BWS1HcWRkSU5Nak9qVGpSM21xRDNMVER5QkdCenNrR01TRklPZXZiSFJQRFJIVEJmWEwwNVF4aXhnQQ?oc=5",
+   "published": "2026-11-04T06:29+07:00",
+   "feed": "gn_nas",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
    "lean": "NASลบ"
   },
   {
-   "title": "Morning Kickstart: Election uncertainty, Iran tensions and rising yields frame the session",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/technical-analysis/morning-kickstart-election-uncertainty-iran-tensions-and-rising-yields-frame-the-session/",
-   "published": "2026-11-03T20:13+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "บอนด์/ดอลลาร์",
-    "ภูมิรัฐศาสตร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Interest Rates Look Kinda Low",
-   "source": "WSJ",
-   "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxORVlGeDdFVXRHb2hELW9DVFVoMjJyVm9FWU9tTE5VcXo2NlVNdTJGcHJGM0R0RHRFenpqUHhFc0l0MXNheG85ZzZNSmMwSl9yNGF1OEI3WGcxcnltU2xIalZfY2h2Q3doelhxM1h5Y1N4c2JYQ1FrT3JpTVdnUlRFczFramp1LUdkRlE?oc=5",
-   "published": "2026-11-03T20:05+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Premarket movers: Apple, Palantir, Dynatrace slide premarket; Grab, Upwork jump",
-   "source": "Yahoo Finance Singapore",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOc0dCNHlTYm53OGs4S1lPdGZDVC1GS1U2a05KOGgyMlJoMVdtd05qVzVrVFJUQW9EUEd3czA2cVRsaDNxT01CZXQ5WUhLR0xUcFhmVnlQTXFwdkNMdWFwOFRPZHpLbC1zYUoyV2RxTHRRTVVMaE9rNUQ1NDRDTHZkcFctYXNiSC03cEMxUi1ySTJDRmlM?oc=5",
-   "published": "2026-11-03T20:03+07:00",
-   "feed": "gn_tech",
+   "title": "Stock Market Today, Nov. 3: Markets Edge Higher as Semiconductor Stocks Rebound",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQbnhKWGl6RjBpbnVRWGNnQkdhQXZHbWJxampDdkxiUHlTaGVKMUQ0RHp5YVlJSWRjcUtjUzh2a291VWtJNFRhejFkc253bEFxNWdnZFowYVhXcEZSOEtJVUpVUXNZeHJyTUVwRVkzM2RlUnItZFdLS29YbVZ5SXM4dkdQaFlRc0szLUlZNkVWdXpiR0k?oc=5",
+   "published": "2026-11-04T06:03+07:00",
+   "feed": "gn_nas",
    "tags": [
     "หุ้นเทค/AI"
    ],
-   "lean": "กลาง"
+   "lean": "NASบวก"
   },
   {
-   "title": "Want a Tesla-SpaceX Merger? Look at the Marvell-Lumentum Deal.",
-   "source": "Barron's",
-   "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNcW94a2RpRVhpUUJKcTlMSV92YjdjT3FyekdLTVJ0UkNUOVJoU1lrOU5SSmxVUmhad2N6SXlLLUpJd0FMMFROY3FEd0d0cU54LUNYeVItYXplMmZ4NV9LTjJ3SnFCQThsSWFMMEpEWk9aYUJnaWhwTEtreVd2RXY2cFpTZmdKMy1NTFJtaw?oc=5",
-   "published": "2026-11-03T20:00+07:00",
-   "feed": "gn_tech",
+   "title": "Nasdaq, Inc. (NDAQ) stock price, news, quote and history",
+   "source": "Yahoo Finance UK",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE9QRkpMTjkxWGxERVdpcU9wSzJVTW1fOHhMVWtlSlBEaWdHdUFtSnp1bTlsdWVEa0pnUlJmbzZWeU5nMnVvbjVUTlhpUmpZNFR4U0E?oc=5",
+   "published": "2026-11-04T05:55+07:00",
+   "feed": "gn_nas",
    "tags": [
-    "หุ้นเทค/AI"
+    "ทั่วไป"
    ],
    "lean": "กลาง"
   },
   {
-   "title": "Midterms, Markets, and Earnings Malaise. Apple and Palantir Sum Up the Mood.",
-   "source": "Barron's",
-   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNNTcwb0hiY1g1Nmo0Ty12bnhvN29TeVUtdXQxNnIzTHI3MHZqQmc2QVhRbnFjVDAwSF9lQmp4SDRPMHpFMmNJUFNjSHNrX1AtZlJUczNTSUs3c2huWnZ2VUwyRG5yMUg5c0NmdlpFOE9mUlRaaXFaa2p3VkhvRGg4Nw?oc=5",
-   "published": "2026-11-03T19:45+07:00",
+   "title": "What analysts are telling us while Apple’s stock falls after earnings report",
+   "source": "MarketWatch",
+   "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPSi1VSkN0WV84bHdPV2Fydm9ETUxMMjhzbnlFSFc3MjZvMzVhRG5GRHFvMVV6dlB2LUFNdm5JeWdfVjJUZkhpeDVUbjJMZjdweTFKRDdpM2hPSlF5VDJERWZwSlctVkdENVljX2JSWG5nQVpHOGRQaDJaV0NyRmdQdGkxVDhQaENHS1VIUTlCTVFDVzRSWTZZYllpekJuQ1JNMGZ5MTZoSS1KTjJydWN0WQ?oc=5",
+   "published": "2026-11-04T05:48+07:00",
    "feed": "gn_tech",
    "tags": [
     "งบบริษัท",
+    "หุ้นเทค/AI"
+   ],
+   "lean": "NASลบ"
+  },
+  {
+   "title": "Meta Platforms: Even With AI Growing Like The Cloud Giants, The Shares Are Overvalued",
+   "source": "Seeking Alpha",
+   "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNS3NLUmtWVTMyZzRaaHVHYmFQc0xzOWphZmRoQld0SGpIcnkyY2ZTWHdHbXRkbHMzNzNUeHg5ZXZ3THV3dmU2c2daNHFmYmFnMDZXNDE3Q1NtNnNkZk9YTGZ0VGh2UEVwOUt4ZmpnT1BJU2hSV3R6RS05WlB1NFJoVFBtbnhiRnFNMUJuWXNsWW1IVFcwRXdGbW56QWpRTlJ3c2psX0VMMFRJejRfdnpkT1RBcXFnSUpSeG5fVG1ieldpUQ?oc=5",
+   "published": "2026-11-04T05:30+07:00",
+   "feed": "gn_tech",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "US tech stocks recover after selloff spooks investors over AI spending",
+   "source": "The Guardian",
+   "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQNHk1ZjhfMklrX0ZsaExCalhYZHVyZjg2Z0NhQTZJWk8yLXNISkZJU0ptOVE1WmJ6OTVBN0dfdlB3VnpDRENzdFBJc0kyeHBacFVPa21iOTlGb0RIcHlFSGVlQmJ2RmZSdkRlVGNpeTkzbnBJSFlmTUNWc2N0OGVKQ0RoQThKVmRyOWhCRg?oc=5",
+   "published": "2026-11-04T05:23+07:00",
+   "feed": "gn_nas",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "NASลบ"
+  },
+  {
+   "title": "Duolingo’s (NASDAQ:DUOL) Q3 2026 sales beat estimates, stock jumps 11.1%",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQMFZWdTZsUXNTOWJldmxKS29NNkRYdUZtWHlXNjZCYlF0NF96YmhkaGR3eHpkdnZLdFpoQ0hLbG1kMDd3NlYzNWRIWUpZMFJwYjhvSi1DaFRKbHBDbmEyOFFIdk13V3ZXM0hjSm9zNzljalRQdU9kLWVVWjFTZURiTUtMdkI4UzBJVXBUSGEwQlFyX3FWdDRPag?oc=5",
+   "published": "2026-11-04T05:19+07:00",
+   "feed": "gn_nas",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "NASบวก"
+  },
+  {
+   "title": "Manhattan Associates Rings the Nasdaq Stock Market Closing Bell",
+   "source": "Nasdaq",
+   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQNWNuYWpseTlxM1hSb0N5V3BETnFzck5heFZsM3BTdThXYzZVX3BPVkxZYlZaVVAwUGh6Q3R5azNVM2VYR3RrMG9qMWNwbFk3N3JSR0JGOXc2eExOQ0pZSGRJcUlTS2cwa0p6NTJGMnJ6cEtZR2ttYzZZcG0tTUI2anMxMTk2NTZvYllzUEFpYVhRUHM?oc=5",
+   "published": "2026-11-04T05:08+07:00",
+   "feed": "gn_nas",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Elon Musk’s Tesla and SpaceX protest NYSE parent's new plan",
+   "source": "Yahoo Finance Singapore",
+   "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNT2hKRko3Y0lQajFYZHZlVDU2aUhOSU9ZS1ZiU1U1WlNmZzhKWkh2V184WXZUQkZBbFctdW9ZektUeGw5cUhsZ2JrQ0hZZ0prNUNxZ0Q2U1BZNWE1Q0V1U2Fncl9Od1lUekMyUHhpZlBnc2xSY0NhU3V6cGlDeEtjX2RpRnU1dw?oc=5",
+   "published": "2026-11-04T04:59+07:00",
+   "feed": "gn_tech",
+   "tags": [
     "หุ้นเทค/AI"
    ],
    "lean": "กลาง"

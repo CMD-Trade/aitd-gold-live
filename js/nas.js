@@ -20,7 +20,7 @@
 (() => {
 'use strict';
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
-const { $, qs, LS, fmt, sgn, esc, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createTrend } = L;
+const { $, qs, LS, fmt, sgn, esc, spotClosed, bucketStart, aggregate, TF, OKX, okxGet, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createTrend } = L;
 const DEF_OFF = { hl:-9, okxidx:-10, bitget:-45, perp:-30 };   // feed → Skilling US100 (measured 27–29 Oct 2026, see header)
 const HL_COIN = 'xyz:XYZ100', HL_K = 5.5;                // trade.xyz oracle − Skilling US100 (median 27–29 Oct 2026; hourly 3.3…8.5)
 const median = (a) => { const s = [...a].sort((x,y)=>x-y), n = s.length; return n ? (n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2) : null; };
@@ -138,7 +138,30 @@ const Feeds = {
 const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')] : ['hl','okxidx','bitget','perp'];
 
 /* ---------------- chart (same options as the gold chart) ---------------- */
-let chart, cs, e20, e50, stop = null;
+let chart, cs, bbUp, bbMid, bbDn, stop = null;
+const BB_LEN = 50, BB_DEV = 1.1;                         // coach MT5: period 50, shift 0, deviation 1.1, Typical Price
+const hlc3 = (b) => (b.high + b.low + b.close) / 3;
+function bollinger(data){                               // mid = SMA(HLC/3, 50); bands = mid ± 1.1 × population stdev
+  const mid = [], up = [], dn = [];
+  if (!data || data.length < BB_LEN) return { mid, up, dn };
+  let run = 0;
+  for (let i = 0; i < data.length; i++){
+    run += hlc3(data[i]);
+    if (i >= BB_LEN) run -= hlc3(data[i - BB_LEN]);
+    if (i < BB_LEN - 1) continue;
+    const m = run / BB_LEN; let s2 = 0;
+    for (let k = i - BB_LEN + 1; k <= i; k++){ const d = hlc3(data[k]) - m; s2 += d * d; }
+    const dev = BB_DEV * Math.sqrt(s2 / BB_LEN);
+    mid.push({ time: data[i].time, value: m });
+    up.push({ time: data[i].time, value: m + dev });
+    dn.push({ time: data[i].time, value: m - dev });
+  }
+  return { mid, up, dn };
+}
+function setBands(data){
+  const b = bollinger(data);
+  bbMid.setData(b.mid); bbUp.setData(b.up); bbDn.setData(b.dn);
+}
 /* M15…D1 trend panel (engine in app.js): same feed as the NAS chart (Hyperliquid XYZ100 first); offset-free structure */
 const NTR = createTrend({ el:'nasTrend', feed:()=>N.feed, digits:1 });
 function initChart(){
@@ -153,22 +176,24 @@ function initChart(){
     localization:{priceFormatter:(p)=>fmt(p,2)},
   });
   cs = chart.addSeries(LW.CandlestickSeries, {upColor:'#26a69a', downColor:'#ef5350', borderVisible:false, wickUpColor:'#26a69a', wickDownColor:'#ef5350', priceFormat:{type:'price',precision:2,minMove:0.01}});
-  e20 = chart.addSeries(LW.LineSeries, {color:'#5aa9ff', lineWidth:1.5, priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false});
-  e50 = chart.addSeries(LW.LineSeries, {color:'#c792ea', lineWidth:1.5, priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false});
+  const line = { priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false };
+  bbUp = chart.addSeries(LW.LineSeries, { ...line, color:'#5aa9ff', lineWidth:1 });
+  bbDn = chart.addSeries(LW.LineSeries, { ...line, color:'#5aa9ff', lineWidth:1 });
+  bbMid = chart.addSeries(LW.LineSeries, { ...line, color:'#f3d27a', lineWidth:1.5 });
   chart.timeScale().subscribeVisibleLogicalRangeChange(drawZones);
   new ResizeObserver(()=>requestAnimationFrame(drawZones)).observe($('nasZoneView'));
   setInterval(drawZones, 400);
 }
 const adj = (b) => ({time:b.time + TH_OFF, open:b.open, high:b.high, low:b.low, close:b.close});
 function redraw(){
-  const d = N.raw.map(adj); cs.setData(d); e20.setData(ema(d,20)); e50.setData(ema(d,50));
+  const d = N.raw.map(adj); cs.setData(d); setBands(d);
   if (N.raw.length) setPrice(N.raw[N.raw.length-1].close);
   recomputeDay(); drawZones();
 }
 function updLast(){
   cs.update(adj(N.raw[N.raw.length-1]));
-  const d = N.raw.slice(-300).map(adj), x20 = ema(d,20), x50 = ema(d,50);
-  e20.update(x20[x20.length-1]); e50.update(x50[x50.length-1]);
+  const b = bollinger(N.raw.slice(-BB_LEN).map(adj));
+  if (b.mid.length){ const i = b.mid.length - 1; bbMid.update(b.mid[i]); bbUp.update(b.up[i]); bbDn.update(b.dn[i]); }
 }
 function onTick(p, ms){
   p += N.off;                                                  // feed → Skilling/MT5 points
@@ -190,7 +215,7 @@ async function resyncTail(){
       if (i>=0){ if (i===N.raw.length-1){ b.close = N.raw[i].close; b.high=Math.max(b.high,b.close); b.low=Math.min(b.low,b.close); } N.raw[i] = b; }
       else if (b.time > N.raw[N.raw.length-1].time) N.raw.push(b);
     }
-    const d = N.raw.map(adj); cs.setData(d); e20.setData(ema(d,20)); e50.setData(ema(d,50)); drawZones();
+    const d = N.raw.map(adj); cs.setData(d); setBands(d); drawZones();
   }catch(e){}
 }
 async function loadFeed(){
@@ -296,7 +321,7 @@ window.__AITD_NSW = NSW;
 /* COACH_ENGINE_START */
 function coachScan(bars, opt){
   const o = Object.assign({
-    stFilt:true, bbLen:20, bbMult:2, slopeLen:5, swSlope:0.35, strongSl:1, bandLook:6, bandTchN:2, boxLen:12, boxMaxA:2.5,
+    stFilt:true, bbLen:50, bbMult:1.1, slopeLen:5, swSlope:0.35, strongSl:1, bandLook:6, bandTchN:2, boxLen:12, boxMaxA:2.5,
     pairOn:true, pairBody:0.3, pairTolA:0.1, pairNoV:true, pairMaxUses:3,
     vbcOn:true, vbcRun:3, vbcMove:0, vbcPen:50, vbcDoji:20,
     wfOn:true, wfBodyP:0,
@@ -326,16 +351,17 @@ function coachScan(bars, opt){
     atr[13] = s / 14;
     for (let i = 14; i < n; i++) atr[i] = (atr[i-1] * 13 + tr[i]) / 14;
   }
-  const basis = new Array(n).fill(null), bbUp = new Array(n).fill(null), bbDn = new Array(n).fill(null);
+  const basis = new Array(n).fill(null), bbHi = new Array(n).fill(null), bbLo = new Array(n).fill(null);
+  const tp = (i) => (bars[i].high + bars[i].low + bars[i].close) / 3;   // same bands as the chart: SMA50 of HLC/3 ± 1.1 stdev
   let run = 0;
   for (let i = 0; i < n; i++){
-    run += bars[i].close;
-    if (i >= o.bbLen) run -= bars[i - o.bbLen].close;
+    run += tp(i);
+    if (i >= o.bbLen) run -= tp(i - o.bbLen);
     if (i >= o.bbLen - 1){
       const mean = run / o.bbLen; let s2 = 0;
-      for (let k = i - o.bbLen + 1; k <= i; k++){ const d = bars[k].close - mean; s2 += d * d; }
+      for (let k = i - o.bbLen + 1; k <= i; k++){ const d = tp(k) - mean; s2 += d * d; }
       const dev = o.bbMult * Math.sqrt(s2 / o.bbLen);
-      basis[i] = mean; bbUp[i] = mean + dev; bbDn[i] = mean - dev;
+      basis[i] = mean; bbHi[i] = mean + dev; bbLo[i] = mean - dev;
     }
   }
   const hiLo = (i, len, side) => {
@@ -358,9 +384,9 @@ function coachScan(bars, opt){
     const rngS = hiR == null ? null : hiR - loR;
     let tUp = 0, tDn = 0;
     for (let k = Math.max(0, i - o.bandLook + 1); k <= i; k++){
-      if (bbUp[k] == null) continue;
-      if (bars[k].high >= bbUp[k]) tUp++;
-      if (bars[k].low <= bbDn[k]) tDn++;
+      if (bbHi[k] == null) continue;
+      if (bars[k].high >= bbHi[k]) tUp++;
+      if (bars[k].low <= bbLo[k]) tDn++;
     }
     const sUp = aOk && basis[i] != null && slope >= o.strongSl && b.close > basis[i] && tUp >= o.bandTchN;
     const sDn = aOk && basis[i] != null && slope <= -o.strongSl && b.close < basis[i] && tDn >= o.bandTchN;
@@ -713,7 +739,7 @@ function loadTV(){
     new window.TradingView.widget({
       container_id:'nasTvInner', autosize:true, symbol:'SKILLING:US100', interval:N.tf, timezone:'Asia/Bangkok', theme:'dark', style:'1', locale:'th_TH',
       toolbar_bg:'#0d1016', enable_publishing:false, allow_symbol_change:false, hide_volume:true, withdateranges:false, save_image:false,
-      studies:[{id:'MAExp@tv-basicstudies', inputs:{length:20}}, {id:'MAExp@tv-basicstudies', inputs:{length:50}}],
+      studies:[{id:'BB@tv-basicstudies', inputs:{length:50, src:'hlc3', mult:1.1}}],
       overrides:{'paneProperties.background':'#0d1016','paneProperties.backgroundType':'solid'},
     });
   });

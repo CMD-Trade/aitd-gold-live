@@ -13,28 +13,25 @@
    All feeds are requested at once with short timeouts (raceFeeds in app.js); the first good one is shown.
    Bars/ticks inside the broker close (Fri 17:00 → Sun 18:00 NY and the daily 17:00–18:00 NY break) are dropped,
    like the gold chart, because the OKX index keeps printing 24/7.
-   Zones        : nas_zones.json "zones" (bands from ^NDX daily levels, built by nas_zones.py).
    Skilling/MT5 match (28 Oct 2026, vs TradingView SKILLING:US100): Skilling ≈ Dukascopy USATECH −4.5 ≈ ^NDX cash −5;
                   OKX US100-USDT index runs ~+7…+12 above Skilling, Bitget NDX100 index ~+36 (off-hours up to +140), OKX perp ~+30.
                   Every feed is shifted by a per-feed offset (default below, or the user's own "ปรับให้ตรง MT5" value saved
-                  in localStorage) so candles, price, high/low and alerts read in Skilling/MT5 points; ^NDX bands move by ZONE_SHIFT. */
+                  in localStorage) so candles, price and high/low read in Skilling/MT5 points. */
 (() => {
 'use strict';
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
-const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createTrend, createKeyLevels } = L;
-const NEAR = 15;
+const { $, qs, LS, fmt, sgn, esc, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createTrend } = L;
 const DEF_OFF = { hl:-9, okxidx:-10, bitget:-45, perp:-30 };   // feed → Skilling US100 (measured 27–29 Oct 2026, see header)
 const HL_COIN = 'xyz:XYZ100', HL_K = 5.5;                // trade.xyz oracle − Skilling US100 (median 27–29 Oct 2026; hourly 3.3…8.5)
 const median = (a) => { const s = [...a].sort((x,y)=>x-y), n = s.length; return n ? (n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2) : null; };
-const ZONE_SHIFT = -5;                                   // ^NDX cash levels → Skilling US100 CFD
 const userOff = (name) => { const v = parseFloat(LS.get('nas_off_'+name, '')); return isFinite(v) ? v : null; };
 const prem = [];                                         // XYZ100 mid − oracle samples (live premium of the perp)
 const onPrem = (mid, oracle) => { if (mid>0 && oracle>0 && Math.abs(mid-oracle) < 60){ prem.push(mid-oracle); if (prem.length > 60) prem.shift(); } };
 const liveOff = () => prem.length >= 3 ? Math.round(Math.min(-3, Math.max(-20, -(HL_K + median(prem))))*10)/10 : null;
 const offFor = (name) => userOff(name) ?? (name==='hl' ? liveOff() : null) ?? DEF_OFF[name] ?? 0;
-const shiftBar = (b, d) => ({time:b.time, open:b.open+d, high:b.high+d, low:b.low+d, close:b.close+d});                                   // inline warning when price is inside a band or within this many points
+const shiftBar = (b, d) => ({time:b.time, open:b.open+d, high:b.high+d, low:b.low+d, close:b.close+d});
 const N = { tf: TF[qs.get('nastf')] ? qs.get('nastf') : (TF[LS.get('nas_tf','15')] ? LS.get('nas_tf','15') : '15'),
-  view: LS.get('nas_view','zone'), raw: [], dayRaw: [], off: 0, price: null, prev: null, feed: null, zones: null, lastTickAt: 0, hi: null, lo: null };
+  view: LS.get('nas_view','zone'), raw: [], dayRaw: [], off: 0, price: null, prev: null, feed: null, lastTickAt: 0, hi: null, lo: null };
 
 /* ---------------- feeds ---------------- */
 const HL_TF = { '1':'1m', '5':'5m', '15':'15m', '30':'30m', '60':'1h' };
@@ -144,11 +141,6 @@ const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')
 let chart, cs, e20, e50, stop = null;
 /* M15…D1 trend panel (engine in app.js): same feed as the NAS chart (Hyperliquid XYZ100 first); offset-free structure */
 const NTR = createTrend({ el:'nasTrend', feed:()=>N.feed, digits:1 });
-/* key levels from Cboe QQQ options (options_levels.json "qqq": strike × NDX/QQQ − 5 = Skilling US100), drawn on this chart */
-const NKL = createKeyLevels({ src:'qqq', lsKey:'kl_nas', digits:1, series:()=>cs || null, price:()=>N.price,
-  h1:()=>{ const r = NTR.res && NTR.res['60']; return r && isFinite(r.close) ? r.close + N.off : null; },   // trend bars are raw feed prices
-  convNote:(b)=>{ const c = b.conversion||{}; return `แปลง: strike QQQ × ${fmt(c.ratio,3)} (NDX ${fmt(c.ndx_price)} ÷ QQQ ${fmt(c.qqq_price)} ณ ${esc(thDT(b.quote_time))}) ${c.skilling_shift<0?'−':'+'} ${Math.abs(c.skilling_shift??5)} จุด = ราคา Skilling US100`; } });
-async function loadKL(){ try{ NKL.set(await getJSON('options_levels.json')); }catch(e){ NKL.render(); } }
 function initChart(){
   const LW = window.LightweightCharts;
   chart = LW.createChart($('nasLw'), {
@@ -263,16 +255,20 @@ function recomputeDay(){
 function trackDay(p){ if (N.hi==null){ N.hi = N.lo = p; } N.hi = Math.max(N.hi,p); N.lo = Math.min(N.lo,p); renderHL(); }
 function renderHL(){ $('nasHL').textContent = N.hi!=null ? `${fmt(N.hi)} / ${fmt(N.lo)}` : '—'; }
 
-/* ---------------- price header + inline zone status ---------------- */
+/* ---------------- price header ---------------- */
 let flashT;
+function priorClose(){
+  const t0 = dayStartMs()/1000;
+  const pick = (src) => { let c = null; for (const b of src || []){ if (b.time >= t0) break; c = b.close; } return c; };
+  return pick(N.dayRaw) ?? pick(N.raw);
+}
 function setPrice(p){
   if (p==null || !isFinite(p)) return;
   N.prev = N.price; N.price = p;
   const el = $('nasPrice'); el.textContent = fmt(p);
   if (N.prev!=null && p!==N.prev){ el.classList.remove('up','down'); el.classList.add(p>N.prev?'up':'down'); clearTimeout(flashT); flashT = setTimeout(()=>el.classList.remove('up','down'),700); }
-  const pc0 = N.zones && N.zones.last_close && N.zones.last_close.close, pc = pc0 ? pc0 + ZONE_SHIFT : null;
-  if (pc){ const c = p-pc, e = $('nasChg'); e.className = 'chg '+(c>=0?'pos':'neg'); e.textContent = `${sgn(c)} (${sgn(c/pc*100)}%) เทียบปิด ${fmt(pc)}`; e.title = `ปิด ^NDX ${fmt(pc0)} ${ZONE_SHIFT} จุด (ฐาน Skilling)`; }
-  renderGuard(); renderList();
+  const pc = priorClose(), ch = $('nasChg');
+  if (ch && pc){ const c = p-pc; ch.className = 'chg '+(c>=0?'pos':'neg'); ch.textContent = `${sgn(c)} (${sgn(c/pc*100)}%) เทียบปิด ${fmt(pc)}`; }
 }
 function renderBadge(){
   const b = $('nasBadge'), stale = !N.lastTickAt || Date.now()-N.lastTickAt > 90000;
@@ -280,28 +276,6 @@ function renderBadge(){
   if (spotClosed(Date.now())){ b.className='badge warn'; b.textContent='ตลาดปิด'; return; }
   b.className = 'badge ' + (stale?'warn':'live'); b.textContent = stale ? 'รอข้อมูล' : 'LIVE';
 }
-/* band type follows the live price (a level above price = resistance, below = support), pivot stays pivot */
-const typeOf = (z, p) => z.type==='pivot' ? 'pivot' : p==null ? z.type : ((z.zone[0]+z.zone[1])/2 > p ? 'resistance' : 'support');
-const zonesArr = () => (N.zones && Array.isArray(N.zones.zones)) ? N.zones.zones : [];
-function renderGuard(){
-  const el = $('nasGuard'), p = N.price, Z = zonesArr();
-  if (p==null || !Z.length){ el.className='nas-guard'; el.textContent = Z.length ? 'กำลังรอราคา NAS100…' : 'ยังไม่มีโซน NAS100 (nas_zones.json)'; return; }
-  const dist = (z) => p < z.zone[0] ? z.zone[0]-p : p > z.zone[1] ? p-z.zone[1] : 0;
-  const near = Z.filter(z=>z.type!=='pivot' && dist(z) <= NEAR);
-  const sup = near.filter(z=>typeOf(z,p)==='support'), res = near.filter(z=>typeOf(z,p)==='resistance');
-  const byDist = (a,b)=>dist(a)-dist(b); sup.sort(byDist); res.sort(byDist);
-  const below = Z.filter(z=>z.type!=='pivot' && z.zone[1] < p).sort((a,b)=>b.zone[1]-a.zone[1])[0];
-  const above = Z.filter(z=>z.type!=='pivot' && z.zone[0] > p).sort((a,b)=>a.zone[0]-b.zone[0])[0];
-  const lv = (z) => `<b>${fmt(z.level ?? (z.zone[0]+z.zone[1])/2)}</b> ${esc(z.label||'')}`;
-  const st = sup.length && res.length ? 'both' : sup.length ? 'support' : res.length ? 'resistance' : 'neutral';
-  el.className = 'nas-guard ' + st;
-  const closed = spotClosed(Date.now()) ? ' · ตลาดปิด (ราคาล่าสุด)' : '';
-  if (st==='support') el.innerHTML = `⚠️ NAS100 อยู่ที่แนวรับ ${lv(sup[0])} — ห้าม SELL · รอแท่งกลับตัว M15${closed}`;
-  else if (st==='resistance') el.innerHTML = `⚠️ NAS100 อยู่ที่แนวต้าน ${lv(res[0])} — ห้าม BUY · รอแท่งกลับตัว M15${closed}`;
-  else if (st==='both') el.innerHTML = `⚠️ NAS100 ติดทั้งแนวรับ ${lv(sup[0])} และแนวต้าน ${lv(res[0])} — รอราคาหลุด/ทะลุ${closed}`;
-  else el.innerHTML = `NAS100 อยู่กลางทาง · แนวรับใกล้สุด ${below?`${lv(below)} (ห่าง ${fmt(p-below.zone[1],1)})`:'—'} · แนวต้านใกล้สุด ${above?`${lv(above)} (ห่าง ${fmt(above.zone[0]-p,1)})`:'—'} · เกณฑ์ ±${NEAR} จุด${closed}`;
-}
-
 /* Swing Finder (RSI 7, 70/30) — same candles / timeframe as this chart. N.raw is already in Skilling points. */
 const TF_LABEL = { '1':'M1', '5':'M5', '15':'M15', '30':'M30', '60':'H1', '240':'H4' };
 const NSW = (document.getElementById('nasTgSwing') && window.AITD_SWING) ? window.AITD_SWING.createSwingOverlay({
@@ -714,74 +688,22 @@ function hexA(hex, a){
 }
 window.__AITD_COACH = { scan: coachScan, scanTf, barsFor: coachBarsFor, get: () => COACH };
 
-/* ---------------- zone bands on the overlay canvas (same drawing as gold) ---------------- */
+/* ---------------- overlay: coach boxes, then Swing Finder and the 1.618 line on top ---------------- */
 function drawZones(){
   if (NSW) NSW.refresh();
   refreshCoach();
   const cv = $('nasCanvas'), wrap = $('nasZoneView');
-  if (!cs || wrap.classList.contains('hidden')) return;
+  if (!cs || !wrap || wrap.classList.contains('hidden')) return;
   const dpr = window.devicePixelRatio||1, W = wrap.clientWidth, H = wrap.clientHeight;
   if (cv.width !== W*dpr || cv.height !== H*dpr){ cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px'; }
   const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
   const paneW = chart.timeScale().width(), paneH = H - chart.timeScale().height();
-  const col = {resistance:[239,83,80], support:[38,166,154], pivot:[240,180,41]};
-  const TAG = {resistance:'แนวต้าน', support:'แนวรับ', pivot:'Pivot'};
   ctx.save(); ctx.beginPath(); ctx.rect(0,0,paneW,paneH); ctx.clip();
-  const used = [];                                             // label y positions already taken (bands can sit close together)
-  for (const z of [...zonesArr()].sort((a,b)=>b.zone[1]-a.zone[1])){
-    const y1 = cs.priceToCoordinate(z.zone[1]), y2 = cs.priceToCoordinate(z.zone[0]);
-    if (y1==null || y2==null) continue;
-    const t = typeOf(z, N.price), c = col[t]||[139,147,165];
-    ctx.fillStyle = `rgba(${c},0.13)`; ctx.fillRect(0, y1, paneW, Math.max(2, y2-y1));
-    ctx.strokeStyle = `rgba(${c},0.55)`; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
-    ctx.beginPath(); ctx.moveTo(0,y1+.5); ctx.lineTo(paneW,y1+.5); ctx.moveTo(0,y2-.5); ctx.lineTo(paneW,y2-.5); ctx.stroke();
-    ctx.setLineDash([]); ctx.fillStyle = `rgba(${c},0.95)`; ctx.font = '600 11px "IBM Plex Sans Thai", sans-serif';
-    let ly = Math.max(12, y1 - 3);
-    if (used.some(u=>Math.abs(u-ly) < 13)) ly = y2 + 12;                           // collides: put it under the band
-    if (used.some(u=>Math.abs(u-ly) < 13)) continue;                              // still collides: band only
-    used.push(ly);
-    ctx.fillText(`${TAG[t]||t} ${fmt(z.level ?? (z.zone[0]+z.zone[1])/2)} · ${z.label||''}`, 8, ly);
-  }
   try { paintCoach(ctx, paneW, paneH); } catch (e) { if (!COACH.err){ COACH.err = String(e && e.stack || e); console.error('coach paint', e); } }
   if (NSW) NSW.paintBack();
   if (NSW) NSW.paintMarks(ctx, paneW, paneH);
   if (NSW) NSW.paint(ctx);
   ctx.restore();
-}
-
-/* ---------------- level list (collapsible) ---------------- */
-function renderList(){
-  const box = $('nasZones'), Z = N.zones; if (!box) return;
-  if (!Z || !zonesArr().length){ box.innerHTML = '<div class="sub">ยังไม่มีข้อมูล nas_zones.json</div>'; $('nasMeta').textContent=''; return; }
-  const p = N.price, TAG = {resistance:'แนวต้าน', support:'แนวรับ', pivot:'Pivot'};
-  const zs = [...zonesArr()].sort((a,b)=>b.zone[1]-a.zone[1]);
-  let html = '', placed = false;
-  for (const z of zs){
-    const lv = z.level ?? (z.zone[0]+z.zone[1])/2, t = typeOf(z, p);
-    if (p!=null && !placed && lv < p){ html += `<div class="now-row">ราคา ${fmt(p)}</div>`; placed = true; }
-    html += `<div class="zone ${t} ${p!=null && p>=z.zone[0] && p<=z.zone[1] ? 'inside':''}"><span class="tag">${TAG[t]||esc(t)}</span><span class="rng">${fmt(lv)}</span><span class="note">${esc(z.label||'')}${p!=null?` · ห่าง ${sgn(lv-p,1)}`:''}</span></div>`;
-  }
-  if (p!=null && !placed) html += `<div class="now-row">ราคา ${fmt(p)}</div>`;
-  box.innerHTML = html;
-}
-function renderMeta(){
-  const Z = N.zones; if (!Z) return;
-  $('nasDate').textContent = Z.last_close ? `· ^NDX ปิด ${Z.last_close.date}` : '';
-  const ageH = (Date.now() - Date.parse(Z.generated_at)) / 3600e3, pd = Z.prev_day, wk = Z.week, pw = Z.prev_week;
-  let m = `ข้อมูล ^NDX ปิดวันที่ ${esc(Z.last_close?.date||Z.date)} (นิวยอร์ก)`;
-  if (pd) m += ` · เมื่อวาน H ${fmt(pd.high)} / L ${fmt(pd.low)} / C ${fmt(pd.close)}`;
-  if (wk) m += ` · สัปดาห์นี้ H ${fmt(wk.high)} / L ${fmt(wk.low)}`;
-  if (pw) m += ` · สัปดาห์ก่อน H ${fmt(pw.high)} / L ${fmt(pw.low)}`;
-  m += ` · แถบบนกราฟ = ระดับ ^NDX ${ZONE_SHIFT} จุด (ให้ตรง Skilling/MT5) ±10 จุด · ตัวเลขข้างบนเป็นค่า ^NDX เดิม · อัปเดต ${thDT(Z.generated_at)}`;
-  if (isFinite(ageH) && ageH > 96) m += ' · ⚠️ ข้อมูลเก่าเกิน 4 วัน';
-  $('nasMeta').textContent = m;
-}
-async function loadZones(){
-  try{ const z = await getJSON('nas_zones.json');
-    if (!Array.isArray(z.zones) && Array.isArray(z.levels)) z.zones = z.levels.map(l=>({zone:[l.price-10, l.price+10], type:l.type, level:l.price, label:l.label}));   // older file
-    z.zones = z.zones.map(q=>({...q, zone:[q.zone[0]+ZONE_SHIFT, q.zone[1]+ZONE_SHIFT], level:(q.level ?? (q.zone[0]+q.zone[1])/2)+ZONE_SHIFT}));   // ^NDX → Skilling
-    N.zones = z; }catch(e){}
-  renderMeta(); renderList(); renderGuard(); drawZones(); if (N.price!=null) setPrice(N.price);
 }
 
 /* ---------------- TradingView tab (SKILLING:US100 — the user's MT5 broker feed) ---------------- */
@@ -812,8 +734,7 @@ function setTF(tf){
 function start(){
   document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>setView(b.dataset.nview));
   document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===N.tf); b.onclick=()=>setTF(b.dataset.tf); });
-  wireCal(); wireCoach(); initChart(); setView(N.view); loadZones();
-  NKL.wire(); loadKL(); setInterval(loadKL, 600000); setInterval(NKL.render, 15000);   // distance + H1 breakout hint
+  wireCal(); wireCoach(); initChart(); setView(N.view);
   // gold first: start NAS when the gold chart has painted, or after 1 s at most
   Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(()=>{ loadFeed(); });
   setInterval(renderBadge, 2000);
@@ -825,8 +746,7 @@ function start(){
     const v = liveOff(); if (v!=null && Math.abs(v - N.off) >= 0.5) setOff(v); else renderCal();
   }, 5000);
   setInterval(()=>{ if (N.feed) loadDay(N.feed); }, 5*60000);
-  setInterval(loadZones, 600000);
 }
 start();
-window.__AITD_NAS = N; window.__AITD_NTR = NTR; window.__AITD_NKL = NKL;
+window.__AITD_NAS = N; window.__AITD_NTR = NTR;
 })();

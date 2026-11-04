@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0d12">
 <title>AiTD Gold Live · NAS100 เรียลไทม์</title>
-<meta name="description" content="กราฟ NAS100 (Skilling US100) เรียลไทม์ พร้อมโซนแนวรับแนวต้าน ระดับออปชัน QQQ ข่าวสหรัฐ และเวลาไทย">
+<meta name="description" content="กราฟ NAS100 (Skilling US100) เรียลไทม์ พร้อมรูปแบบโค้ชน้ำ Swing Finder และเวลาไทย">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AiTD Gold Live">
 <meta property="og:title" content="AiTD Gold Live · NAS100 เรียลไทม์">
-<meta property="og:description" content="กราฟทอง XAUUSD และ NAS100 เรียลไทม์ พร้อมโซนแนวรับแนวต้าน เวลาไทย และเครื่องคำนวณ Lot">
+<meta property="og:description" content="กราฟทอง XAUUSD และ NAS100 เรียลไทม์ เวลาไทย">
 <meta property="og:url" content="https://cmd-trade.github.io/aitd-gold-live/nas100.html">
 <meta property="og:image" content="https://cmd-trade.github.io/aitd-gold-live/img/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -37,7 +37,7 @@
 
 <main>
 
-  <!-- NAS100 CHART (js/nas.js): Hyperliquid XYZ100 / OKX US100 index candles + bands from nas_zones.json, same look as gold -->
+  <!-- NAS100 CHART (js/nas.js): Hyperliquid XYZ100 / OKX US100 index candles, coach patterns, Swing Finder -->
   <section class="card chart-card nas-card" id="nasCard">
     <div class="nas-top">
       <div class="nas-title"><b>NAS100</b> <span id="nasBadge" class="badge">กำลังเชื่อมต่อ…</span> <span class="nas-cal"><span id="nasCalInfo" class="label"></span> <button type="button" id="nasCalBtn" class="nas-cal-btn">ปรับให้ตรง MT5</button> <span id="nasCalMsg" class="label"></span> <span id="nasCalBox" class="nas-cal-box hidden"><input id="nasCalIn" type="text" inputmode="decimal" placeholder="ราคา MT5 ตอนนี้" aria-label="ราคา NAS100 ใน MT5 ตอนนี้"> <button type="button" id="nasCalSet">ตั้ง</button> <button type="button" id="nasCalReset">ค่าเริ่มต้น</button></span></span>
@@ -47,7 +47,7 @@
     </div>
     <div class="chart-head">
       <div class="tabs" role="tablist">
-        <button class="ntab active" data-nview="zone">กราฟ + โซน</button>
+        <button class="ntab active" data-nview="zone">กราฟ</button>
         <button class="ntab" data-nview="tv">TradingView (Skilling)</button>
       </div>
       <div class="tfs" id="nasTfs">
@@ -72,34 +72,7 @@
     <div class="sub swing-note">Swing Finder (RSI 7, 70/30) — จุด swing ล่าสุดยังขยับได้จนกว่า RSI จะข้ามไปอีกฝั่ง ไม่ใช่สัญญาณ Buy/Sell สำเร็จรูป</div>
     <div class="sub swing-note" id="nasPdNote">Premium/Discount วัดจากสวิง H1 ล่าสุดที่ยืนยัน · Buy ในโซน Discount, Sell ในโซน Premium · 1.618 เป็นเป้าไกล ใช้เป็นแนวทาง ไม่ใช่สัญญาณ</div>
     <div class="trend" id="nasTrend" aria-live="polite"></div>
-    <div class="nas-guard" id="nasGuard">—</div>
-    <details class="nas-lv" id="nasLvBox"><summary>ระดับอ้างอิง NAS100 <small id="nasDate"></small></summary>
-      <div class="zones nas-zones" id="nasZones"><div class="sub">กำลังโหลด nas_zones.json…</div></div>
-      <div class="sub" id="nasMeta"></div>
-    </details>
-    <div class="sub nas-note" id="nasNote">ราคา/แท่งเทียน: <b>ดัชนี OKX US100-USDT</b> (เรียลไทม์, ไม่ต้องใช้คีย์; สำรอง Bitget NDX100) <b>ปรับให้ใกล้ Skilling US100 / MT5</b> ตามค่า “ปรับ” ด้านบน — ถ้ายังไม่ตรง กด “ปรับให้ตรง MT5” แล้วใส่ราคาใน MT5 ครั้งเดียว ตัดช่วงที่โบรกปิด (ศ. 17:00 → อา. 18:00 และ 17:00–18:00 นิวยอร์กทุกวัน) · โซนจาก nas_zones.json (ดัชนี ^NDX: High/Low/Close เมื่อวาน, Pivot, High/Low สัปดาห์นี้/ก่อน, เลขกลม 100 จุด, แถบ ±10 จุด) · แท็บ TradingView = SKILLING:US100 (ตรงกับโบรก) · ไม่ใช่สัญญาณซื้อขาย</div>
-  </section>
-
-  <!-- KEY LEVELS from options (createKeyLevels in js/app.js) -->
-  <section class="card kl-card" id="klCard">
-    <div class="card-h">ระดับสำคัญจากออปชัน <small id="klSrc">QQQ · Cboe (proxy)</small>
-      <span class="spacer"></span>
-      <label class="mini kl-tg"><input type="checkbox" id="klLines"> เส้นบนกราฟ</label>
-    </div>
-    <div class="kl-exp" id="klExp"></div>
-    <div id="klBody"><div class="sub">กำลังโหลด options_levels.json…</div></div>
-    <div class="kl-key"><i class="k kc"></i>Call Wall <i class="k kp"></i>Put Wall <i class="k kv"></i>Pivot <i class="k ks"></i>±1SD</div>
-    <details class="kl-how"><summary>วิธีอ่าน</summary>
-      <ul>
-        <li><b>Pivot (Max pain)</b> — ราคาที่ทำให้ผู้ถือออปชันรวมกันขาดทุนมากที่สุดตอนหมดอายุ ราคามักถูกดึงเข้าหาแถวนี้ช่วงใกล้วันหมดอายุ · <b>Max OI</b> = strike ที่ OI รวม Call+Put มากที่สุด</li>
-        <li><b>Call Wall</b> — strike เหนือราคาที่มี OI ฝั่ง Call มากที่สุด มักทำหน้าที่เป็น<b>แนวต้าน</b></li>
-        <li><b>Put Wall</b> — strike ใต้ราคาที่มี OI ฝั่ง Put มากที่สุด มักทำหน้าที่เป็น<b>แนวรับ</b></li>
-        <li><b>±1SD</b> — กรอบที่ตลาดออปชันคาดว่าราคาจะอยู่ (~68%) จนถึงวันหมดอายุ = ราคา × IV (ATM) × √(วันถึงหมดอายุ/365) · หลุดกรอบ = เคลื่อนแรงกว่าที่ตลาดคาด</li>
-        <li><b>Breakout / Breakdown</b> — แท่ง <b>H1 ปิด</b>เหนือ Call Wall = ทะลุ (กำแพงอาจกลับเป็นแนวรับ) · H1 ปิดใต้ Put Wall = หลุด (อาจกลับเป็นแนวต้าน) · ไส้เทียนแตะเฉย ๆ ยังไม่นับ</li>
-        <li>ตัวเลข “ห่าง” = ระยะจากราคาตอนนี้ (หน่วยจุด) · OI อัปเดตวันละครั้ง จึงเป็นภาพของ “เมื่อวาน” ไม่ใช่สด</li>
-      </ul>
-    </details>
-    <div class="sub kl-note">ที่มา: ออปชันกองทุน <b>QQQ</b> (Invesco QQQ, ตาม Nasdaq-100) จาก <a href="https://www.cboe.com/delayed_quotes/qqq/quote_table" target="_blank" rel="noopener">Cboe delayed quotes</a> (OI รายวันจาก OCC, IV ของ Cboe) แปลง strike → ดัชนี NDX ด้วยอัตราส่วน NDX/QQQ ณ เวลาข้อมูล แล้ว <b>−5 จุด</b> ให้เป็นราคา Skilling US100 / MT5 — <b>เป็นตัวแทน (proxy) ไม่ใช่ออปชัน NDX หรือ CME NQ</b> · <b>ข้อมูลเพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุนหรือสัญญาณซื้อขาย</b></div>
+    <div class="sub nas-note" id="nasNote">ราคา/แท่งเทียน: <b>ดัชนี OKX US100-USDT</b> (เรียลไทม์, ไม่ต้องใช้คีย์; สำรอง Bitget NDX100) <b>ปรับให้ใกล้ Skilling US100 / MT5</b> ตามค่า “ปรับ” ด้านบน — ถ้ายังไม่ตรง กด “ปรับให้ตรง MT5” แล้วใส่ราคาใน MT5 ครั้งเดียว ตัดช่วงที่โบรกปิด (ศ. 17:00 → อา. 18:00 และ 17:00–18:00 นิวยอร์กทุกวัน) · แท็บ TradingView = SKILLING:US100 (ตรงกับโบรก) · ไม่ใช่สัญญาณซื้อขาย</div>
   </section>
 
   <!-- SESSIONS + EVENT -->
@@ -137,8 +110,7 @@
 
 <footer>
   <p><b>แหล่งข้อมูล</b> · กราฟ + โซน NAS100: แท่งเทียนเรียลไทม์จาก <a href="https://app.hyperliquid.xyz/" target="_blank" rel="noopener">Hyperliquid</a> trade.xyz XYZ100 (สำรอง: ดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> US100-USDT, Bitget NDX100, OKX perp) ปรับให้ใกล้ Skilling US100 / MT5 ·
-  แท็บ TradingView: SKILLING:US100 (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) · โซน: แท่งรายวันดัชนี ^NDX (Yahoo Finance) −5 จุด ·
-  ระดับออปชัน + ±1SD: <a href="https://www.cboe.com/delayed_quotes/qqq/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (QQQ, _NDX)</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) ·
+  แท็บ TradingView: SKILLING:US100 (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) ·
   ปฏิทินข่าว: ForexFactory (ข่าวแรงสหรัฐ) · หัวข้อข่าว: Google News RSS (Nasdaq/หุ้นเทค/Fed, Reuters/CNBC ผ่าน Google News), investingLive — ลิงก์ไปยังต้นฉบับ ·
   รูปแบบโค้ชน้ำ: คำนวณจากแท่งบนกราฟ (HDB / WF / PAIR / VBC / DBD·RBR·RBD·DBR) · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
   <p>ราคาบนเว็บอาจต่างจากราคาโบรกเกอร์ของคุณเล็กน้อย · ข้อมูลเพื่อประกอบการตัดสินใจเท่านั้น ไม่ใช่คำแนะนำการลงทุน</p>

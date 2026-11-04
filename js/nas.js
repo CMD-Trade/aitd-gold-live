@@ -21,7 +21,7 @@
 (() => {
 'use strict';
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
-const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createVP, VP_SRC, createTrend, createKeyLevels } = L;
+const { $, qs, LS, fmt, sgn, esc, thDT, spotClosed, bucketStart, aggregate, ema, TF, OKX, okxGet, getJSON, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createTrend, createKeyLevels } = L;
 const NEAR = 15;
 const DEF_OFF = { hl:-9, okxidx:-10, bitget:-45, perp:-30 };   // feed → Skilling US100 (measured 27–29 Oct 2026, see header)
 const HL_COIN = 'xyz:XYZ100', HL_K = 5.5;                // trade.xyz oracle − Skilling US100 (median 27–29 Oct 2026; hourly 3.3…8.5)
@@ -142,15 +142,6 @@ const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')
 
 /* ---------------- chart (same options as the gold chart) ---------------- */
 let chart, cs, e20, e50, stop = null;
-/* Volume Profile (same engine/look as gold): Hyperliquid XYZ100 → OKX US100-USDT-SWAP → Bitget NDX100USDT perp volume, shifted onto the
-   (Skilling-offset) NAS candles; 5-point bins. */
-const NVP = createVP({
-  key:'nas_vp', qsOn:'nasvp', qsPeriod:'nasvpp', ids:{tg:'nasTgVp', period:'nasVpPeriod', info:'nasVpInfo'}, bin:5, unit:'US100', volDigits:2,
-  sources:[ {name:'hl', short:'Hyperliquid', label:'Hyperliquid XYZ100 perp', fetch:VP_SRC.hl(HL_COIN)},
-            {name:'okx', short:'OKX', label:'OKX US100-USDT perp', fetch:VP_SRC.okx('US100-USDT-SWAP')},
-            {name:'bitget', short:'Bitget', label:'Bitget NDX100USDT perp', fetch:VP_SRC.bitget('NDX100USDT')} ],
-  tf:()=>N.tf, chartBars:()=>N.raw, series:()=>cs, onChange:()=>drawZones(),
-});
 /* M15…D1 trend panel (engine in app.js): same feed as the NAS chart (Hyperliquid XYZ100 first); offset-free structure */
 const NTR = createTrend({ el:'nasTrend', feed:()=>N.feed, digits:1 });
 /* key levels from Cboe QQQ options (options_levels.json "qqq": strike × NDX/QQQ − 5 = Skilling US100), drawn on this chart */
@@ -221,7 +212,8 @@ async function loadFeed(){
   if (won){
     const f = Feeds[won.name];
     N.off = offFor(won.name);
-    N.feed = f; N.raw = won.hist.map(b=>shiftBar(b, N.off)); renderCal(); redraw(); chart.timeScale().scrollToRealTime(); NVP.realign();
+    N.feed = f; N.raw = won.hist.map(b=>shiftBar(b, N.off)); renderCal(); redraw(); chart.timeScale().scrollToRealTime();
+    if (!COACH.raw.h1 && !COACH.busy) loadCoachHist();
     stop = f.stream(onTick); N.lastTickAt = Date.now();
     setTimeout(()=>loadDay(f), 2000);
     $('nasStatus').textContent = won.name===ORDER[0] ? '' : 'สำรอง: '+f.label; renderBadge(); return;
@@ -239,7 +231,7 @@ function setOff(v){
   N.raw = N.raw.map(b=>shiftBar(b, d)); N.dayRaw = N.dayRaw.map(b=>shiftBar(b, d));
   if (N.hi!=null){ N.hi += d; N.lo += d; }
   if (N.price!=null) N.price += d;
-  N.prev = null; redraw(); renderCal(); NVP.realign();   // VP follows the new offset
+  N.prev = null; redraw(); renderCal();
 }
 function renderCal(){
   const el = $('nasCalInfo'); if (!el) return;
@@ -323,9 +315,409 @@ const NSW = (document.getElementById('nasTgSwing') && window.AITD_SWING) ? windo
 }) : null;
 window.__AITD_NSW = NSW;
 
+/* ---------------- Coach patterns (Coach_Patterns_v3.pine, default inputs) ----------------
+   HDB / WF / PAIR / VBC / DBD / RBR / RBD / DBR computed from the page's own candles.
+   Pine defaults rbdOn/dbrOn off; this page draws all four leg-base-leg boxes (coach uses them).
+   PAIR levels stop after 3 fresh retests (course: ใช้ไม่เกิน 2–3 ครั้ง). No volume profile. */
+/* COACH_ENGINE_START */
+function coachScan(bars, opt){
+  const o = Object.assign({
+    stFilt:true, bbLen:20, bbMult:2, slopeLen:5, swSlope:0.35, strongSl:1, bandLook:6, bandTchN:2, boxLen:12, boxMaxA:2.5,
+    pairOn:true, pairBody:0.3, pairTolA:0.1, pairNoV:true, pairMaxUses:3,
+    vbcOn:true, vbcRun:3, vbcMove:0, vbcPen:50, vbcDoji:20,
+    wfOn:true, wfBodyP:0,
+    hdbOn:true, hdbBody:0.4, hdbTolA:0.1, hdbMinA:0.1, hdbAge:24, hdbStMode:'trend', hdbWick:false, hdbNoWF:false, hdbHL:false,
+    dbdOn:true, rbrOn:true, rbdOn:true, dbrOn:true,
+    boxDet:12, boxDetA:2.5, brkBufA:0.1, legLook:12, legAtr:2, boxShow:true,
+    lineLen:12, sec:0, now:null, trace:false, maxDraw:10,
+  }, opt || {});
+  const empty = { state:null, patterns:[], drawn:[], latest:null };
+  if (!bars || bars.length < 5) return empty;
+  const n = bars.length;
+  const useClose = o.now != null && o.sec > 0;
+  const confirmed = (i) => !useClose || bars[i].time + o.sec <= o.now;
+  let lastI = n - 1;
+  while (lastI >= 0 && !confirmed(lastI)) lastI--;
+  if (lastI < 1) return empty;
+
+  const tr = new Array(n), atr = new Array(n).fill(null);
+  for (let i = 0; i < n; i++){
+    const b = bars[i];
+    let t = b.high - b.low;
+    if (i > 0){ const pc = bars[i-1].close; t = Math.max(t, Math.abs(b.high-pc), Math.abs(b.low-pc)); }
+    tr[i] = t;
+  }
+  if (n >= 14){
+    let s = 0; for (let i = 0; i < 14; i++) s += tr[i];
+    atr[13] = s / 14;
+    for (let i = 14; i < n; i++) atr[i] = (atr[i-1] * 13 + tr[i]) / 14;
+  }
+  const basis = new Array(n).fill(null), bbUp = new Array(n).fill(null), bbDn = new Array(n).fill(null);
+  let run = 0;
+  for (let i = 0; i < n; i++){
+    run += bars[i].close;
+    if (i >= o.bbLen) run -= bars[i - o.bbLen].close;
+    if (i >= o.bbLen - 1){
+      const mean = run / o.bbLen; let s2 = 0;
+      for (let k = i - o.bbLen + 1; k <= i; k++){ const d = bars[k].close - mean; s2 += d * d; }
+      const dev = o.bbMult * Math.sqrt(s2 / o.bbLen);
+      basis[i] = mean; bbUp[i] = mean + dev; bbDn[i] = mean - dev;
+    }
+  }
+  const hiLo = (i, len, side) => {
+    if (i < len - 1) return null;
+    let m = side === 'h' ? -Infinity : Infinity;
+    for (let k = i - len + 1; k <= i; k++) m = side === 'h' ? Math.max(m, bars[k].high) : Math.min(m, bars[k].low);
+    return m;
+  };
+  const bull = (i) => bars[i].close > bars[i].open;
+  const bear = (i) => bars[i].close < bars[i].open;
+  const bodyAt = (i) => Math.abs(bars[i].close - bars[i].open);
+  const patterns = [], zones = [], trace = o.trace ? [] : null;
+  let bxTop = null, bxBot = null, bxS = null, bxLeg = '', lastBrkBar = -100000, state = null;
+
+  for (let i = 0; i <= lastI; i++){
+    const b = bars[i], a = atr[i], aOk = a != null && a > 0;
+    const basisPrev = i >= o.slopeLen ? basis[i - o.slopeLen] : null;
+    const slope = aOk && basis[i] != null && basisPrev != null ? (basis[i] - basisPrev) / a : 0;
+    const hiR = hiLo(i, o.boxLen, 'h'), loR = hiLo(i, o.boxLen, 'l');
+    const rngS = hiR == null ? null : hiR - loR;
+    let tUp = 0, tDn = 0;
+    for (let k = Math.max(0, i - o.bandLook + 1); k <= i; k++){
+      if (bbUp[k] == null) continue;
+      if (bars[k].high >= bbUp[k]) tUp++;
+      if (bars[k].low <= bbDn[k]) tDn++;
+    }
+    const sUp = aOk && basis[i] != null && slope >= o.strongSl && b.close > basis[i] && tUp >= o.bandTchN;
+    const sDn = aOk && basis[i] != null && slope <= -o.strongSl && b.close < basis[i] && tDn >= o.bandTchN;
+    const isBox = (aOk && rngS != null && rngS <= o.boxMaxA * a) || Math.abs(slope) < o.swSlope;
+    state = sUp ? 2 : sDn ? -2 : isBox ? 0 : slope >= o.swSlope ? 1 : slope <= -o.swSlope ? -1 : 0;
+    if (trace) trace.push(state);
+    const notStrong = !o.stFilt || Math.abs(state) < 2;
+
+    let vbcDir = 0;
+    if (b.close !== b.open && i > 25){
+      const brkG = b.close > b.open; let rl = 0;
+      for (let q = 1; q <= 20 && i - q >= 0; q++){
+        if (!(brkG ? bear(i - q) : bull(i - q))) break;
+        rl++;
+      }
+      if (rl >= 1){
+        const mv = brkG ? bars[i - rl].open - bars[i - 1].close : bars[i - 1].close - bars[i - rl].open;
+        const volOk = rl >= o.vbcRun || (o.vbcMove > 0 && mv >= o.vbcMove);
+        const body1 = bodyAt(i - 1);
+        const pen = brkG ? b.close - bars[i - 1].close : bars[i - 1].close - b.close;
+        const rngC = b.high - b.low, bd = bodyAt(i);
+        const penOk = body1 > 0 && pen <= o.vbcPen / 100 * body1;
+        const djOk = rngC > 0 && bd / rngC * 100 >= o.vbcDoji;
+        if (volOk && penOk && djOk) vbcDir = brkG ? 1 : -1;
+      }
+    }
+    let vbcF = false;
+    if (o.vbcOn && vbcDir !== 0 && notStrong){
+      vbcF = true;
+      const i1 = Math.min(lastI, i + o.lineLen);
+      patterns.push({ kind:'VBC', dir:vbcDir, i0:i-1, i1, top:b.open, bot:b.open, born:i, level:b.open, t0:bars[i-1].time, t1:bars[i1].time });
+    }
+    if (i >= 1 && aOk){
+      const bd = bodyAt(i), body1 = bodyAt(i-1), tol = o.pairTolA * a, minB = o.pairBody * a;
+      const pairBull = bear(i-1) && bull(i) && bd >= minB && body1 >= minB && Math.abs(b.open - bars[i-1].close) <= tol;
+      const pairBear = bull(i-1) && bear(i) && bd >= minB && body1 >= minB && Math.abs(b.open - bars[i-1].close) <= tol;
+      if (o.pairOn && (pairBull || pairBear) && notStrong && !(o.pairNoV && vbcF)){
+        const dir = pairBull ? 1 : -1, lv = (bars[i-1].close + b.open) / 2;
+        patterns.push({ kind:'PAIR', dir, i0:i-1, i1:i, top:lv, bot:lv, born:i, level:lv, uses:0, t0:bars[i-1].time, t1:b.time });
+      }
+    }
+    if (o.wfOn && i >= 1){
+      const rngC = b.high - b.low, bd = bodyAt(i);
+      const bodyPct = rngC > 0 ? bd / rngC * 100 : 0;
+      const wfBull = bull(i) && bear(i-1) && b.close > bars[i-1].high && bodyPct >= o.wfBodyP;
+      const wfBear = bear(i) && bull(i-1) && b.close < bars[i-1].low && bodyPct >= o.wfBodyP;
+      if (wfBull || wfBear){
+        const dir = wfBull ? 1 : -1;
+        if (!o.stFilt || state === 2 * dir){
+          const prev = bars[i-1], lv = dir === 1 ? prev.high : prev.low;
+          const wickBase = dir === 1 ? Math.max(prev.open, prev.close) : Math.min(prev.open, prev.close);
+          let top = Math.max(lv, wickBase), bot = Math.min(lv, wickBase);
+          const mh = aOk ? 0.05 * a : 0;
+          if (top - bot < mh){ if (dir === 1) bot = top - mh; else top = bot + mh; }
+          const i1 = Math.min(lastI, i + o.lineLen);
+          patterns.push({ kind:'WF', dir, i0:i-1, i1, top, bot, born:i, level:lv, t0:prev.time, t1:bars[i1].time });
+        }
+      }
+    }
+    for (let k = zones.length - 1; k >= 0; k--){
+      const z = zones[k];
+      const hit = z.dir === 1 ? b.low <= z.top : b.high >= z.bot;
+      const old = i - z.born >= o.hdbAge;
+      if (hit || old){
+        z.done = hit ? 'hit' : 'age';
+        z.fade = !hit;
+        z.i1 = i; z.t1 = b.time;
+        zones.splice(k, 1);
+      }
+    }
+    if (o.hdbOn && i >= 1 && aOk){
+      const dH = bull(i) && bull(i-1) ? 1 : bear(i) && bear(i-1) ? -1 : 0;
+      const bOk = bodyAt(i) >= o.hdbBody * a && bodyAt(i-1) >= o.hdbBody * a && Math.abs(b.open - bars[i-1].close) <= o.hdbTolA * a;
+      if (dH !== 0 && bOk){
+        const wkOk = !o.hdbWick || (dH === 1 ? b.low < b.open : b.high > b.open);
+        const wfOk = !o.hdbNoWF || (dH === 1 ? b.close <= bars[i-1].high : b.close >= bars[i-1].low);
+        const hlOk = !o.hdbHL || (dH === 1 ? b.low > bars[i-1].low : b.high < bars[i-1].high);
+        const stOk = !o.stFilt || (o.hdbStMode === 'strong' ? state === 2 * dH : state * dH >= 1);
+        if (wkOk && wfOk && hlOk && stOk){
+          let zT = dH === 1 ? Math.max(bars[i-1].close, b.open) : Math.max(bars[i-1].close, b.open, b.high);
+          let zB = dH === 1 ? Math.min(bars[i-1].close, b.open, b.low) : Math.min(bars[i-1].close, b.open);
+          const mh = o.hdbMinA * a;
+          if (zT - zB < mh){ if (dH === 1) zB = zT - mh; else zT = zB + mh; }
+          const z = { kind:'HDB', dir:dH, i0:i-1, i1:Math.min(n-1, i+1), top:zT, bot:zB, born:i, done:null, fade:false, t0:bars[i-1].time, t1:bars[Math.min(n-1, i+1)].time };
+          zones.push(z); patterns.push(z);
+        }
+      }
+    }
+    let brk = 0;
+    const rhB = hiLo(i, o.boxDet, 'h'), rlB = hiLo(i, o.boxDet, 'l');
+    if (bxTop == null){
+      if (rhB != null && aOk && (rhB - rlB) <= o.boxDetA * a && (i - o.boxDet + 1) > lastBrkBar){
+        const iBack = i - o.boxDet, iLeg = iBack - o.legLook;
+        const mvL = iLeg >= 0 ? bars[iBack].close - bars[iLeg].close : null;
+        bxLeg = mvL != null && mvL >= o.legAtr * a ? 'R' : mvL != null && mvL <= -o.legAtr * a ? 'D' : '-';
+        bxTop = rhB; bxBot = rlB; bxS = i - o.boxDet + 1;
+      }
+    } else if (aOk){
+      if (b.close > bxTop + o.brkBufA * a) brk = 1;
+      else if (b.close < bxBot - o.brkBufA * a) brk = -1;
+      else if (bxTop - bxBot > 2 * o.boxDetA * a){ bxTop = null; bxBot = null; bxS = null; bxLeg = ''; }
+      else { bxTop = Math.max(bxTop, b.high); bxBot = Math.min(bxBot, b.low); }
+    }
+    if (brk !== 0 && bxS != null){
+      const lab = bxLeg + 'B' + (brk === 1 ? 'R' : 'D');
+      const en = (lab === 'DBD' && o.dbdOn) || (lab === 'RBR' && o.rbrOn) || (lab === 'RBD' && o.rbdOn) || (lab === 'DBR' && o.dbrOn);
+      if (en && o.boxShow) patterns.push({ kind:lab, dir:brk, i0:bxS, i1:i, top:bxTop, bot:bxBot, born:i, t0:bars[bxS].time, t1:b.time });
+      lastBrkBar = i; bxTop = null; bxBot = null; bxS = null; bxLeg = '';
+    }
+  }
+  const liveRight = n - 1;
+  for (const z of zones){ z.i1 = liveRight; z.t1 = bars[liveRight].time; }
+  for (const p of patterns){
+    if (p.kind === 'PAIR'){
+      const lv = p.level; let uses = 0, inTouch = false, end = p.born;
+      const cap = Math.min(lastI, p.born + 48);
+      for (let j = p.born + 1; j <= cap; j++){
+        const hit = p.dir === 1 ? bars[j].low <= lv : bars[j].high >= lv;
+        if (hit && !inTouch){ uses++; inTouch = true; } else if (!hit) inTouch = false;
+        end = j;
+        if (uses >= o.pairMaxUses) break;
+      }
+      p.uses = uses; p.i1 = Math.max(p.i0, end); p.t1 = bars[Math.min(p.i1, n-1)].time;
+      if (uses >= o.pairMaxUses){ p.done = 'uses'; p.fade = true; }
+    } else if (p.kind === 'WF'){
+      let end = p.i1;
+      for (let j = p.born + 1; j <= Math.min(p.i1, lastI); j++){
+        const hit = p.dir === 1 ? bars[j].low <= p.level : bars[j].high >= p.level;
+        if (hit){ end = j; p.done = 'hit'; break; }
+      }
+      p.i1 = Math.max(p.born, end); p.t1 = bars[Math.min(p.i1, n-1)].time;
+    }
+    if (p.top < p.bot){ const t = p.top; p.top = p.bot; p.bot = t; }
+  }
+  const drawn = patterns.slice(-o.maxDraw);
+  return { state, patterns, drawn, latest: patterns.length ? patterns[patterns.length-1] : null, trace };
+}
+/* COACH_ENGINE_END */
+
+const COACH_TF = [ {k:'D', label:'D1', sec:86400}, {k:'240', label:'H4', sec:14400}, {k:'60', label:'H1', sec:3600}, {k:'30', label:'M30', sec:1800} ];
+const COACH = { raw:{ m30:null, h1:null }, res:{}, key:{}, html:'', busy:false, seq:0, on:true };
+const _d1c = new Map();
+function d1Start(t){
+  const hk = Math.floor(t / 3600); let ds = _d1c.get(hk);
+  if (ds === undefined){ ds = dayStartMs(new Date(t * 1000 + 1000)) / 1000; _d1c.set(hk, ds); if (_d1c.size > 5000) _d1c.clear(); }
+  return ds;
+}
+function aggD1(bars){
+  const out = [];
+  for (const b of bars){
+    const t = d1Start(b.time), l = out[out.length-1];
+    if (l && l.time === t){ l.high = Math.max(l.high, b.high); l.low = Math.min(l.low, b.low); l.close = b.close; }
+    else out.push({ time:t, open:b.open, high:b.high, low:b.low, close:b.close });
+  }
+  return out;
+}
+function coachStateInfo(st){
+  if (st === 2) return { cls:'up', th:'เทรนด์ขึ้นแรง', ar:'▲' };
+  if (st === 1) return { cls:'up', th:'ไซด์เวย์ขึ้น', ar:'▲' };
+  if (st === 0) return { cls:'side', th:'ไซด์เวย์', ar:'◆' };
+  if (st === -1) return { cls:'down', th:'ไซด์เวย์ลง', ar:'▼' };
+  if (st === -2) return { cls:'down', th:'เทรนด์ลงแรง', ar:'▼' };
+  return { cls:'na', th:'—', ar:'·' };
+}
+function coachBarsFor(k){
+  if ((k === '30' || k === '60' || k === '240') && N.tf === k && N.raw.length) return N.raw;
+  const shift = (rows) => rows.map(b => shiftBar(b, N.off));
+  if (k === '30'){
+    if (COACH.raw.m30 && COACH.raw.m30.length) return shift(COACH.raw.m30);
+    if (['1','5','15'].includes(N.tf) && N.raw.length) return aggregate(N.raw, '30');
+  }
+  if (k === '60'){
+    if (COACH.raw.h1 && COACH.raw.h1.length) return shift(COACH.raw.h1);
+    if (['1','5','15','30'].includes(N.tf) && N.raw.length) return aggregate(N.raw, '60');
+  }
+  if (k === '240'){
+    if (COACH.raw.h1 && COACH.raw.h1.length) return aggregate(shift(COACH.raw.h1), '240');
+    if (['1','5','15','30','60'].includes(N.tf) && N.raw.length) return aggregate(N.raw, '240');
+  }
+  if (k === 'D'){
+    if (COACH.raw.h1 && COACH.raw.h1.length) return aggD1(shift(COACH.raw.h1));
+    if (['1','5','15','30','60','240'].includes(N.tf) && N.raw.length) return aggD1(N.raw);
+  }
+  return null;
+}
+function coachSig(bars, sec){
+  if (!bars || !bars.length) return '0';
+  const now = Date.now() / 1000;
+  let iEnd = bars.length - 1;
+  while (iEnd >= 0 && sec > 0 && bars[iEnd].time + sec > now) iEnd--;
+  let h = bars.length * 131 + iEnd;
+  for (let i = 0; i <= iEnd; i++){
+    const b = bars[i];
+    h = (h * 33 + (b.time|0) + Math.round(b.open*10) + Math.round(b.high*10) + Math.round(b.low*10) + Math.round(b.close*10)) | 0;
+  }
+  return h + '|' + N.off;
+}
+function scanTf(k){
+  const bars = coachBarsFor(k);
+  const sec = k === 'D' ? 86400 : (TF[k] ? TF[k].s : 0);
+  if (!bars || bars.length < 20){ COACH.res[k] = null; COACH.key[k] = ''; return null; }
+  const key = coachSig(bars, sec);
+  if (COACH.key[k] === key && COACH.res[k]) return COACH.res[k];
+  let res = null;
+  try { res = coachScan(bars, { sec, now: Date.now()/1000 }); }
+  catch (e){ res = null; if (!COACH.err){ COACH.err = String(e && e.stack || e); console.error('coach', e); } }
+  COACH.res[k] = res; COACH.key[k] = key;
+  return res;
+}
+function coachOn(){ return !!COACH.on; }
+function renderCoachPanel(){
+  const el = $('nasCoachPanel'); if (!el) return;
+  const view = ['30','60','240'].includes(N.tf);
+  let html = `<div class="coach-head"><span class="coach-title">รูปแบบโค้ชน้ำ</span><span class="tr-sum">${view ? 'กล่องบนกราฟ = ' + (TF_LABEL[N.tf] || N.tf) : 'เปิด M30 / H1 / H4 เพื่อวาดกล่องบนกราฟ'}</span></div><div class="coach-row">`;
+  for (const tf of COACH_TF){
+    const res = COACH.res[tf.k], st = coachStateInfo(res ? res.state : null), pat = res && res.latest;
+    const cls = pat ? (pat.dir === 1 ? 'up' : 'down') : st.cls;
+    const side = pat ? (pat.dir === 1 ? 'BUY' : 'SELL') : '';
+    const patTx = pat ? `${pat.kind} ${side}` : 'ยังไม่มีรูปแบบ';
+    const tip = `${tf.label}: ${st.th}` + (pat ? ` · ล่าสุด ${pat.kind} ${side} ${fmt(Math.min(pat.top, pat.bot), 1)}–${fmt(Math.max(pat.top, pat.bot), 1)}` : '') + (res ? ` · ${res.patterns.length} รูปแบบ` : '');
+    html += `<div class="coach-chip ${cls}" data-tf="${tf.k}" data-state="${res && res.state != null ? res.state : ''}" data-pat="${pat ? pat.kind : ''}" data-dir="${pat ? pat.dir : ''}" data-n="${res ? res.patterns.length : 0}" title="${esc(tip)}"><small>${tf.label}</small><b>${st.ar} ${st.th}</b><span class="pat">${patTx}</span></div>`;
+  }
+  html += '</div>';
+  const drawn = view && COACH.res[N.tf] && COACH.res[N.tf].drawn ? COACH.res[N.tf].drawn.length : 0;
+  if (html === COACH.html && el.dataset.drawn === String(drawn)) return;
+  COACH.html = html; el.innerHTML = html; el.dataset.drawn = String(drawn); el.dataset.tf = N.tf;
+}
+function refreshCoach(){
+  for (const tf of COACH_TF) scanTf(tf.k);
+  renderCoachPanel();
+}
+async function loadCoachHist(){
+  const f = N.feed; if (!f || !f.history || COACH.busy) return;
+  const seq = ++COACH.seq, name = f.name;
+  COACH.busy = true;
+  try {
+    const [m30, h1] = await Promise.allSettled([
+      withTimeout(f.history('30', 700), 12000),
+      withTimeout(f.history('60', 1000), 15000),
+    ]);
+    if (seq !== COACH.seq || !N.feed || N.feed.name !== name) { COACH.busy = false; return; }
+    if (m30.status === 'fulfilled' && Array.isArray(m30.value) && m30.value.length) COACH.raw.m30 = m30.value;
+    if (h1.status === 'fulfilled' && Array.isArray(h1.value) && h1.value.length) COACH.raw.h1 = h1.value;
+    COACH.key = {};
+  } catch (e) {}
+  COACH.busy = false;
+  refreshCoach(); if (typeof drawZones === 'function') drawZones();
+}
+function wireCoach(){
+  const el = $('nasTgCoach'); if (!el) return;
+  COACH.on = LS.get('nas_coach_on', true) !== false;
+  el.checked = COACH.on;
+  el.onchange = () => { COACH.on = el.checked; LS.set('nas_coach_on', COACH.on); drawZones(); };
+}
+function paintCoach(ctx, paneW, paneH){
+  if (!coachOn() || !cs || !chart || !N.raw.length) return;
+  if (!['30','60','240'].includes(N.tf)) return;
+  const res = COACH.res[N.tf]; if (!res) return;
+  const st = coachStateInfo(res.state);
+  ctx.save();
+  ctx.font = '600 12px "IBM Plex Sans Thai", sans-serif';
+  const badge = 'สภาวะ ' + (TF_LABEL[N.tf] || '') + ' ' + st.th;
+  const tw = ctx.measureText(badge).width;
+  ctx.fillStyle = 'rgba(13,16,22,0.78)';
+  ctx.fillRect(8, 6, tw + 14, 18);
+  ctx.fillStyle = st.cls === 'up' ? '#089981' : st.cls === 'down' ? '#f23645' : '#9aa3b5';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(badge, 15, 15);
+  const ts = chart.timeScale(), n = N.raw.length;
+  const xOf = (i) => {
+    if (i < 0 || i >= n) return null;
+    let x = null;
+    try { if (typeof ts.logicalToCoordinate === 'function') x = ts.logicalToCoordinate(i); } catch (e) {}
+    if (x == null && N.raw[i]) { try { x = ts.timeToCoordinate(N.raw[i].time + TH_OFF); } catch (e) {} }
+    return x;
+  };
+  const stepOf = (i) => {
+    const a = xOf(Math.max(0, Math.min(n - 1, i)));
+    const b = xOf(Math.max(0, Math.min(n - 1, i + 1)));
+    if (a != null && b != null && b !== a) return b - a;
+    const c = xOf(0), d = xOf(Math.min(n - 1, 1));
+    if (c != null && d != null && d !== c) return d - c;
+    return 8;
+  };
+  for (const p of res.drawn || []){
+    if (!isFinite(p.top) || !isFinite(p.bot)) continue;
+    const i0 = Math.max(0, Math.min(n - 1, p.i0|0)), i1 = Math.max(i0, Math.min(n - 1, p.i1|0));
+    let x0 = xOf(i0), x1 = xOf(i1);
+    const step = stepOf(i1);
+    if (x0 == null && x1 == null){
+      const anchor = xOf(n - 1); if (anchor == null) continue;
+      x1 = anchor - (n - 1 - i1) * step; x0 = anchor - (n - 1 - i0) * step;
+    } else {
+      if (x0 == null) x0 = x1 - (i1 - i0) * step;
+      if (x1 == null) x1 = x0 + (i1 - i0) * step;
+    }
+    const left = Math.min(x0, x1) - Math.abs(step) / 2, right = Math.max(x0, x1) + Math.abs(step) / 2;
+    if (right < 0 || left > paneW) continue;
+    const yA = cs.priceToCoordinate(p.top), yB = cs.priceToCoordinate(p.bot);
+    if (yA == null || yB == null) continue;
+    const minH = (p.kind === 'PAIR' || p.kind === 'VBC') ? 8 : 5;
+    let top = Math.min(yA, yB), h = Math.abs(yB - yA);
+    if (h < minH){ top -= (minH - h) / 2; h = minH; }
+    const buy = p.dir === 1, col = p.fade ? '#9aa3b5' : (buy ? '#089981' : '#f23645');
+    const fillA = p.fade ? 0.10 : 0.22, lineA = p.fade ? 0.45 : 0.85;
+    ctx.beginPath();
+    ctx.fillStyle = hexA(col, fillA); ctx.strokeStyle = hexA(col, lineA);
+    ctx.lineWidth = 1.25; ctx.setLineDash(p.kind === 'HDB' || /^.[B].$/.test(p.kind) ? [] : [4, 3]);
+    ctx.fillRect(left, top, Math.max(2, right - left), h);
+    ctx.strokeRect(left + 0.5, top + 0.5, Math.max(2, right - left) - 1, Math.max(1, h - 1));
+    ctx.setLineDash([]);
+    ctx.font = '700 11px "JetBrains Mono", ui-monospace, sans-serif';
+    const text = p.kind, lw = ctx.measureText(text).width;
+    let tx = Math.max(4, Math.min(left + 3, paneW - lw - 8));
+    let ty = top - 3; if (ty < 28) ty = top + h + 11; if (ty > paneH - 4) ty = Math.max(28, top + 11);
+    ctx.fillStyle = 'rgba(13,16,22,0.78)'; ctx.fillRect(tx - 3, ty - 9, lw + 6, 14);
+    ctx.fillStyle = col; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, tx, ty - 2);
+  }
+  ctx.restore();
+}
+function hexA(hex, a){
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+window.__AITD_COACH = { scan: coachScan, scanTf, barsFor: coachBarsFor, get: () => COACH };
+
 /* ---------------- zone bands on the overlay canvas (same drawing as gold) ---------------- */
 function drawZones(){
   if (NSW) NSW.refresh();
+  refreshCoach();
   const cv = $('nasCanvas'), wrap = $('nasZoneView');
   if (!cs || wrap.classList.contains('hidden')) return;
   const dpr = window.devicePixelRatio||1, W = wrap.clientWidth, H = wrap.clientHeight;
@@ -335,7 +727,6 @@ function drawZones(){
   const col = {resistance:[239,83,80], support:[38,166,154], pivot:[240,180,41]};
   const TAG = {resistance:'แนวต้าน', support:'แนวรับ', pivot:'Pivot'};
   ctx.save(); ctx.beginPath(); ctx.rect(0,0,paneW,paneH); ctx.clip();
-  NVP.draw(ctx, paneW, paneH);
   const used = [];                                             // label y positions already taken (bands can sit close together)
   for (const z of [...zonesArr()].sort((a,b)=>b.zone[1]-a.zone[1])){
     const y1 = cs.priceToCoordinate(z.zone[1]), y2 = cs.priceToCoordinate(z.zone[0]);
@@ -351,6 +742,7 @@ function drawZones(){
     used.push(ly);
     ctx.fillText(`${TAG[t]||t} ${fmt(z.level ?? (z.zone[0]+z.zone[1])/2)} · ${z.label||''}`, 8, ly);
   }
+  try { paintCoach(ctx, paneW, paneH); } catch (e) { if (!COACH.err){ COACH.err = String(e && e.stack || e); console.error('coach paint', e); } }
   if (NSW) NSW.paintBack();
   if (NSW) NSW.paintMarks(ctx, paneW, paneH);
   if (NSW) NSW.paint(ctx);
@@ -420,12 +812,13 @@ function setTF(tf){
 function start(){
   document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>setView(b.dataset.nview));
   document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===N.tf); b.onclick=()=>setTF(b.dataset.tf); });
-  wireCal(); NVP.wire(); initChart(); setView(N.view); loadZones();
+  wireCal(); wireCoach(); initChart(); setView(N.view); loadZones();
   NKL.wire(); loadKL(); setInterval(loadKL, 600000); setInterval(NKL.render, 15000);   // distance + H1 breakout hint
   // gold first: start NAS when the gold chart has painted, or after 1 s at most
-  Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(()=>{ loadFeed(); NVP.start(2500); });   // VP after the NAS candles
+  Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(()=>{ loadFeed(); });
   setInterval(renderBadge, 2000);
   setInterval(resyncTail, 60000);
+  setInterval(()=>{ if (N.feed) loadCoachHist(); }, 60000);
   NTR.start();
   setInterval(()=>{                                        // follow the XYZ100 premium (live offset), unless the user set their own
     if (!N.feed || N.feed.name!=='hl' || N.loading || userOff('hl')!=null) return;
@@ -435,5 +828,5 @@ function start(){
   setInterval(loadZones, 600000);
 }
 start();
-window.__AITD_NAS = N; window.__AITD_NVP = NVP; window.__AITD_NTR = NTR; window.__AITD_NKL = NKL;
+window.__AITD_NAS = N; window.__AITD_NTR = NTR; window.__AITD_NKL = NKL;
 })();

@@ -285,6 +285,22 @@ input::placeholder{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;co
 .swing-sum .tag{font-family:'IBM Plex Sans Thai',system-ui,sans-serif}
 .swing-sum .up{color:var(--green)}.swing-sum .down{color:var(--red)}.swing-sum .side{color:#9aa3b5}
 .swing-note{font-size:11.5px}
+.coach-panel{margin-top:8px}
+.coach-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:6px}
+.coach-title{color:var(--gold2);font-weight:600;font-size:13.5px}
+.coach-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.coach-chip{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 4px;border-radius:8px;background:#141821;border:1px solid var(--line);min-width:0;text-align:center}
+.coach-chip small{font-family:var(--mono);font-size:11px;color:var(--mut)}
+.coach-chip b{font-size:12.5px;font-weight:700;color:#9aa3b5}
+.coach-chip .pat{font-family:var(--mono);font-size:11.5px;font-weight:700}
+.coach-chip.up{background:rgba(8,153,129,.10);border-color:rgba(8,153,129,.40)}
+.coach-chip.up b,.coach-chip.up .pat{color:#089981}
+.coach-chip.down{background:rgba(242,54,69,.10);border-color:rgba(242,54,69,.40)}
+.coach-chip.down b,.coach-chip.down .pat{color:#f23645}
+.coach-chip.side b{color:#9aa3b5}
+.coach-chip.na b,.coach-chip.na .pat{color:var(--mut)}
+.coach-note{font-size:11.5px}
+@media(max-width:520px){.coach-row{grid-template-columns:1fr 1fr}}
 .pd-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 .lw{z-index:1}
 

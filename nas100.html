@@ -64,20 +64,14 @@
     <div class="swing-bar" id="nasSwingBar">
       <label class="swing-tg"><input type="checkbox" id="nasTgSwing" checked> Swing Finder (RSI)</label>
       <label class="swing-tg"><input type="checkbox" id="nasTgPd" checked> Premium/Discount + Fibo</label>
+      <label class="swing-tg"><input type="checkbox" id="nasTgCoach" checked> รูปแบบโค้ชบนกราฟ</label>
       <div class="swing-sum" id="nasSwingSum" aria-live="polite">กำลังคำนวณจุด swing…</div>
     </div>
+    <div class="coach-panel" id="nasCoachPanel" aria-live="polite"><div class="sub">กำลังคำนวณรูปแบบโค้ช…</div></div>
+    <div class="sub coach-note">รูปแบบโค้ชน้ำ (HDB, WF, PAIR, VBC, DBD/RBR/RBD/DBR) คำนวณจากแท่งบนกราฟนี้ · D1/H4 ดูทิศ · H1/M30 ดูจุดเข้า · กล่องเขียว = BUY กล่องแดง = SELL แสดงประมาณ 10 รูปแบบล่าสุดของ TF ที่เปิดอยู่ (M30, H1, H4) · PAIR ใช้ได้ไม่เกิน 3 ครั้ง</div>
     <div class="sub swing-note">Swing Finder (RSI 7, 70/30) — จุด swing ล่าสุดยังขยับได้จนกว่า RSI จะข้ามไปอีกฝั่ง ไม่ใช่สัญญาณ Buy/Sell สำเร็จรูป</div>
     <div class="sub swing-note" id="nasPdNote">Premium/Discount วัดจากสวิง H1 ล่าสุดที่ยืนยัน · Buy ในโซน Discount, Sell ในโซน Premium · 1.618 เป็นเป้าไกล ใช้เป็นแนวทาง ไม่ใช่สัญญาณ</div>
     <div class="trend" id="nasTrend" aria-live="polite"></div>
-    <div class="opt-toggles vp-toggles" id="nasVpToggles">
-      <label><input type="checkbox" id="nasTgVp"> <i class="sw vp"></i>Volume Profile</label>
-      <select id="nasVpPeriod" class="vp-sel" aria-label="ช่วงเวลา Volume Profile NAS100">
-        <option value="today">วันนี้ (ตั้งแต่ 17:00 NY)</option><option value="asia">ตั้งแต่เปิดเอเชีย 07:00</option><option value="h24">24 ชม.ล่าสุด</option><option value="week">สัปดาห์นี้</option>
-      </select>
-      <span class="okey"><i class="k poc"></i>POC <i class="k va"></i>VAH/VAL (70%)</span>
-      <span class="vpinfo" id="nasVpInfo">กำลังโหลด…</span>
-    </div>
-    <div class="sub vp-note">Volume Profile NAS100 = ปริมาณซื้อขายของสัญญา perp บนกระดานคริปโต: <b>OKX US100-USDT</b> → สำรอง <b>Bitget NDX100USDT</b> (ขอพร้อมกัน ใช้ตัวแรกที่ตอบ) · เลื่อนราคาให้ตรงแท่งเทียนบนกราฟ ซึ่งปรับเป็นราคา Skilling แล้ว (รวมค่า “ปรับให้ตรง MT5”) · ช่องละ 5 จุด · <b>volume ของ perp NAS บนคริปโตมีน้อยมาก ใช้ดูคร่าว ๆ ว่าราคาวนอยู่ตรงไหน ไม่ใช่ volume ตลาดจริง/โบรกเกอร์</b> · อัปเดตทุก 1 นาที</div>
     <div class="nas-guard" id="nasGuard">—</div>
     <details class="nas-lv" id="nasLvBox"><summary>ระดับอ้างอิง NAS100 <small id="nasDate"></small></summary>
       <div class="zones nas-zones" id="nasZones"><div class="sub">กำลังโหลด nas_zones.json…</div></div>
@@ -146,7 +140,7 @@
   แท็บ TradingView: SKILLING:US100 (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) · โซน: แท่งรายวันดัชนี ^NDX (Yahoo Finance) −5 จุด ·
   ระดับออปชัน + ±1SD: <a href="https://www.cboe.com/delayed_quotes/qqq/quote_table" target="_blank" rel="noopener">Cboe delayed quotes (QQQ, _NDX)</a> (ข้อมูลรายวัน, proxy ไม่ใช่ CME) ·
   ปฏิทินข่าว: ForexFactory (ข่าวแรงสหรัฐ) · หัวข้อข่าว: Google News RSS (Nasdaq/หุ้นเทค/Fed, Reuters/CNBC ผ่าน Google News), investingLive — ลิงก์ไปยังต้นฉบับ ·
-  Volume Profile: perp NAS บนกระดานคริปโต (ประมาณการ) · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
+  รูปแบบโค้ชน้ำ: คำนวณจากแท่งบนกราฟ (HDB / WF / PAIR / VBC / DBD·RBR·RBD·DBR) · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
   <p>ราคาบนเว็บอาจต่างจากราคาโบรกเกอร์ของคุณเล็กน้อย · ข้อมูลเพื่อประกอบการตัดสินใจเท่านั้น ไม่ใช่คำแนะนำการลงทุน</p>
   <p class="muted">AiTD Gold Live · NAS100 · <span id="buildInfo"></span></p>
 </footer>

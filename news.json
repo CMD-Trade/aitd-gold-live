@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-05T03:40:48+07:00",
+ "generated_at": "2026-11-05T12:30:33+07:00",
  "note": "หัวข้อข่าวและลิงก์จาก RSS สาธารณะเท่านั้น · หมวดและ ทองบวก/ทองลบ/กลาง ติดอัตโนมัติจากคำในหัวข้อ (keyword) ไม่ใช่บทวิเคราะห์",
  "sources": [
   {
@@ -7,7 +7,7 @@
    "name": "Google News (gold)",
    "ok": true,
    "parsed": 100,
-   "fresh": 51,
+   "fresh": 49,
    "used": 10
   },
   {
@@ -15,7 +15,7 @@
    "name": "Google News ไทย (ราคาทอง)",
    "ok": true,
    "parsed": 100,
-   "fresh": 93,
+   "fresh": 92,
    "used": 8
   },
   {
@@ -23,7 +23,7 @@
    "name": "Google News (Fed)",
    "ok": true,
    "parsed": 32,
-   "fresh": 5,
+   "fresh": 7,
    "used": 5
   },
   {
@@ -31,7 +31,7 @@
    "name": "Reuters (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 12,
+   "fresh": 14,
    "used": 5
   },
   {
@@ -47,7 +47,7 @@
    "name": "FXStreet (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 55,
+   "fresh": 56,
    "used": 4
   },
   {
@@ -69,7 +69,7 @@
    "name": "investingLive (ForexLive) RSS",
    "ok": true,
    "parsed": 25,
-   "fresh": 8,
+   "fresh": 4,
    "used": 4
   },
   {
@@ -91,6 +91,327 @@
  ],
  "items": [
   {
+   "title": "พุ่งขึ้นจนตกใจ!! ราคาทองวันนี้ 5 พ.ย.69 | มุมข่าว",
+   "source": "LINE TODAY",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE9ueWdSTUpyVVh3ckdkbERSUnkzdjlzdVRiSm93YUwwempMREphZ2ZEXzNGQW5BV3FVREZvTkpUMlkyWTlIN1lQQXB1X1lreEgtOTlZZWpNb1pqcDhGa2k0TldmY2VuWEEyOHJJWXVqWnRleXd0TFpMSHRHUF9MdGM?oc=5",
+   "published": "2026-11-05T12:28+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ราคาทองไทย"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "สรุปแนวโน้มราคาทองคำและกลยุทธ์ลงทุนวันนี้ 5 พ.ย.2569",
+   "source": "goldaround.com",
+   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQYzBxbnI3aFBwQmhSWXpzMFVtR21MeDBRU0hYalA5bGRHZjlrdnBNMzVpUVBDdGszMndzR1IwTG9kc1FEczN5QTVJVzRzcTZHNGJOakVwTDVBTWRNWDhUY0k1ZVNueWRXZ2dpa3FqemcxLUVYSG8xV2tnSTg4WHI0dms4YVNvNFN6XzRGOW9NVnZiNlU?oc=5",
+   "published": "2026-11-05T12:12+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "Gold (XAU/USD) Price Forecast: Post-Election Rally Tests Critical Resistance",
+   "source": "FXEmpire",
+   "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPU3A1ZmVmS0FoNWo2cFFEX3Y4TzgwSGdkV3lRUnNsM3BTaDM3ZDZHbFhoNDFCLThFVjdxVV9NdGFfaUktdG9CdmstSUtqcDdlcXl6WEgtbm5tLThrZ0RPZzBWZ1RCcFgzbXlFcUM2NjN5WVZSY0lWV1lOOVdERHEwa2NwaFphYlRKVVpMdUFzdkY4NWdhQk5NYk1waWU2SlBuV0stRzBGSHNBME5Xc0hSSnZTN0lZZnhucE9qLV96bE42QQ?oc=5",
+   "published": "2026-11-05T12:06+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold prices jump Rs 6,500/10 gram in 2 days; silver soars Rs 11,200/kg as soft dollar, fall oil boost mood",
+   "source": "The Economic Times",
+   "link": "https://news.google.com/rss/articles/CBMiqAJBVV95cUxQaVdHOW5KeDdSVWIzQzZldURoZVhwdW5VSlQxMUpCUVdJSEo0RklOb1JPVzVSZmEtd25adm9rSktrU0ltQTNLbHotdXhlM2hEVnZHN2RQTzhLTnR2N1lRUFpvQmQ5MVNEckZhTkw1aE14RFBEbC0yaS1lcVZPaDJoZ2Vvb3NuX1JzZE1OVVdRaGdXT1U1TTVkdVJvSks2TlpGMGhReUxmX2l0VUt2YktxSXQ3ZVozTnFMdjJNQlhUeFNrYnQ1OU9CakJ0S3RJRDlEZXM0TEtNLTItSHJNVk1mSnRUcFp4WHB6WVA2d3VJNFJ4c2tYT182ZV9JY3JPWWNreDdhQWRsLXRyekxYNmd0XzdPZDVrUllDRWFnTnhzdjd5TUhBa1g0Y9IBrgJBVV95cUxNV2FfVUtCd3JjMXdtMF9qcG1Ra0xCR1NpOTVjaGdKNzN3ak9CYk5PYlMxS2FfVm1vWUFHRE9KY2RQQUExRndUZnA4NndQS05lellWMDU1QmNvblZHdGVObnVxV3p1MXRhdXdyTjhtNEE4eFp5dXcxZ0JxRjdrY011NkFIU21aSlExeFdScmFESkNPdEZwVzlQQTZ5V0t4SWNla3hNTkVNaGtmaHN4NjZlSWNWWWFlNjhJVHJ3a0RuUkVpcjMxSTdfNUU4WUdCdzdDWm96YzhjSFJBdk5pQU1MN1NOa2UxaVE0MHFsdjN5dXh1SFZlaTMwU2NWYTI1eEt2c1FuSXRKUmctZ0tfcm5pZkxlaGdXX0FGdlZjek0xYzRWZ1ZqQXhkdkxKRVpYQQ?oc=5",
+   "published": "2026-11-05T12:02+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ดอลลาร์/บอนด์"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "วิเคราะห์ราคาทองคำวันนี้ 5-11-26 By Ausiris",
+   "source": "GoldAround.com",
+   "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOZEtfRzl3c1BxS0lfdU9ZN2l6OVV0X2w2TmotWTBMcWprX1J4OVBSRnY3TDdRcGxFRGxQeEluNFM2ZzhRTy1ONXhBcjZUMlpubVFvZlcwR2VZT284Z3B6dzNLSHFEUjNibEFlLVFiRVd3cU84MW91ZER6NWdGaFlJTC1DMnBYWEJDZnpZZUQ5ZG1BZzF0WnpmNld5Ukt6d01peFQzaUNSdkU?oc=5",
+   "published": "2026-11-05T11:50+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "investingLive Asia-Pacific market news: Gold rocketed higher still",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/news/investinglive-asia-pacific-market-news-gold-rocketed-higher-still/",
+   "published": "2026-11-05T11:39+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "ราคาทองวันนี้ ครึ่งวันเช้า 5 พ.ย. 69 พุ่งรวม 1,050 บาท เช็กราคาทองล่าสุด",
+   "source": "Sanook",
+   "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTFBoVW5uaTVGd0hvSGhNZGJKOW1kaTlQM0JkTU5aOGhDdmY3eXVlOEdHRG1UdWNJWWxGcnhsLTRtTWdyMFl5MEpJdG5TdWk?oc=5",
+   "published": "2026-11-05T11:37+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ราคาทองไทย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "ราคาทองวันนี้ (5 พ.ย. 69) พุ่งขึ้น 1,100 บาท ทองรูปพรรณบาทละ 66,300 บาท",
+   "source": "ประชาชาติธุรกิจ",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5ja2ZYQlhKSUc3aVliLWp5SG5GOHNsenM1Ym9MenRMS0dfa21pdjJITUlrV0ZWUENHZEE5bkpxQ01hYkxQNG9NX2ZCT0Z1U2dVelpMbnBlNmFMWHM?oc=5",
+   "published": "2026-11-05T11:15+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ราคาทองไทย"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "ราคาทองครึ่งสลึงวันนี้ 5 พฤศจิกายน 2569 อัปเดตล่าสุด \"ราคาทองรูปพรรณ\" กี่บาทแล้ว",
+   "source": "thairath.co.th",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE05SmhpQmFMQUJZMmxtX3p0T2ZCOS1jeXpVOVNWTWJ6NXVRcTFvTUlfdWxCRTdzX3dFZnFPcGMxR0RGTkVBTE9kU0ZQVnZNMS12Q3NSbWF5YjRpaWM?oc=5",
+   "published": "2026-11-05T11:12+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ราคาทองไทย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold Futures : บล.โกลเบล็ก ราคาทองวันนี้ 4,139.33 $/ ทรอยออนซ์",
+   "source": "bangkokbiznews",
+   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9uakxPLUFEbENZV2Q1Ty1TY2Nibk1wQWZ5MHNzVlJhekxpemNkekhXcUJaVzNVeUo0Z0VWdTYyVlFySFljT1ZFLUFuN1ZqNmswY3NCR0FpZ0lETjFSYXkyTERlYUc?oc=5",
+   "published": "2026-11-05T11:10+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ราคาทองไทย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Silver Price Forecast: XAG/USD rises to near $53.00 amid election shift, weaker US Dollar",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQWnZyNHZVU29VclRmVkdzeF9rbGJ0T2tKUmphMGJPUkdSZzVsNU1POGtFS0lwVnpUYTBNY3ZpMkY3UHg3UFdtdHhnX0tBdGhhNnNNSklQbm56VllFbllDS0JvMnoxYjRma0owMXBxZ2FNVUdubU54RlR2T3ZFcjNGMHJUZVI4VlF1eVQ2Uml2YnhBb0cxcXJXNjBST1BaeHBNeVVEamhsUHp3SHFNLVgtNFd2c0xabHNzWXVBdW8zS1BseUcwVnc0?oc=5",
+   "published": "2026-11-05T11:05+07:00",
+   "feed": "gn_fxstreet",
+   "tags": [
+    "ดอลลาร์/บอนด์",
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold extends post‑election rally on USD weakness and softer bond yields",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOd0dlMmhBWmNUMkhIZHh2ZFNfd1R1ME1LeVlWSDlWYmNFcGhMZDRQeU1oYWpnTGo5elNya1VDZ01VSnE5OE52dXp5aThwam5ORWE0NWhxZkw3aTQ3ZGNoUUpWT3F4dFV3X0l0Wll1WlZBdVd6RlJfeGNrM1RaWV82eEMtTzRldzZlRndWNHVfT2JCNlNKTi1lZjJhd2gwUXUzM1lxMGgtY0xyMjBFUDVCQi1YRkw?oc=5",
+   "published": "2026-11-05T10:52+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ดอลลาร์/บอนด์"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "ETMarkets Commodity Talk| A 10% allocation to gold and silver? Motilal Oswal's Manav Modi explains the com",
+   "source": "The Economic Times",
+   "link": "https://news.google.com/rss/articles/CBMirgJBVV95cUxPN0dhdjNaV3d5RW9rTnRJZEJPYVR4azhRcEQtNklCVENpaXVpNkdxV1NaS01lUkM4dlh0U1N6NjM3bnk5aUF4VjhQMTdOSnFNU3NVNlJuNXBlUGlFR21jYVg0aV9RWUhhNEJrSVBXeEFMTnNrODJ0SHFyVGZuaExsZXV1TkRtdHZYc1pLeXVqVThVQlpVcjh0cTJzdy1MWnItenJ1QnlUZl9GSzlKRWtkMkJ1dEhoVXh5SzRGTjdsZ2x4NkVqNjRDSnZlcF9qanJMMU9GZzQ3UWUtLTJweDhDdXF4NVJPcF9YRkNJY0MyRy1BU0VvNGlDNWlOTHZxamVfQ1BENTh3WmtrQk5vRERvYndyMTlWMG5iV25GWFptTUxLR1NjVnZxeVZJUTZ1d9IBpwJBVV95cUxPZEwxZTZucnVWOUhGYjlvbm8yd3Zwc0Jhc0k2Z1ZfSTFob0NmR21rN1lkZ09fRnR6Znk3R1Z4Q1otMGg1eTlWMk9yQ1VOZnJBTHg2ZG5FWnc2MTVfaWNTQkhGZV9EQlF2QWR5V0FwR2dOaWxoZHNKUHVteDZYdGtpQUN5ZW1Eb2xOQm9EV1RUWElvbHpEcHRQMnJVaVZTOGhuWXdLTmRoREpwamZoR1ROM3A0UDlfTzJSb1BHVE9tdldkY1FlYll2NUhRVkg2Yk1YSU1rWEJuc053eW5LTTZ6dm5EY0t6UHpsdHRRamJJQ19fNkFCQ083b2ZZTm5feGtsQWV4NThkT0VZSlhyRFBWNVhSdTVUSExOalZwNXgtdUxsWVhHQzBr?oc=5",
+   "published": "2026-11-05T10:52+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "บทวิเคราะห์ราคาทองคำประจำวันที่ 05 พฤศจิกายน 2569",
+   "source": "InterGold",
+   "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE41N25TYzN6UEszVWtmZnowQmk5SUdSSkdBMWsxN0R3Smd1T25yUWdUWS1jd1NPb3JtYjR3VTZzcHBpTDdXVWdiREhLTVBRWHVtLWt3Q3BwLWNLd2pHaDYwR2ktSzJjaWQ3Z0ktenhB?oc=5",
+   "published": "2026-11-05T10:52+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold Price Forecast: XAU/USD extends rally as Democrats’ victory weakens US yields",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQQ0RyZVZVbS0wT0JnSXhHYU9NT1Yxd0gxTVBkV2g5Y0toYXNtcEZqZnlES0I5ZmhIdnJyR1V6ZlYtakJhc1BBRUx0VFpKcWFZeVpVRjB5NFFQXzgzR1dlNTJNQXJLUTdYNzhwQk50TlhFQWEzeEE2V0RWdU1OdDZmZTBDMFU1OGtEd20tSVBtOXdaT09xYkF4NTZ4a1J5bTFBaHR2X1JuYzR6UWg5UHVSdFppbFJVRWFybWpLdnNucXJiMnVEeUE?oc=5",
+   "published": "2026-11-05T10:49+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ดอลลาร์/บอนด์",
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold hits a two-week high as dollar, Treasury yields ease after US midterm elections",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPRGw2bTVBSnBUN1BZcDhwQ0dVSmFIUVhDdGZLazVPNnV2NG5iYkVxXzg5QmRyY21IOWZOcFVRVXJBSU5PT1pXQWh3UHVmVWxhSm15bVh2NTVQZzJGVHpPT2dSSHc2NXlaLUYyQmVGX24xdW84cVN2NXpGcUhGZ0xrNDZSODR1NDNtNW9vc2JJSUVRcGZIMkprZHNONm4wN2VxUzdBX3B1NWxxcDBsWjNnZ05tUzdMRHJNaEJja2oxNC1QLWQt?oc=5",
+   "published": "2026-11-05T10:46+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ดอลลาร์/บอนด์"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "Gold price prediction: Will gold rally on Thursday after midterm election result? Check outlook for Novemb",
+   "source": "The Economic Times",
+   "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxOeWtQVEplLThOeVc5bWRpNEdOa3FMMElFMU1XQ0NWcWw2Z1RDVEkwNjdGTnhjZmNSYjd6YnVGemVqekk1ejFRQjQ0NE5fNEhFY3UyMENyRlotTVNjRGRqWmNpV3g0aGxUdy10VE1qckc2TXVDZEhFQllPWlVESHNGX2tnaEhZZEtxRGk0MVRadDZNV1NMOHVEMkcwVklpcFUzMVJlY0NaVTYxT1dKVE8zdzJWQVkxaGNGTUlaeE0tdnc1Nk5Uakp6MHEwVTVTaHNsd0liZU5OYWlLSlFZQUFuYTRtakhuYzFuTmhYYUFSZmxPWjF4STYwMzBLR09sb05fdHBfekd2QlYtZ1p0ZUlBc0o1SHJCZ9IBmwJBVV95cUxNMWhUMkFDNXI1bXlqRjFuRExDVGd1RzBrckdMSUZFQUx6SmZ2Z2dOZ0R1RFJHYTBFTUJwVlhvREIzUXpGUlQ1bnhxWjRfaE96dGRnTnAwaUJzSERNZi1vTHlCcHN6d2ZTaW5UQzBMNUZ5TzV0dGVzQ0NNM19SMTZDc2xaMk9JNXR6cFRFa3FfWEZEdTBDejRPY2RSSWFHN3dvd2RXeEtSTFU5emwtNWlGdnp3Z3dkLWRNbndVUlMyX01IVzN3ZXN3djNSRGg0NzhXckNYM3Jpa1Rna01SR19LV2dLWE1ieW9HRjBjd3c0WVdPSDRkZVhrSVM2c0lEb3JjeC1DRmVDRjA0Z2FWM1VSbEtLcXExbDljdHZR?oc=5",
+   "published": "2026-11-05T09:37+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "Gold jumps as oil slumps on Iran diplomacy hopes, an early test of Citi’s thesis",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/commodities/gold-jumps-as-oil-slumps-on-iran-diplomacy-hopes-an-early-test-of-citi-s-thesis/",
+   "published": "2026-11-05T09:12+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "ภูมิรัฐศาสตร์"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "Gold price soars after Democrats sweep US midterm elections",
+   "source": "Mining.com.au",
+   "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOTmRyel9vZVU2TXQ2TmZwYldfWEk0UjFCMzFYTVlTTWR5Z1NuUWhqMEdFYkRabmZCZDRMSzBlVFItVFNZLWJFSURnZl9KNWRBRlE3dDZ5blVBX3ZqakI5cE1ZN1d1ZXlObWxlVU5LZDRBRFlRakdNdEM2bWpmU3M4cDZNRmRTUC1fSWc?oc=5",
+   "published": "2026-11-05T08:37+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "Dollar edges lower as US election outcome cheers global markets",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOS3ZvRzF1aTlTZE9WT0NxYkU4TWFHTi04YnhEVXd1VTJRTXdibGtPdGZtTWkwZEVBLU0xNmtZaEc4R2lWZWVSdGJtY1FSdzhIazR5a2YwdDJoRzFFTHN1Z2FNb2l5b2x5SllyTE9sTTZTNkxFODFJVkhxOGhlblRTXzNiLTZpc3FKcXBqRzZUMjYtY3VXOHlnR0hPOFFYTldZaXpzSGNTbzlPNlhUdHF1amJTcFp1dw?oc=5",
+   "published": "2026-11-05T08:06+07:00",
+   "feed": "gn_reuters",
+   "tags": [
+    "ดอลลาร์/บอนด์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "GOLD ROYALTY REPORTS RECORD THREE AND NINE-MONTH RESULTS WITH CONTINUED STRONG CASH FLOW AND EARNINGS GROWTH",
+   "source": "TradingView",
+   "link": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxOVUtVcHdZZ0dkMGg3YjlZQzJCUE9qeUJaVGh6MFhBV0lWUFlJNmgxRDAxTlJncFYwdDNRMXR5MGVEbHNKcE1WWWlLWEFTZHdsRUR5SHZvaldaTEk5VXkySGZDQVIxQWFMdDZVLWRXRFdYaXRlalE1X2Q4SGdZU01uSzMtdWY2QkVwV0kzZGpmdGpHY09TQ0hNeHl5bXQ1TFVUT0xReEtSTkVJczF4eldCcEpKRVFpVDBXY3JVZ09aeFdlcHVCMXVxczVfaUhZR21yRFhlNTJTY1JEWktLaEVrNFJxRmlBNnc1SjhwLWx1U1F2UVN0b1dmdUF4LThlZw?oc=5",
+   "published": "2026-11-05T07:12+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "Lundin Gold Inc. (LUG) Reports $633M Revenue and $297M Adjusted Earnings",
+   "source": "TradingView",
+   "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQTGIxdXZROWNYV1hKbFRkdWdxY0VuVkppaGdoeTR6V25xaTdjd2Q2cEhwNzZ0YkcwQXBvZjd2ZDNMQVNkejJqT21GU1dScmE2bHZSU3VrM1NnRUxucGozWWcyRzZlRlpKZHlQTTB0NDJ6dkhpN1dCSUdFZkM3VGNOM29Bb2tWM0Eyckd0aVhqeTR0MTMwLVM0ajhXQkVwVDFZRlJNN1VydkYxaXhPd0NtU0JGekp3UDFuS3ZzM2NNLUVEN3ZTYlpDLQ?oc=5",
+   "published": "2026-11-05T07:00+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "The dollar decides: What the midterm rally in gold and silver says about the next turn",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNVTVLZkxYVUdZRGVjb0F6dDg1MnpUcWNPdktvWVBiSC1qUFJUMkQ3TTNaWlNCUExESFVaNlVlaDZaN0xRZ3ZPbHBjSnFrd2tDemV5NWc4SWtYaGt3eVJ5N0JZbE9lcTFTS3V5V1J0d0plU2JlTUJqRnoxVWphU2R5SEpxNWlQelE5YWtvV0x3bXZHNGhKRXR2U3YwYzBWYm5saE9EUmZDLUVyX0dkQlVpOQ?oc=5",
+   "published": "2026-11-05T06:53+07:00",
+   "feed": "gn_kitco",
+   "tags": [
+    "ดอลลาร์/บอนด์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Goldman Sachs: 45% of planned US data centre capacity faces state pauses, but likely short-lived",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/stocks/goldman-sachs-45-of-planned-us-data-centre-capacity-faces-state-pauses-but-likely-short-lived/",
+   "published": "2026-11-05T06:42+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold surges above $4,050 as Democrats take control of Congress",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNMVFPV2hZNmItMV9qeVNmdkRhMWxPZXNCeWc3TG1fc3hWc25ZLVlqN2hyXzNoMThRUTNfZjlMZHJmSXlBbUFlRlpSNXJQd1RiRk5vNE44V3A4b3pmRDZwOV9CRTE2QVZzTXFPVFNCVXZPdEFuOWNocS0zbnBYUFRTSjNjb3hlbGJRM090Znc2eXV4SXItemo1Q1FzSjQ0RUY0ZVlDZXZjRQ?oc=5",
+   "published": "2026-11-05T06:21+07:00",
+   "feed": "gn_fxstreet",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "Citi targets $5,000 gold as a Hormuz reopening could flip the Fed from hikes to cuts",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/commodities/citi-targets-5-000-gold-as-a-hormuz-reopening-could-flip-the-fed-from-hikes-to-cuts/",
+   "published": "2026-11-05T05:40+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Treasury Yields Little Changed, French Bonds Outperform",
+   "source": "WSJ",
+   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPWk45NGlORUMtZ2RfUVBDZ2lTODZTT3lyaGpqZTJXd3hzb1NBNTdPVnlNc0p2QlI5cFZSUjNRYzhoY2E2cFlvNWNBNldoaE82X0N2bkpNZlctVnY0M1NCVnVoc2tBYThRYzlYMDVERTJiQ0JKX1dYMVU2RDdzTUVycUNCTUpEMkpCSHIzbGJvNkVKNzZYS0JYN3MwVmtRQjRFTmNFLXQzVlVTS3ZqQVI0d3ZGbw?oc=5",
+   "published": "2026-11-05T05:34+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "ดอลลาร์/บอนด์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold climbs above $4,000, Wall Street rallies as Dems take Congress - Kitco PM Report",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNQ3Y3dnlROTNsbFpsWFFWSGhtLWdkeGJtUE5ueTk5cUJvdndMS2F0VDRTTmozdV83OFJNblM3bUVXRy1DSGZrMVFJQlNlUVhuVDNSTThwckJEazdTR3VfU1pvc3ZVNWtLb2xnN1B0XzRRQ2JsUmZQTXk4NmNQYl85bFVlSTU4OFdkd3Rwdk41c0tvMjBoNzdWd1JYX2xSeGduNXFmTlNMdTR1RHl4RzRWcHd5S1hPNmc?oc=5",
+   "published": "2026-11-05T05:09+07:00",
+   "feed": "gn_kitco",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "ทองบวก"
+  },
+  {
+   "title": "Election stiffens the Fed's guardrails, but independence risks remain",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOdkp0QllhLXhJSURNNS1INjdNbjZfRFpWdjFrWHRuc09GeTRFOWlEV0JrQ2tRaExoYTB0R2NFVUtNQVl4bmtuZ0FaUFU5cUtMc2FwWWN1amVNR2xFcjZBTGZwdi0xUGsyRFJOOFhpYUo1OWNrLXJZUkdyeE5QZ3dpcmtpV09faUpwejZHdm9NRGN3dTZxR1NhMkdFdHRtMVZqNUZ5ZTkwRDdiQVlMcGxMUy1B?oc=5",
+   "published": "2026-11-05T03:32+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
    "title": "Gold Prices Are Above $4,000 After Democrats Win Big in Midterm Elections",
    "source": "Barron's",
    "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPZzRvQUY2bjZ0RUJ0ZFBYeVlOMENhblZBWWNxRThLbnE2UG84aFNpcGdfMTYwaDJ0aTl3Z053UWxvVURod0ZHdzVQSE0wX0E3LXVnWUpQR1hIYUF5WFpoS2doUzVCcFFzN2ZuY1gwRGxidWwyR2MwVks0RkpsdUQwUFZqdjhUTzEwUkgyY3NEVmZQTTA?oc=5",
@@ -100,331 +421,6 @@
     "ทั่วไป"
    ],
    "lean": "กลาง"
-  },
-  {
-   "title": "Gold is taking it clue from the USD and yields moving lower. Technicals are also giving the buyers a push.",
-   "source": "investingLive",
-   "link": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxNdTdWclV4S295YURIS2NHa3BpSUdvT2hlald0Rzd2VE1sNGVzZmVfcTdmOVVOYW9PNk8zUXNGdkNEb19NWFpESXlSOGl4WWttM2VoTDBkbXJSSVlSQktiM004MWVMR29RTm5FNl82STh2ejNqN3hpRTBfb3V0d3BubTI2MW0tTnlwak04b09JT0dObEc4Y3o3czVBbUVGTTZ4N1g1NGt0dFUwOU13el9CZHhjbWs1TEpxSV9YUXFNZUxsQWRPcmx1OHFzOGdJcHpnOTg3dHFnRFZkNDA?oc=5",
-   "published": "2026-11-05T02:38+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ดอลลาร์/บอนด์",
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Election stiffens the Fed's guardrails, but independence risks remain",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOdkp0QllhLXhJSURNNS1INjdNbjZfRFpWdjFrWHRuc09GeTRFOWlEV0JrQ2tRaExoYTB0R2NFVUtNQVl4bmtuZ0FaUFU5cUtMc2FwWWN1amVNR2xFcjZBTGZwdi0xUGsyRFJOOFhpYUo1OWNrLXJZUkdyeE5QZ3dpcmtpV09faUpwejZHdm9NRGN3dTZxR1NhMkdFdHRtMVZqNUZ5ZTkwRDdiQVlMcGxMUy1B?oc=5",
-   "published": "2026-11-05T01:44+07:00",
-   "feed": "gn_reuters",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Treasuries Advance as Traders Eye US Votes, Refinancing Plans",
-   "source": "Bloomberg",
-   "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNZzN0NVZRRWVGTGRucWE0c2lMNmdFU3BGaS1kVlhzMDAyZUNRZjA1SWlORHJIWlotVXdWLVNqN3NMX3h3U2tISkRod0l5YXpDdzZLOWNhYmhPd2hPU3UzUE9wZmdEQ0VBWjRfZi15SmJsclVuS1lwZHcwakdPdk5pbW5ha1NhMm5SdUpBUmdDUzMxT3YxNWg3dlRHeUxjeGFPOV83bjUyNlY0ZktBSFF0Uw?oc=5",
-   "published": "2026-11-05T01:17+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Euro: ECB rate hike bets support gains against US Dollar - Scotiabank",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOU3BubEdqM2lhVTU4VGNPdk1RREJYSlVyZ2kzVE1ETTZWc3dUeEs4X2JmUXFlZzJpU2Q2ZF9ZQmxLMkNvMzVRYVVKZnRDbjYzNVJFZ2xGT1JOUHUtaE9hbzNDUEtzTzZqdkt1eHVGOFlCVVNDOWM1NlVOZ3VFVDhlUHUzUnp6SjdUN3FNdjA0Y0J3U1FJMlI3T1pYN3MySmJHeDdBNDdxemw2eGhtRkE?oc=5",
-   "published": "2026-11-05T01:17+07:00",
-   "feed": "gn_fxstreet",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "ดอลลาร์/บอนด์",
-    "ธนาคารกลาง",
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "ทองลบ"
-  },
-  {
-   "title": "Gold reclaims $4,000 as US midterm sweep sinks USD, Oil plunges",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNTkhmRGx0eFBNNm1xbmFaa2V3RmlIVHpIMGxRUS1MV0todGQ4cFdzak1ONC10R3p3WUVRRkNwbXdJN3NFWWZUd2I1dEdva2dYaUItR1NoMWNrNDZHeXVUdU9qUmE0ejhZT1BiemZfcVdma3BxemJGaUZiTm1KWlVCYmxtTHMtM2xTa3FENHZVbmJ4a2lWTDBYcHRDSmNTRkZjdW9UckhKNA?oc=5",
-   "published": "2026-11-05T01:03+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "US Midterms: How Markets Are Reacting to Democrats’ Congressional Gains",
-   "source": "Morningstar",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPUnA0TXQySHV5ZTIzTEkwSk4zU3hUM3RFdGpnaXRWejN2YUgxS1ZYWjVZYU1aNHkzMG9ReVBRTkNCTDVycVh0ZTJOQkxBYkJnSUFzajNjbWFTc3plYVJIdkJmVzcxck90NTJQeVNldmN1a0xiRHgwU0NpQkhHWUVDRjBYVDlNdWJuYWg2OHRvakdqOE0?oc=5",
-   "published": "2026-11-05T01:01+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold (XAUUSD), Silver, Platinum Forecasts – Gold Soars 3.5% After Democrats’ Victory In Midterm Elections",
-   "source": "FXEmpire",
-   "link": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxPcUwxekY2RHRIcXlsNkNwOFBheWVZeFlhV3dYVjRPWS1rN1hoUXI1VVd6bEwyUy1WV2NyU1JBWTZMalVCWVo5ZVZ1c1ZZV3FDbFVleXBEN2ZEOTFlMnBfQllEVmJ4NkQzdnpOR00yNXRjU3Fld3Z1OVVJeHRCXy1DVFNfRWxRc0hKTHZDcjNXRUR2bktHNlBtZGFkY2VDMnNJX3ItY2JxVkFBWmstN2xzRlE3N1RGLWdLS3gybG41dzNHTkFQMmNIZ29tV0hSZW9DY3RDd2psdm5RSHoxZF9iNm1n?oc=5",
-   "published": "2026-11-05T00:59+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Is gold's recovery above $4,000 enough to fix a broken market? asks Michele Schneider",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNNUphMnBRYi1GcmE5QmZ1ejRGVmZ2VmZCR1ZwQlJvM1hhalhIeWZhVjhub29OV1hWTW0xOWZsakxfZDF5NlQ4VS1KQWhDR0wxNEN1MVNVTGFNTDQtYzlIUlpvRTVabFZBVVhJV1BSc19lcFFPdHJ5X3FJMTBlQURMTTdaYnVCdk5qNzhOMktXY210Q1doNWVabTBNcE5VSi14WDNDX1d6a2JyUmlwMnplQmE4X2hpck9sMDNz?oc=5",
-   "published": "2026-11-05T00:59+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "ราคาทองโลกพุ่งแรง 3% ทะลุ 4,000 ดอลล์ รับดอลลาร์อ่อน หลังเดโมแครตกวาดชัยเลือกตั้งกลางเทอม",
-   "source": "LINE TODAY",
-   "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE45REd0eTFyZER2emp5N2x2cHRjYUUtOGtqSFlKRk55UW13a25rY3Z5NWV3aDRFaGpHM0w1SThXZVZOQzU4aF9wU3NzTFltcXdEUlpHX3oxRGtmd2lGdkl5MVEyLV9pMHJYTTA2WjQ5SWY?oc=5",
-   "published": "2026-11-05T00:53+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Earnings call transcript: Artemis Gold beats Q3 EPS forecast, shares jump 13% on growth outlook",
-   "source": "Investing.com UK",
-   "link": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxQWE56MlpuYTFKMG02ZV8zc2FaMFdRenlHMmEtNUtjbFlTTFFfR0VJLXRRY3JKMEdyd1pqYk9VM2V2REd5WkU3TEZrRmxHdndrWVZhaUNjTnBJUTRkTV8wU3hrN1F5STBhREFoc1FFMC1ZN3RCWFFQLXBQcVdEYVZWM2EtNV9hdmxxUzMzd2ZNQ0ppTzBkWWY2OFR6eThMUGNaazVha20wanhOMzdUTmxveXBDRUptb0hzUjRJVnd1NllmWU9YZ1pscDNxdHR4N0ZHaDRySjhEWGtQOVlxRTluVENfa2JCSHhJ?oc=5",
-   "published": "2026-11-05T00:46+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold Steadies as Traders Track Iran Talk Prospects, US Midterms",
-   "source": "Bloomberg",
-   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPWVB3Y2J3bG9Ed1BDRjVvY1dIZUFhd0JzRWJ6VTRtRWdLNm13R294UVNEejBhTVVuNkdvWXNQRzZzYTV5ZV9nRWwydHRjQ3BfaTJkMFFVSGNmcTNlQVlfNUtld2xjaDVHNHpKQkdXS19jQnZ0ZzNWTUxuejUzemVBOHNGOGktaExwaExwaXJ6bGd4eUZUWkw0a29OWkZMc1E1QVFVWFJVR1NaU1dLaC1NeUZsYw?oc=5",
-   "published": "2026-11-05T00:23+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ภูมิรัฐศาสตร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold moves up 24 places on Roundtable 100 despite analyst warning",
-   "source": "TheStreet",
-   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPcExLTjJsS28zdEFNNlRJUWRvTkpKRUZVVVpSbzR5bHFoMlFkRlB6VjNjY1pGdGtRaHQ3UWZRQzZWdGpPS2ZCaWxPbm9QUTNKb19UUUdXRmpCcUVCZ3BFT29WMFdMbVNPU1RwbmRXWEV3TmZYX1kyMmdkTWJUVjQwSWNibE5TRlFqS0ZIb0RjTDdER0R4M3FCY29zNVp2TW5xaFdKWGZ5bzJ6dw?oc=5",
-   "published": "2026-11-04T23:34+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Fury Gold Mines eyes more than 100,000 ounces a year at Eau Claire - Tim Clark",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQa2t4MVFwUzFpb0pYcXllMFRqN3I1N1VvZmNoZEw5c3VMX2JjS0xVc1F4aWVaQjFZVGtib2dKTkU2ZENMdjBjZjQzQW12dDZFNXhOdmREdWRuSG1Gd2k2NVpBY3RVZEJRRVpyX0FyT0hvX0hhdHV4Z0MzQ091VEFadVZIRkhoRlNyM0NULVVFWmxxNDE4cTVqRTZoVl9mYmpkYnFVNTdPdDhoVGN3VmhVaUpUeEFmbnBYdXc?oc=5",
-   "published": "2026-11-04T23:02+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Galiano Gold heads into 2027 with higher output and no hedge - Matt Badylak",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPYlg1ZUVobWxjU21Lb1k0UVRCZFlxSDh6ZXdrVzR5ODVUbHZzbDFYV3ExUkU3OFFmREgxZTI5NmI1Z3pxdkJvYmt1U0ZZTVJuOVQydVZOZ2ZnMHYzY1MzNW9pRF9kUmRpZnBwNksyV3IweVZ2c25RQzkwTmZJY1JjUEtZTFpHeS1KOG1UX0YxYmRkYTZhb2JzWVluUURENDZFZjZ2MExPVkpUTHRfd21sUjhRazk?oc=5",
-   "published": "2026-11-04T22:50+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Gold Rebounds, but I Remain Wary Ahead of Friday’s Jobs Report",
-   "source": "FXEmpire",
-   "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNbWU1T2kxazdWcjJ0Q243cDg0bHBnaFZla0V2U3pnWUR0M190cmNsdXJOYkRBdUpoSHBwN2h5UVJHdHJPVzJsRVItWkF3SFNtY3BJdzZEbGpBWWM2NTVsbm1HekFFaDBkczVJc3hMOWgyQjkwekNvcFR5VXVRMEJpdE1LSmNzd3F3YlNicVNxYkVIOHUxeGl3MFVvNVdpamVVT3lNUnNiYWZ1NEFzN2RqRA?oc=5",
-   "published": "2026-11-04T22:20+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ตลาดแรงงาน"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "US Dollar: Payrolls-driven relief selloff prospects – TD Securities",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNMWRobERReF9OaWZYemgyMHBMNE5ia3hUYW5UYzl2UnlwcWdFUTUycnRjSVhERGd3eTBBTlJRUXRJZEJUeDVLdFFhQ3ZpR0R5UlVJdGJwbG1PejZmM0lqYm10MTUxVjFwQWFNRGc4UEJXWlh5N0RibTJnMlNqUjZNN1NyazRrZUNWLVI2dDNOZ3ZlblVKMmp2R0YzbTBhdlUtYV9LczNfdmtYUDA?oc=5",
-   "published": "2026-11-04T22:16+07:00",
-   "feed": "gn_fxstreet",
-   "tags": [
-    "ตลาดแรงงาน",
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold holds above $4,000 as US election fallout keeps Dollar under pressure",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNRXNaMnJnNlBrSnN3eFl4b0xZVUVkdEE5Z2E3bk54X2xBSXlRWXg1YU9aUXpsQ1RjZ19ILXJWUW1KN0NYaE45d2p6TEJhTTZ0bTN1bk55MjB2cmpuTmJ5NFZIRE1Na2FxbEdHek4taV9wbjNrYWp2NnU1d2RhZTA5YzRzMWZacFJqR0ViSVlxUjBqY2tYTXRNU3pFT1YydTZKSUxWNWV0SzFHZw?oc=5",
-   "published": "2026-11-04T22:14+07:00",
-   "feed": "gn_fxstreet",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "US Midterms: How Markets Are Reacting to Democrat Victory",
-   "source": "Morningstar",
-   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOOXROUUFwMTZMSjlpQ3JNYUp2dmdPc0VvSXU0UjJ5aXJFT2t0YWlPZVJaNWp1Qkl5dm5rWU5mRmNyMkZzZ29fN2hCM0pIcWNFbGhQRjgwMDNnY0RWNU9VbVFIb1Y4WU1UZTlWUGoyQlFaSGRuekZVNjlxWDBBdTJab1BpSndHTUhvVU5mSFVVZVdUbXF3YkMxQlpWLUpmX2s?oc=5",
-   "published": "2026-11-04T22:10+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold is being treated ‘like an AI stock, which it’s not,’ says Peter Boockvar",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOeG1GS3pHc2hfZW1sNVgzcWRjWW5reXd5RUFKWll2YVVkdzhzNU1pTVVwTDVXWlRnRFNBUUt0aWg5N2hWSHM3Y19TdFA1cGhSRkl3SUhQclhkOGNCMEY4RVJvUWVQbV9YTFJxUmc3M3VZY1hGR05OZk5rS0dVNkQ2UVJfc1ZoTEpEUnp2V1l6Yy1jeUdrcmJ3RzNkcVZTaXROenNyWVVhVGRCR0E?oc=5",
-   "published": "2026-11-04T22:09+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Fed Wins Protection With Democrats Taking Control of the Senate",
-   "source": "Bloomberg",
-   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNSDcxTEtxUkRBRDdnOHA4d09seWthb0dBYzNuYjctTmRWZ2ZhRHd6dTdrdmREbS1BV1NuWXU5LTNLcklFUEdQMTRBeHpEU3J5U29tODFPbXVsY0laT0VxUTZJS2s4bC1WcS1odDlyYXBvYTF5TGNvWExlVXJ5enFmbzF0NUlVNXdUdlRKbkVHczYxcF9ZVVpyNllRZXhGYkxEQ291dzl3ZmNzeENqdHNnSVZVblY?oc=5",
-   "published": "2026-11-04T21:11+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "Fed/ดอกเบี้ย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "สถิติราคาทองคำย้อนหลัง เดือนพฤศจิกายน 2569 อัปเดต ล่าสุด",
-   "source": "Sanook",
-   "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE1mRXhoWVA5MUczSHRUMWRUZkp1ZW10cTZzN2ZUMzlUc0x3YTJMN2xZNFBwTTVQcHVuM3Y3V2VYSkR3TWhMUjlLWVBab1k?oc=5",
-   "published": "2026-11-04T20:53+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "ทองพุ่งทะลุ 4,000 ดอลลาร์รับทรัมป์แพ้เลือกตั้ง เดโมแครตคุมสองสภา ฟื้นรอบใหม่หรือแค่เด้งชั่วคราว?",
-   "source": "อมรินทร์ทีวี ช่อง 34",
-   "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTFB5dXMxT3NEdmNmVW9xQW1ROWxYTllEemFXd0pxNTBEV1ZDbTlGbDBsaE54aWQ4aGtHRmVQWlQxM2YwRVYwb3NCRWtRelozVFFwMXNpLUlXcXBfTlpRVXc?oc=5",
-   "published": "2026-11-04T20:50+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Real gold, unreal weight: How a new adulteration scam using heavy metals is beating acid and touchstone purity tests",
-   "source": "Livemint",
-   "link": "https://news.google.com/rss/articles/CBMijwJBVV95cUxQWUxEdDF5bkdla0lqeWlPZEFCQ1gyUW5taXZXX3pTZm9uT3BLZzMxM1IwTGZUeERQSS1faHlscXJPME1DN3FEd25PS1BWMVpKSWVVU1ZyRXdld2V6WGJ4TDhLS2RRa29Hcl9HTkFDa203Tkx5Sjd1MElxRWZXQjBQczE5bGpKMDY1VTNqbUVuTTdWV2R3Y2JXb21VUFRabXN2OS12cXJVbWg5NjBLT0ltZ01TVW5yc0QtU1R1ZW1yVUNEdlIxbl9YNkYwdW9WOG9RSXZ2d1NRU1RsVmdDcGRzZDJQNkRxbzc0bTBzdEdieUxZbi0zU1NmNGpaeFc0QkMxdlVGQ0VlbVlvYTdxRjUw0gGUAkFVX3lxTFBuSXFvd2MwNEJ3OWt4Zjg2b05aRlRPbmpsU0hhSWxBbFo1eVBWT3dJWnFXaG5RMHJMSURpT3B1cE0wNlNDZ3c3NnA4UnBJTHNIY0V2eV9ad3JFcmVrUEJrcnlrd2d2d1FIY1ctalRsWnJ5aHNncVUtZGpYamxkdHFSOTl0b0xrb1djSUZRdHdodGFrN1FYcUZsUDA1dlpTR3U5TVFsQVFZaVhxNjJ3ZjRpTV9OR3Rod2Y5aXE3bzIxVkN5QVI1VDQxZmJIWVdYaGlLLXhFQ3ZPVDcxUXVjLVhBaVR2S082cFRVN0dkYTV6aGdDbWFreG4tbGRzSDE2YmxkR3BDZzZvSkNNbzlMMU8tYkxscg?oc=5",
-   "published": "2026-11-04T20:19+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Morning Kickstart: Dollar falls, stocks rise as Democrats take Congress",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/technical-analysis/morning-kickstart-dollar-falls-stocks-rise-as-democrats-take-congress/",
-   "published": "2026-11-04T20:16+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "investingLive European session wrap: Stocks rebound, gold soars as dollar tumbles after blue sweep in US midterms",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/news/investinglive-european-session-wrap-stocks-rebound-gold-soars-as-dollar-tumbles-after-blue-sweep-in-us-midterms/",
-   "published": "2026-11-04T19:49+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "EUR/USD rebounds as midterm results put the dollar under pressure as markets reassess fiscal outlook",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/forex/eur-usd-rebounds-as-midterm-results-put-the-dollar-under-pressure-as-markets-reassess-fiscal-outlook/",
-   "published": "2026-11-04T19:43+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "ดอลลาร์/บอนด์",
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold vs silver investment return: Know value of Rs 5 lakh investment in 1, 3 and 5 years",
-   "source": "The Economic Times",
-   "link": "https://news.google.com/rss/articles/CBMimwJBVV95cUxPSUw2Unl0akpyZFVTN2hRNmF4WHB6OEczRjJseEc0eWhKck9sWnVpaWpJdGNEb0p5R1ZhaXJxY041RTVjY1g1ejRRX2FyU2lNLVdDeTRxTGs1Q3dZOWdlWnBKalZYYzJHc1BTYkV3RWxHUkpNR3E1cFBLdV9kUnRIRXRnY3VsTzhkTG5abF9KZURSQlBQMmtXaFdDZmktcFExeW9weG80S3BFbURuVmpneFFVeWFrV3ZmbWVNZ2N6U0xjbFU0M0E0VjNsOHdYQ2RkNHh6U2N6cmtiTlBydE9EMHd1NmNCU1JjeHdNSC1rcEdDNkZQZUNNMzZFUTN3bHVFQW5CYVdmdTgyTGd5SlBMVDJBdXRSMHpNNE9N0gGgAkFVX3lxTE1panlWQWdTLWtJbkpoM2RacG91NmtweFprWmMzLU84LXhITGF0Vl9BMU1OazlzQTh5Ykc0VzBSYVgzT1R2M1R2ZVBGd0VEem1hU3hHY1F5LWYtZ0VaWndFWHJ2UGFNOHNmdWlCdlVtcGE3Wnl4RENpaTQ2Z1otb3ZEVXBHMkY0OHAwQS0tcTV6ajloRm5Nc0FZN0pRQ0ZmX2NXM0Y2OWpVbjhBUlVBUWRzWkJBLWdtR2pKQmg4MDdRODBtMjV1R3h3bjU5UzRPaG9Ra01XdTg3RW5uSWtiZ0U2VzNDSDN2REtqTzRVcy1CQl82b05aU2QwbEhpdGE1OXZPQzFISWtYU09OSTA5WDZuWUdvSXp5Y1E5Q3c2NFZrNA?oc=5",
-   "published": "2026-11-04T19:26+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold price today, Wednesday, November 4, 2026: Gold prices rise in early trading, but limited gains expected",
-   "source": "Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxQdTEzRnU0WGNuVHEyUDhldzduei1xZWY5bk9DbTZxal9zcVZtTTgxQXhvc1cxeHQxYWotWnNObWpLX0NPZjljVnUyRUN1cURuVDJiZmNRLUgyTWQ1Umo3YjUyR0hpbnhSUnVlRkJzMlBuQVpraWppN1RJY0s1WkF3cldKTkoyNnhhV1k2aFJIV0pTTzdoMWt5V0JDR3BuOU5zdE1sckV6aUFJRFl0ekp0d3FremtfeXdWZ3oxSEFlc09xLWF2d1BCSkJkVlIzSTJkU2dSTlhVRktPVmw0MC16YUtndWg1S24wZWFtamV1LVE1TGZ6MlZkRzVQdzllbzE4UTA3VGpTV3FNcHc?oc=5",
-   "published": "2026-11-04T19:25+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Gold Mining Shares Rally as Democratic Midterm Victory Weakens US Dollar and Lifts Bullion Prices",
-   "source": "Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQZkQ5OFV6V3RWZFpTLWxRbGJTMEZtZldrZDJOVU13NnZRaFpFajdJQkxQdUNLMTkxTE9nZ2s1WjVfM2Z5cHpXajdaQURQN1BSWmY2MXVhdXk0LWlJcU9zbUIycThqLVh1UXBmbTZRamNVRmdfbThGcFhfTHZZOUhQZUk5MGFFVnA1QTNLV1RORTZOckU1X2Z2VjFpUzh1MWcxcUlxQm9QVlI?oc=5",
-   "published": "2026-11-04T19:02+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "ทองบวก"
   }
  ],
  "_format": "items: {title (original), source, link, published (ISO +07:00), feed, tags[Thai], lean: ทองบวก|ทองลบ|กลาง}"

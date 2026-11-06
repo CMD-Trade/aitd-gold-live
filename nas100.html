@@ -5,7 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0d12">
 <title>AiTD Gold Live · NAS100 เรียลไทม์</title>
-<meta name="description" content="กราฟ NAS100 (Skilling US100) เรียลไทม์ พร้อมรูปแบบโค้ชน้ำ Swing Finder และเวลาไทย">
+<meta name="description" content="กราฟ NAS100 (Interstellar MT5) เรียลไทม์ พร้อมรูปแบบโค้ชน้ำ Swing Finder และเวลาไทย">
+<style>
+.nas-tz{display:flex;gap:4px}
+.nas-tz button{background:#171c26;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:4px 8px;font:inherit;font-size:12px;cursor:pointer}
+.nas-tz button.active{color:var(--gold2);border-color:#3a4256;background:#262c3a}
+.nas-ind{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.nas-sub{position:relative;height:112px;border-radius:8px;overflow:hidden;background:#0d1016;border:1px solid var(--line)}
+.nas-sub-lab{position:absolute;left:8px;top:4px;z-index:2;font-size:11px;color:#9aa3b5;pointer-events:none}
+.nas-sub .lw{position:absolute;inset:0}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -27,7 +36,7 @@
 <body data-page="nas">
 <div class="sticky-top">
 <header class="topbar">
-  <div class="brand"><img class="brand-mark" src="img/aitd-mark.png" width="39" height="44" alt=""><div class="brand-txt"><h1 class="brand-name"><img class="brand-word" src="img/aitd-wordmark.png" width="83" height="22" alt="AiTD"><b>Gold Live</b></h1><small>NAS100 · Skilling US100 · เวลาไทย</small></div></div>
+  <div class="brand"><img class="brand-mark" src="img/aitd-mark.png" width="39" height="44" alt=""><div class="brand-txt"><h1 class="brand-name"><img class="brand-word" src="img/aitd-wordmark.png" width="83" height="22" alt="AiTD"><b>Gold Live</b></h1><small>NAS100 · Interstellar · เวลาไทย</small></div></div>
   <div class="clock"><span id="clock">--:--:--</span><small id="clockDate">—</small></div>
 </header>
 <nav class="pnav" aria-label="เลือกตลาด"><a href="./"><i class="pdot gold"></i>ทองคำ XAUUSD</a><span class="psep" aria-hidden="true">|</span><a href="nas100.html" class="on" aria-current="page"><i class="pdot nas"></i>NAS100</a></nav>
@@ -48,7 +57,11 @@
     <div class="chart-head">
       <div class="tabs" role="tablist">
         <button class="ntab active" data-nview="zone">กราฟ</button>
-        <button class="ntab" data-nview="tv">TradingView (Skilling)</button>
+        <button class="ntab" data-nview="tv">TradingView (Interstellar)</button>
+      </div>
+      <div class="nas-tz" id="nasTz" role="group" aria-label="เขตเวลาบนแกนกราฟ">
+        <button type="button" data-tz="th" class="active">เวลาไทย</button>
+        <button type="button" data-tz="mt5">เวลา MT5</button>
       </div>
       <div class="tfs" id="nasTfs">
         <button data-tf="1">M1</button><button data-tf="5">M5</button><button data-tf="15" class="active">M15</button><button data-tf="30">M30</button><button data-tf="60">H1</button><button data-tf="240">H4</button>
@@ -58,13 +71,18 @@
       <canvas id="nasPdCanvas" class="pd-canvas"></canvas>
       <div id="nasLw" class="lw"></div>
       <canvas id="nasCanvas" class="zone-canvas"></canvas>
-      <div class="legend"><span style="color:#5aa9ff" title="Bollinger บน · ช่วง 50, ส่วนเบี่ยงเบน 1.1, Typical Price">BB บน</span><span style="color:#f3d27a" title="เส้นกลาง SMA 50 ของ Typical Price (HLC/3)">SMA50</span><span style="color:#5aa9ff" title="Bollinger ล่าง · ช่วง 50, ส่วนเบี่ยงเบน 1.1, Typical Price">BB ล่าง</span><span id="nasStatus"></span></div>
+      <div class="legend"><span style="color:#f5d742" title="BB1: 50, deviation 1.1, Typical HLC/3">BB1 1.1</span><span style="color:#f5d742" title="BB2: 50, deviation 2, Typical HLC/3">BB2 2.0</span><span style="color:#f5d742" title="BB3: 50, deviation 2, Weighted HLCC/4">BB3 2.0</span><span style="color:#26a69a" title="ระดับลบของ BB2">ระดับ −</span><span style="color:#ef5350" title="ระดับบวกของ BB3">ระดับ +</span><span id="nasStatus"></span></div>
+    </div>
+    <div class="nas-ind" id="nasInd">
+      <div class="nas-sub"><span class="nas-sub-lab">Stochastic 14, 3, 3</span><div id="nasStoch" class="lw"></div></div>
+      <div class="nas-sub"><span class="nas-sub-lab">MACD 12, 26, 9</span><div id="nasMacd" class="lw"></div></div>
     </div>
     <div class="chart-wrap hidden" id="nasTvView"><div id="nasTv" class="tvc"></div></div>
     <div class="swing-bar" id="nasSwingBar">
       <label class="swing-tg"><input type="checkbox" id="nasTgSwing" checked> Swing Finder (RSI)</label>
       <label class="swing-tg"><input type="checkbox" id="nasTgPd" checked> Premium/Discount + Fibo</label>
       <label class="swing-tg"><input type="checkbox" id="nasTgCoach" checked> รูปแบบโค้ชบนกราฟ</label>
+      <label class="swing-tg"><input type="checkbox" id="nasTgLevels" checked> เส้นระดับ BB</label>
       <div class="swing-sum" id="nasSwingSum" aria-live="polite">กำลังคำนวณจุด swing…</div>
     </div>
     <div class="coach-panel" id="nasCoachPanel" aria-live="polite"><div class="sub">กำลังคำนวณรูปแบบโค้ช…</div></div>
@@ -72,7 +90,7 @@
     <div class="sub swing-note">Swing Finder (RSI 7, 70/30) — จุด swing ล่าสุดยังขยับได้จนกว่า RSI จะข้ามไปอีกฝั่ง ไม่ใช่สัญญาณ Buy/Sell สำเร็จรูป</div>
     <div class="sub swing-note" id="nasPdNote">Premium/Discount วัดจากสวิง H1 ล่าสุดที่ยืนยัน · Buy ในโซน Discount, Sell ในโซน Premium · 1.618 เป็นเป้าไกล ใช้เป็นแนวทาง ไม่ใช่สัญญาณ</div>
     <div class="trend" id="nasTrend" aria-live="polite"></div>
-    <div class="sub nas-note" id="nasNote">ราคา/แท่งเทียน: <b>ดัชนี OKX US100-USDT</b> (เรียลไทม์, ไม่ต้องใช้คีย์; สำรอง Bitget NDX100) <b>ปรับให้ใกล้ Skilling US100 / MT5</b> ตามค่า “ปรับ” ด้านบน — ถ้ายังไม่ตรง กด “ปรับให้ตรง MT5” แล้วใส่ราคาใน MT5 ครั้งเดียว ตัดช่วงที่โบรกปิด (ศ. 17:00 → อา. 18:00 และ 17:00–18:00 นิวยอร์กทุกวัน) · แท็บ TradingView = SKILLING:US100 (ตรงกับโบรก) · ไม่ใช่สัญญาณซื้อขาย</div>
+    <div class="sub nas-note" id="nasNote">ราคา/แท่งเทียน: <b>ดัชนี OKX US100-USDT</b> (เรียลไทม์, ไม่ต้องใช้คีย์; สำรอง Bitget NDX100) <b>ปรับให้ใกล้ Interstellar / MT5</b> ตามค่า “ปรับ” ด้านบน — ถ้ายังไม่ตรง กด “ปรับให้ตรง MT5” แล้วใส่ราคาใน MT5 ครั้งเดียว ตัดช่วงที่โบรกปิด (ศ. 17:00 → อา. 18:00 และ 17:00–18:00 นิวยอร์กทุกวัน) · แท็บ TradingView = CMCMARKETS:NDAQ100 · เวลา MT5 = UTC+2 (ฤดูหนาวสหรัฐ) หรือ UTC+3 (ฤดูร้อน) · ไม่ใช่สัญญาณซื้อขาย</div>
   </section>
 
   <!-- SESSIONS + EVENT -->
@@ -109,8 +127,8 @@
 </main>
 
 <footer>
-  <p><b>แหล่งข้อมูล</b> · กราฟ + โซน NAS100: แท่งเทียนเรียลไทม์จาก <a href="https://app.hyperliquid.xyz/" target="_blank" rel="noopener">Hyperliquid</a> trade.xyz XYZ100 (สำรอง: ดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> US100-USDT, Bitget NDX100, OKX perp) ปรับให้ใกล้ Skilling US100 / MT5 ·
-  แท็บ TradingView: SKILLING:US100 (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) ·
+  <p><b>แหล่งข้อมูล</b> · กราฟ NAS100: แท่งเทียนเรียลไทม์จาก <a href="https://app.hyperliquid.xyz/" target="_blank" rel="noopener">Hyperliquid</a> trade.xyz XYZ100 (สำรอง: ดัชนี <a href="https://www.okx.com/" target="_blank" rel="noopener">OKX</a> US100-USDT, Bitget NDX100, OKX perp) ปรับให้ใกล้ Interstellar / MT5 ·
+  แท็บ TradingView: CMCMARKETS:NDAQ100 (วิดเจ็ตฟรีของ <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>) ·
   ปฏิทินข่าว: ForexFactory (ข่าวแรงสหรัฐ) · หัวข้อข่าว: Google News RSS (Nasdaq/หุ้นเทค/Fed, Reuters/CNBC ผ่าน Google News), investingLive — ลิงก์ไปยังต้นฉบับ ·
   รูปแบบโค้ชน้ำ: คำนวณจากแท่งบนกราฟ (HDB / WF / PAIR / VBC / DBD·RBR·RBD·DBR) · กราฟวาดด้วย <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">Lightweight Charts™</a></p>
   <p>ราคาบนเว็บอาจต่างจากราคาโบรกเกอร์ของคุณเล็กน้อย · ข้อมูลเพื่อประกอบการตัดสินใจเท่านั้น ไม่ใช่คำแนะนำการลงทุน</p>

@@ -16,22 +16,24 @@
    Skilling/MT5 match (28 Oct 2026, vs TradingView SKILLING:US100): Skilling ≈ Dukascopy USATECH −4.5 ≈ ^NDX cash −5;
                   OKX US100-USDT index runs ~+7…+12 above Skilling, Bitget NDX100 index ~+36 (off-hours up to +140), OKX perp ~+30.
                   Every feed is shifted by a per-feed offset (default below, or the user's own "ปรับให้ตรง MT5" value saved
-                  in localStorage) so candles, price and high/low read in Skilling/MT5 points. */
+                  in localStorage under aitd_nas_off_inter_<feed>) so candles read in Interstellar points.
+                  The old Skilling offsets are not applied. Until ปรับให้ตรง MT5 is used, the feed offset is 0. */
 (() => {
 'use strict';
 const L = window.AITD_LIB; if (!L || !document.getElementById('nasCard')) return;
 const { $, qs, LS, fmt, sgn, esc, spotClosed, bucketStart, aggregate, TF, OKX, okxGet, withTimeout, withTV, TH_OFF, dayStartMs, bitgetIndex, raceFeeds, createTrend } = L;
-const DEF_OFF = { hl:-9, okxidx:-10, bitget:-45, perp:-30 };   // feed → Skilling US100 (measured 27–29 Oct 2026, see header)
-const HL_COIN = 'xyz:XYZ100', HL_K = 5.5;                // trade.xyz oracle − Skilling US100 (median 27–29 Oct 2026; hourly 3.3…8.5)
+const HL_COIN = 'xyz:XYZ100';
 const median = (a) => { const s = [...a].sort((x,y)=>x-y), n = s.length; return n ? (n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2) : null; };
-const userOff = (name) => { const v = parseFloat(LS.get('nas_off_'+name, '')); return isFinite(v) ? v : null; };
+const offKey = (name) => 'nas_off_inter_' + name;       // new keys: old Skilling aitd_nas_off_* values are ignored
+const userOff = (name) => { const v = parseFloat(LS.get(offKey(name), '')); return isFinite(v) ? v : null; };
 const prem = [];                                         // XYZ100 mid − oracle samples (live premium of the perp)
 const onPrem = (mid, oracle) => { if (mid>0 && oracle>0 && Math.abs(mid-oracle) < 60){ prem.push(mid-oracle); if (prem.length > 60) prem.shift(); } };
-const liveOff = () => prem.length >= 3 ? Math.round(Math.min(-3, Math.max(-20, -(HL_K + median(prem))))*10)/10 : null;
-const offFor = (name) => userOff(name) ?? (name==='hl' ? liveOff() : null) ?? DEF_OFF[name] ?? 0;
+const offFor = (name) => userOff(name) ?? 0;             // no Skilling default; calibrate to Interstellar with ปรับให้ตรง MT5
 const shiftBar = (b, d) => ({time:b.time, open:b.open+d, high:b.high+d, low:b.low+d, close:b.close+d});
 const N = { tf: TF[qs.get('nastf')] ? qs.get('nastf') : (TF[LS.get('nas_tf','15')] ? LS.get('nas_tf','15') : '15'),
-  view: LS.get('nas_view','zone'), raw: [], dayRaw: [], off: 0, price: null, prev: null, feed: null, lastTickAt: 0, hi: null, lo: null };
+  view: LS.get('nas_view','zone'), tz: LS.get('nas_tz','th')==='mt5' ? 'mt5' : 'th',
+  levelsOn: LS.get('nas_bb_levels', true) !== false,
+  raw: [], dayRaw: [], off: 0, price: null, prev: null, feed: null, lastTickAt: 0, hi: null, lo: null };
 
 /* ---------------- feeds ---------------- */
 const HL_TF = { '1':'1m', '5':'5m', '15':'15m', '30':'30m', '60':'1h' };
@@ -137,66 +139,199 @@ const Feeds = {
 };
 const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')] : ['hl','okxidx','bitget','perp'];
 
-/* ---------------- chart (same options as the gold chart) ---------------- */
-let chart, cs, bbUp, bbMid, bbDn, stop = null;
-const BB_LEN = 50, BB_DEV = 1.1;                         // coach MT5: period 50, shift 0, deviation 1.1, Typical Price
+/* ---------------- chart ---------------- */
+let chart, cs, stochChart, macdChart, stochK, stochD, macdMain, macdSig, stop = null;
+let bandSeries = [];                                    // {series, pack:'b1'|'b2'|'b3', part:'mid'|'up'|'dn'}
+let levelSeries = [];                                   // {series, which:'dn'|'up', level}
+const BB_LEN = 50, YEL = '#f5d742';
+const PX = { type:'price', precision:1, minMove:0.1 };
 const hlc3 = (b) => (b.high + b.low + b.close) / 3;
-function bollinger(data){                               // mid = SMA(HLC/3, 50); bands = mid ± 1.1 × population stdev
+const hlcc4 = (b) => (b.high + b.low + b.close + b.close) / 4;   // MT5 Weighted Close
+/* IND_START */
+function mt5Ema(values, period){
+  const n = values.length, out = new Array(n).fill(null);
+  if (n < period || period < 1) return out;
+  let sum = 0;
+  for (let i = 0; i < period; i++) sum += values[i];
+  let prev = sum / period;
+  out[period - 1] = prev;
+  const k = 2 / (period + 1);
+  for (let i = period; i < n; i++){ prev = values[i] * k + prev * (1 - k); out[i] = prev; }
+  return out;
+}
+function mt5Sma(values, period){
+  const n = values.length, out = new Array(n).fill(null);
+  const buf = [];
+  for (let i = 0; i < n; i++){
+    if (values[i] == null || !isFinite(values[i])) continue;
+    buf.push(values[i]);
+    if (buf.length > period) buf.shift();
+    if (buf.length === period){ let s = 0; for (const v of buf) s += v; out[i] = s / period; }
+  }
+  return out;
+}
+function mt5Lwma(values, period){
+  const n = values.length, out = new Array(n).fill(null);
+  const wsum = period * (period + 1) / 2;
+  for (let i = period - 1; i < n; i++){
+    let acc = 0, ok = true;
+    for (let k = 0; k < period; k++){
+      const v = values[i - period + 1 + k];
+      if (v == null || !isFinite(v)){ ok = false; break; }
+      acc += v * (k + 1);
+    }
+    if (ok) out[i] = acc / wsum;
+  }
+  return out;
+}
+function bbPack(data, priceOf, dev){
   const mid = [], up = [], dn = [];
   if (!data || data.length < BB_LEN) return { mid, up, dn };
   let run = 0;
   for (let i = 0; i < data.length; i++){
-    run += hlc3(data[i]);
-    if (i >= BB_LEN) run -= hlc3(data[i - BB_LEN]);
+    run += priceOf(data[i]);
+    if (i >= BB_LEN) run -= priceOf(data[i - BB_LEN]);
     if (i < BB_LEN - 1) continue;
     const m = run / BB_LEN; let s2 = 0;
-    for (let k = i - BB_LEN + 1; k <= i; k++){ const d = hlc3(data[k]) - m; s2 += d * d; }
-    const dev = BB_DEV * Math.sqrt(s2 / BB_LEN);
+    for (let k = i - BB_LEN + 1; k <= i; k++){ const d = priceOf(data[k]) - m; s2 += d * d; }
+    const half = dev * Math.sqrt(s2 / BB_LEN);          // population stdev, shift 0
     mid.push({ time: data[i].time, value: m });
-    up.push({ time: data[i].time, value: m + dev });
-    dn.push({ time: data[i].time, value: m - dev });
+    up.push({ time: data[i].time, value: m + half });
+    dn.push({ time: data[i].time, value: m - half });
   }
   return { mid, up, dn };
 }
-function setBands(data){
-  const b = bollinger(data);
-  bbMid.setData(b.mid); bbUp.setData(b.up); bbDn.setData(b.dn);
+/* Provisional: MT5 "level" is drawn as mid + level × (upper − mid) of that band. */
+function bbLevel(pack, level){
+  const out = [];
+  for (let i = 0; i < pack.mid.length; i++){
+    const m = pack.mid[i].value, span = pack.up[i].value - m;
+    out.push({ time: pack.mid[i].time, value: m + level * span });
+  }
+  return out;
+}
+function stochastic(bars){                              // %K 14, %D 3, slowing 3, LWMA, Close/Close
+  const K = 14, SLOW = 3, D = 3, n = bars.length;
+  const raw = new Array(n).fill(null);
+  for (let i = K - 1; i < n; i++){
+    let hh = -Infinity, ll = Infinity;
+    for (let k = i - K + 1; k <= i; k++){ const c = bars[k].close; if (c > hh) hh = c; if (c < ll) ll = c; }
+    const rng = hh - ll;
+    raw[i] = rng > 0 ? (bars[i].close - ll) / rng * 100 : (raw[i - 1] != null ? raw[i - 1] : 0);
+  }
+  const main = mt5Lwma(raw, SLOW);
+  return { main, signal: mt5Lwma(main, D) };
+}
+function macdInd(bars){                                 // EMA 12/26 of close; signal = SMA 9 of MACD (MT5)
+  const closes = bars.map(b => b.close);
+  const fast = mt5Ema(closes, 12), slow = mt5Ema(closes, 26);
+  const line = closes.map((_, i) => (fast[i] != null && slow[i] != null) ? fast[i] - slow[i] : null);
+  return { line, signal: mt5Sma(line, 9) };
+}
+/* IND_END */
+function pts(bars, values){
+  const out = [];
+  for (let i = 0; i < bars.length; i++) if (values[i] != null && isFinite(values[i])) out.push({ time: bars[i].time, value: values[i] });
+  return out;
+}
+function plotSeries(list, data, full){
+  for (const s of list){
+    const arr = s.points(data);
+    if (full) s.series.setData(arr);
+    else if (arr.length) s.series.update(arr[arr.length - 1]);
+  }
 }
 /* M15…D1 trend panel (engine in app.js): same feed as the NAS chart (Hyperliquid XYZ100 first); offset-free structure */
 const NTR = createTrend({ el:'nasTrend', feed:()=>N.feed, digits:1 });
+let _mt5Cache = 0, _mt5At = 0;
+function mt5OffsetSec(now = new Date()){
+  const h = Math.floor(now.getTime() / 3600000);
+  if (_mt5At === h) return _mt5Cache;
+  const p = L.tzParts('America/New_York', now);
+  const nyOff = Math.round((Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi, p.s) - now.getTime()) / 3600000);
+  _mt5At = h; _mt5Cache = (nyOff <= -5 ? 2 : 3) * 3600;   // US standard UTC+2, US DST UTC+3
+  return _mt5Cache;
+}
+function chartOff(){ return N.tz === 'mt5' ? mt5OffsetSec() : TH_OFF; }
 function initChart(){
   const LW = window.LightweightCharts;
-  chart = LW.createChart($('nasLw'), {
+  const dash = LW.LineStyle ? LW.LineStyle.Dashed : 2;
+  const base = {
     autoSize:true,
-    layout:{background:{type:'solid',color:'rgba(13,16,22,0)'}, textColor:'#8b93a5', fontFamily:"'JetBrains Mono', monospace", fontSize:11, attributionLogo:true},
+    layout:{background:{type:'solid',color:'#0d1016'}, textColor:'#8b93a5', fontFamily:"'JetBrains Mono', monospace", fontSize:11},
     grid:{vertLines:{color:'rgba(255,255,255,0.03)'}, horzLines:{color:'rgba(255,255,255,0.04)'}},
-    rightPriceScale:{borderColor:'#232937', scaleMargins:{top:0.08,bottom:0.08}},
+    rightPriceScale:{borderColor:'#232937', minimumWidth:72},
     timeScale:{borderColor:'#232937', timeVisible:true, secondsVisible:false, rightOffset:6},
     crosshair:{mode:0},
-    localization:{priceFormatter:(p)=>fmt(p,2)},
+  };
+  chart = LW.createChart($('nasLw'), Object.assign({}, base, {
+    layout:Object.assign({}, base.layout, {background:{type:'solid',color:'rgba(13,16,22,0)'}, attributionLogo:true}),
+    rightPriceScale:Object.assign({}, base.rightPriceScale, {scaleMargins:{top:0.08,bottom:0.08}}),
+    localization:{priceFormatter:(p)=>fmt(p,1)},
+  }));
+  cs = chart.addSeries(LW.CandlestickSeries, {upColor:'#26a69a', downColor:'#ef5350', borderVisible:false, wickUpColor:'#26a69a', wickDownColor:'#ef5350', priceFormat:PX});
+  const yel = { priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false, color:YEL, lineWidth:1, lineStyle:0 };
+  const addY = (pack, part) => {
+    const s = chart.addSeries(LW.LineSeries, yel, 0);
+    bandSeries.push({ series:s, pack, part });
+  };
+  for (const part of ['dn','mid','up']) addY('b1', part);
+  for (const part of ['dn','up']) addY('b2', part);       // mid matches BB1
+  for (const part of ['dn','mid','up']) addY('b3', part);
+  const addLv = (which, level, color) => {
+    const s = chart.addSeries(LW.LineSeries, { priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false, color, lineWidth:1, lineStyle:dash, visible:N.levelsOn }, 0);
+    levelSeries.push({ series:s, which, level });
+  };
+  for (let v = 60; v <= 95; v += 5){ addLv('dn', -v/100, '#26a69a'); addLv('up', v/100, '#ef5350'); }
+  stochChart = LW.createChart($('nasStoch'), base);
+  macdChart = LW.createChart($('nasMacd'), base);
+  const sub = { priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false, lineWidth:1 };
+  stochK = stochChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#26a69a', lineStyle:dash }));
+  stochD = stochChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#ef5350', lineStyle:dash }));
+  for (const lv of [20, 80]) stochK.createPriceLine({ price:lv, color:'rgba(154,163,181,0.65)', lineWidth:1, lineStyle:dash, axisLabelVisible:true, title:'' });
+  macdMain = macdChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#26a69a', lineStyle:0 }));
+  macdSig = macdChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#ef5350', lineStyle:dash }));
+  let syncing = false;
+  const follow = (src, dsts) => src.timeScale().subscribeVisibleLogicalRangeChange(range => {
+    if (syncing || !range) return;
+    syncing = true;
+    for (const d of dsts){ try { d.timeScale().setVisibleLogicalRange(range); } catch (e) {} }
+    syncing = false;
   });
-  cs = chart.addSeries(LW.CandlestickSeries, {upColor:'#26a69a', downColor:'#ef5350', borderVisible:false, wickUpColor:'#26a69a', wickDownColor:'#ef5350', priceFormat:{type:'price',precision:2,minMove:0.01}});
-  const line = { priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false };
-  bbUp = chart.addSeries(LW.LineSeries, { ...line, color:'#5aa9ff', lineWidth:1 });
-  bbDn = chart.addSeries(LW.LineSeries, { ...line, color:'#5aa9ff', lineWidth:1 });
-  bbMid = chart.addSeries(LW.LineSeries, { ...line, color:'#f3d27a', lineWidth:1.5 });
+  follow(chart, [stochChart, macdChart]);
+  follow(stochChart, [chart, macdChart]);
+  follow(macdChart, [chart, stochChart]);
   chart.timeScale().subscribeVisibleLogicalRangeChange(drawZones);
   new ResizeObserver(()=>requestAnimationFrame(drawZones)).observe($('nasZoneView'));
   setInterval(drawZones, 400);
 }
-const adj = (b) => ({time:b.time + TH_OFF, open:b.open, high:b.high, low:b.low, close:b.close});
+const adj = (b) => ({time:b.time + chartOff(), open:b.open, high:b.high, low:b.low, close:b.close});
+function indicatorPoints(data){
+  const b1 = bbPack(data, hlc3, 1.1), b2 = bbPack(data, hlc3, 2), b3 = bbPack(data, hlcc4, 2);
+  const packs = { b1, b2, b3 };
+  const bands = bandSeries.map(s => ({ series:s.series, points:() => packs[s.pack][s.part] }));
+  const levels = levelSeries.map(s => ({ series:s.series, points:() => bbLevel(s.which==='dn' ? b2 : b3, s.level) }));
+  const st = stochastic(data), mc = macdInd(data);
+  return { bands, levels, stochK: pts(data, st.main), stochD: pts(data, st.signal), macd: pts(data, mc.line), macdS: pts(data, mc.signal) };
+}
+function paintIndicators(data, full){
+  const p = indicatorPoints(data);
+  plotSeries(p.bands, data, full);
+  plotSeries(p.levels, data, full);
+  const put = (series, arr) => { if (full) series.setData(arr); else if (arr.length) series.update(arr[arr.length-1]); };
+  put(stochK, p.stochK); put(stochD, p.stochD); put(macdMain, p.macd); put(macdSig, p.macdS);
+}
 function redraw(){
-  const d = N.raw.map(adj); cs.setData(d); setBands(d);
+  const d = N.raw.map(adj); cs.setData(d); paintIndicators(d, true);
   if (N.raw.length) setPrice(N.raw[N.raw.length-1].close);
   recomputeDay(); drawZones();
 }
 function updLast(){
   cs.update(adj(N.raw[N.raw.length-1]));
-  const b = bollinger(N.raw.slice(-BB_LEN).map(adj));
-  if (b.mid.length){ const i = b.mid.length - 1; bbMid.update(b.mid[i]); bbUp.update(b.up[i]); bbDn.update(b.dn[i]); }
+  paintIndicators(N.raw.map(adj), false);
 }
 function onTick(p, ms){
-  p += N.off;                                                  // feed → Skilling/MT5 points
+  p += N.off;                                                  // feed → Interstellar / MT5 points
   if (!cs || !N.raw.length || spotClosed(ms)) return;
   const t = bucketStart(Math.floor(ms/1000), N.tf), last = N.raw[N.raw.length-1];
   if (t < last.time) return;
@@ -215,7 +350,7 @@ async function resyncTail(){
       if (i>=0){ if (i===N.raw.length-1){ b.close = N.raw[i].close; b.high=Math.max(b.high,b.close); b.low=Math.min(b.low,b.close); } N.raw[i] = b; }
       else if (b.time > N.raw[N.raw.length-1].time) N.raw.push(b);
     }
-    const d = N.raw.map(adj); cs.setData(d); setBands(d); drawZones();
+    const d = N.raw.map(adj); cs.setData(d); paintIndicators(d, true); drawZones();
   }catch(e){}
 }
 async function loadFeed(){
@@ -241,7 +376,7 @@ async function loadFeed(){
 }
 async function loadDay(f){ try{ const off = N.off; N.dayRaw = (await f.history('15', 120)).map(b=>shiftBar(b, off)); recomputeDay(); }catch(e){} }
 
-/* ---------------- "ปรับให้ตรง MT5": user types the MT5/Skilling price once → offset saved per feed ---------------- */
+/* ---------------- "ปรับให้ตรง MT5": one Interstellar price → offset saved per feed ---------------- */
 function setOff(v){
   const d = v - N.off; if (!isFinite(d)) return;
   N.off = v;
@@ -254,8 +389,7 @@ function renderCal(){
   const el = $('nasCalInfo'); if (!el) return;
   if (!N.feed){ el.textContent = ''; return; }
   const own = userOff(N.feed.name) != null;
-  const live = !own && N.feed.name==='hl' && liveOff()!=null;
-  el.textContent = `ปรับ ${sgn(N.off, Number.isInteger(N.off)?0:1)} จุด (${own ? 'ตั้งเอง' : live ? 'วัดสด ≈ Skilling' : 'ค่าเริ่มต้น ≈ Skilling'})`;
+  el.textContent = `ปรับ ${sgn(N.off, 1)} จุด (${own ? 'ตั้งเอง ≈ Interstellar' : 'ยังไม่ปรับ Interstellar'})`;
   el.title = `ราคาแหล่ง ${N.feed.label} ${N.off>=0?'+':'−'} ${Math.abs(N.off)} จุด`;
 }
 function wireCal(){
@@ -265,10 +399,29 @@ function wireCal(){
     const mt5 = parseFloat(String(inp.value).replace(/,/g,'')); if (!N.feed || N.price==null || !isFinite(mt5)) return;
     const v = Math.round((N.off + (mt5 - N.price))*10)/10;
     if (Math.abs(v) > 500){ $('nasCalMsg').textContent = 'ต่างเกิน 500 จุด — ตรวจตัวเลขอีกครั้ง'; return; }
-    LS.set('nas_off_'+N.feed.name, String(v)); setOff(v); $('nasCalMsg').textContent = 'บันทึกแล้ว (เก็บในเครื่องนี้)'; box.classList.add('hidden');
+    LS.set(offKey(N.feed.name), String(v)); setOff(v); $('nasCalMsg').textContent = 'บันทึกแล้ว (เก็บในเครื่องนี้)'; box.classList.add('hidden');
   };
-  $('nasCalReset').onclick = ()=>{ if (!N.feed) return; try{ localStorage.removeItem('aitd_nas_off_'+N.feed.name); }catch(e){}; setOff(DEF_OFF[N.feed.name] ?? 0); $('nasCalMsg').textContent = 'กลับเป็นค่าเริ่มต้น'; box.classList.add('hidden'); };
+  $('nasCalReset').onclick = ()=>{ if (!N.feed) return; try{ localStorage.removeItem('aitd_'+offKey(N.feed.name)); }catch(e){}; setOff(0); $('nasCalMsg').textContent = 'กลับเป็นค่าเริ่มต้น'; box.classList.add('hidden'); };
   inp.onkeydown = (e)=>{ if (e.key==='Enter') $('nasCalSet').click(); };
+}
+function wireTz(){
+  document.querySelectorAll('#nasTz button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tz === N.tz);
+    b.onclick = () => {
+      N.tz = b.dataset.tz === 'mt5' ? 'mt5' : 'th';
+      LS.set('nas_tz', N.tz);
+      document.querySelectorAll('#nasTz button').forEach(x => x.classList.toggle('active', x.dataset.tz === N.tz));
+      if (cs && N.raw.length) redraw();
+    };
+  });
+}
+function wireLevels(){
+  const el = $('nasTgLevels'); if (!el) return;
+  el.checked = !!N.levelsOn;
+  el.onchange = () => {
+    N.levelsOn = el.checked; LS.set('nas_bb_levels', N.levelsOn);
+    for (const s of levelSeries) s.series.applyOptions({ visible: N.levelsOn });
+  };
 }
 function recomputeDay(){
   const t0 = dayStartMs()/1000; let hi=null, lo=null;
@@ -278,7 +431,7 @@ function recomputeDay(){
   renderHL();
 }
 function trackDay(p){ if (N.hi==null){ N.hi = N.lo = p; } N.hi = Math.max(N.hi,p); N.lo = Math.min(N.lo,p); renderHL(); }
-function renderHL(){ $('nasHL').textContent = N.hi!=null ? `${fmt(N.hi)} / ${fmt(N.lo)}` : '—'; }
+function renderHL(){ $('nasHL').textContent = N.hi!=null ? `${fmt(N.hi,1)} / ${fmt(N.lo,1)}` : '—'; }
 
 /* ---------------- price header ---------------- */
 let flashT;
@@ -290,10 +443,10 @@ function priorClose(){
 function setPrice(p){
   if (p==null || !isFinite(p)) return;
   N.prev = N.price; N.price = p;
-  const el = $('nasPrice'); el.textContent = fmt(p);
+  const el = $('nasPrice'); el.textContent = fmt(p, 1);
   if (N.prev!=null && p!==N.prev){ el.classList.remove('up','down'); el.classList.add(p>N.prev?'up':'down'); clearTimeout(flashT); flashT = setTimeout(()=>el.classList.remove('up','down'),700); }
   const pc = priorClose(), ch = $('nasChg');
-  if (ch && pc){ const c = p-pc; ch.className = 'chg '+(c>=0?'pos':'neg'); ch.textContent = `${sgn(c)} (${sgn(c/pc*100)}%) เทียบปิด ${fmt(pc)}`; }
+  if (ch && pc){ const c = p-pc; ch.className = 'chg '+(c>=0?'pos':'neg'); ch.textContent = `${sgn(c,1)} (${sgn(c/pc*100)}%) เทียบปิด ${fmt(pc,1)}`; }
 }
 function renderBadge(){
   const b = $('nasBadge'), stale = !N.lastTickAt || Date.now()-N.lastTickAt > 90000;
@@ -301,10 +454,11 @@ function renderBadge(){
   if (spotClosed(Date.now())){ b.className='badge warn'; b.textContent='ตลาดปิด'; return; }
   b.className = 'badge ' + (stale?'warn':'live'); b.textContent = stale ? 'รอข้อมูล' : 'LIVE';
 }
-/* Swing Finder (RSI 7, 70/30) — same candles / timeframe as this chart. N.raw is already in Skilling points. */
+/* Swing Finder (RSI 7, 70/30) — same candles / timeframe as this chart. N.raw is in Interstellar points once calibrated. */
 const TF_LABEL = { '1':'M1', '5':'M5', '15':'M15', '30':'M30', '60':'H1', '240':'H4' };
 const NSW = (document.getElementById('nasTgSwing') && window.AITD_SWING) ? window.AITD_SWING.createSwingOverlay({
-  lsKey:'nas_swing_on', tgId:'nasTgSwing', sumId:'nasSwingSum', digits:2, LS:L.LS, fmt:L.fmt, timeShift:L.TH_OFF,
+  lsKey:'nas_swing_on', tgId:'nasTgSwing', sumId:'nasSwingSum', digits:1, LS:L.LS, fmt:L.fmt,
+  get timeShift(){ return chartOff(); },
   bars:()=>N.raw, chart:()=>chart, series:()=>cs, onChange:()=>drawZones(),
   pdKey:'nas_pd_on', pdTgId:'nasTgPd', pdCv:'nasPdCanvas', wrapId:'nasZoneView', noteId:'nasPdNote',
   tf:()=>N.tf, tfLabel:()=>TF_LABEL[N.tf] || N.tf, price:()=>N.price, feedKey:()=>N.feed && N.feed.name,
@@ -660,7 +814,7 @@ function paintCoach(ctx, paneW, paneH){
     if (i < 0 || i >= n) return null;
     let x = null;
     try { if (typeof ts.logicalToCoordinate === 'function') x = ts.logicalToCoordinate(i); } catch (e) {}
-    if (x == null && N.raw[i]) { try { x = ts.timeToCoordinate(N.raw[i].time + TH_OFF); } catch (e) {} }
+    if (x == null && N.raw[i]) { try { x = ts.timeToCoordinate(N.raw[i].time + chartOff()); } catch (e) {} }
     return x;
   };
   const stepOf = (i) => {
@@ -737,7 +891,7 @@ function loadTV(){
   withTV(()=>{
     $('nasTv').innerHTML = '<div id="nasTvInner" style="height:100%"></div>';
     new window.TradingView.widget({
-      container_id:'nasTvInner', autosize:true, symbol:'SKILLING:US100', interval:N.tf, timezone:'Asia/Bangkok', theme:'dark', style:'1', locale:'th_TH',
+      container_id:'nasTvInner', autosize:true, symbol:'CMCMARKETS:NDAQ100', interval:N.tf, timezone:'Asia/Bangkok', theme:'dark', style:'1', locale:'th_TH',
       toolbar_bg:'#0d1016', enable_publishing:false, allow_symbol_change:false, hide_volume:true, withdateranges:false, save_image:false,
       studies:[{id:'BB@tv-basicstudies', inputs:{length:50, src:'hlc3', mult:1.1}}],
       overrides:{'paneProperties.background':'#0d1016','paneProperties.backgroundType':'solid'},
@@ -748,6 +902,7 @@ function setView(v, auto){
   N.view = v==='tv' ? 'tv' : 'zone'; if (!auto) LS.set('nas_view', N.view);
   document.querySelectorAll('.ntab').forEach(b=>b.classList.toggle('active', b.dataset.nview===N.view));
   $('nasZoneView').classList.toggle('hidden', N.view!=='zone'); $('nasTvView').classList.toggle('hidden', N.view!=='tv');
+  const ind = $('nasInd'); if (ind) ind.classList.toggle('hidden', N.view!=='zone');
   if (N.view==='tv' && !$('nasTv').firstChild) loadTV();
   if (N.view==='zone') requestAnimationFrame(drawZones);
 }
@@ -760,19 +915,16 @@ function setTF(tf){
 function start(){
   document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>setView(b.dataset.nview));
   document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===N.tf); b.onclick=()=>setTF(b.dataset.tf); });
-  wireCal(); wireCoach(); initChart(); setView(N.view);
+  wireCal(); wireTz(); wireLevels(); wireCoach(); initChart(); setView(N.view);
   // gold first: start NAS when the gold chart has painted, or after 1 s at most
   Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(()=>{ loadFeed(); });
   setInterval(renderBadge, 2000);
   setInterval(resyncTail, 60000);
   setInterval(()=>{ if (N.feed) loadCoachHist(); }, 60000);
   NTR.start();
-  setInterval(()=>{                                        // follow the XYZ100 premium (live offset), unless the user set their own
-    if (!N.feed || N.feed.name!=='hl' || N.loading || userOff('hl')!=null) return;
-    const v = liveOff(); if (v!=null && Math.abs(v - N.off) >= 0.5) setOff(v); else renderCal();
-  }, 5000);
   setInterval(()=>{ if (N.feed) loadDay(N.feed); }, 5*60000);
 }
 start();
 window.__AITD_NAS = N; window.__AITD_NTR = NTR;
+window.__AITD_IND = { mt5Ema, mt5Sma, mt5Lwma, bbPack, bbLevel, stochastic, macdInd, hlc3, hlcc4 };
 })();

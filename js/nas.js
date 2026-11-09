@@ -292,15 +292,14 @@ function initChart(){
   macdMain = macdChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#26a69a', lineStyle:0 }));
   macdSig = macdChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#ef5350', lineStyle:dash }));
   let syncing = false;
-  const follow = (src, dsts) => src.timeScale().subscribeVisibleLogicalRangeChange(range => {
+  // Sync by timestamp. Logical indexes differ: Stochastic/MACD omit warmup bars, and copying those indexes pulled the price chart off the latest candles.
+  const follow = (src, dsts) => src.timeScale().subscribeVisibleTimeRangeChange(range => {
     if (syncing || !range) return;
     syncing = true;
-    for (const d of dsts){ try { d.timeScale().setVisibleLogicalRange(range); } catch (e) {} }
+    for (const d of dsts){ try { d.timeScale().setVisibleRange(range); } catch (e) {} }
     syncing = false;
   });
   follow(chart, [stochChart, macdChart]);
-  follow(stochChart, [chart, macdChart]);
-  follow(macdChart, [chart, stochChart]);
   chart.timeScale().subscribeVisibleLogicalRangeChange(drawZones);
   new ResizeObserver(()=>requestAnimationFrame(drawZones)).observe($('nasZoneView'));
   setInterval(drawZones, 400);
@@ -866,6 +865,131 @@ function hexA(hex, a){
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
 }
+
+/* Fair Value Gap [Tradeuminati] — closed bars only. Settings are easy to change. */
+const FVG_CFG = { maxActiveFvgVisible: 3, maxIFvgVisible: 1, extendBars: 5, showIFvg: true };
+const FVG = { on: true, key: '', res: null };
+/* FVG_START */
+function fvgScan(bars, opt){
+  const maxA = opt.maxActiveFvgVisible, maxI = opt.maxIFvgVisible, showI = opt.showIFvg !== false;
+  const last = opt.lastClosed != null ? opt.lastClosed : bars.length - 1;
+  const bulls = [], bears = [], ifvgs = [];
+  const prune = () => {
+    while (bulls.length + bears.length > maxA){
+      let pick = null;
+      for (let i = 0; i < bulls.length; i++){
+        const L = bulls[i].left;
+        if (!pick || L < pick.left || (L === pick.left && pick.side !== 'b')) pick = { side:'b', i, left:L };
+      }
+      for (let i = 0; i < bears.length; i++){
+        const L = bears[i].left;
+        if (!pick || L < pick.left) pick = { side:'e', i, left:L };
+      }
+      if (!pick) break;
+      (pick.side === 'b' ? bulls : bears).splice(pick.i, 1);
+    }
+  };
+  const toI = (box, dir) => {
+    if (!showI) return;
+    ifvgs.push({ left: box.left, top: box.top, bottom: box.bottom, dir, label: 'iFVG' });
+    while (ifvgs.length > maxI) ifvgs.shift();
+  };
+  for (let i = 2; i <= last; i++){
+    const c = bars[i].close;
+    for (let k = ifvgs.length - 1; k >= 0; k--){
+      const z = ifvgs[k];
+      if ((z.dir === 1 && c < z.bottom) || (z.dir === -1 && c > z.top)) ifvgs.splice(k, 1);
+    }
+    for (let k = 0; k < bulls.length; ){
+      if (c < bulls[k].bottom){ toI(bulls[k], -1); bulls.splice(k, 1); }
+      else k++;
+    }
+    for (let k = 0; k < bears.length; ){
+      if (c > bears[k].top){ toI(bears[k], 1); bears.splice(k, 1); }
+      else k++;
+    }
+    if (bars[i].low > bars[i - 2].high){
+      bulls.push({ left: i - 2, bottom: bars[i - 2].high, top: bars[i].low, label: '+ FVG' });
+      prune();
+    }
+    if (bars[i].high < bars[i - 2].low){
+      bears.push({ left: i - 2, bottom: bars[i].high, top: bars[i - 2].low, label: '- FVG' });
+      prune();
+    }
+  }
+  return { bulls, bears, ifvgs };
+}
+/* FVG_END */
+function fvgClosedLast(bars){
+  const sec = TF[N.tf] ? TF[N.tf].s : 0;
+  const now = Date.now() / 1000;
+  let i = bars.length - 1;
+  while (i >= 0 && sec > 0 && bars[i].time + sec > now) i--;
+  return i;
+}
+function refreshFvg(){
+  const bars = N.raw;
+  if (!FVG.on || !bars || bars.length < 3){ FVG.res = null; FVG.key = ''; return null; }
+  const last = fvgClosedLast(bars);
+  const b = last >= 0 ? bars[last] : null;
+  const key = bars.length + '|' + last + '|' + (b ? b.time + '|' + b.close + '|' + b.high + '|' + b.low : '') + '|' + N.off + '|' + N.tf;
+  if (key === FVG.key && FVG.res) return FVG.res;
+  FVG.res = fvgScan(bars, Object.assign({ lastClosed: last }, FVG_CFG));
+  FVG.key = key;
+  return FVG.res;
+}
+function paintFvg(ctx, paneW, paneH){
+  if (!FVG.on || !cs || !chart) return;
+  const res = refreshFvg(); if (!res) return;
+  const n = N.raw.length, right = n - 1 + FVG_CFG.extendBars;
+  const ts = chart.timeScale();
+  const xOf = (i) => {
+    if (i < 0 || i >= n) return null;
+    let x = null;
+    try { if (typeof ts.logicalToCoordinate === 'function') x = ts.logicalToCoordinate(i); } catch (e) {}
+    if (x == null && N.raw[i]) { try { x = ts.timeToCoordinate(N.raw[i].time + chartOff()); } catch (e) {} }
+    return x;
+  };
+  const anchor = xOf(n - 1);
+  const prev = xOf(Math.max(0, n - 2));
+  const step = (anchor != null && prev != null && anchor !== prev) ? anchor - prev : 8;
+  const xAt = (i) => {
+    const x = xOf(i);
+    if (x != null) return x;
+    if (anchor == null) return null;
+    return anchor + (i - (n - 1)) * step;
+  };
+  const boxes = res.bulls.concat(res.bears).concat(res.ifvgs);
+  ctx.save();
+  ctx.font = '13px "IBM Plex Sans Thai", sans-serif';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'right';
+  for (const z of boxes){
+    if (!isFinite(z.top) || !isFinite(z.bottom)) continue;
+    const xL = xAt(z.left), xR = xAt(right);
+    if (xL == null || xR == null) continue;
+    const left = Math.min(xL, xR) - Math.abs(step) / 2, rgt = Math.max(xL, xR) + Math.abs(step) / 2;
+    if (rgt < 0 || left > paneW) continue;
+    const yA = cs.priceToCoordinate(z.top), yB = cs.priceToCoordinate(z.bottom);
+    if (yA == null || yB == null) continue;
+    const top = Math.min(yA, yB), h = Math.max(2, Math.abs(yB - yA));
+    const col = z.label === 'iFVG' ? '#00e5ff' : '#2962ff';
+    ctx.fillStyle = hexA(col, 0.28);
+    ctx.fillRect(left, top, Math.max(2, rgt - left), h);
+    ctx.fillStyle = '#fff';
+    const tx = Math.min(rgt - 4, paneW - 4);
+    const ty = top + h / 2;
+    if (ty > 4 && ty < paneH - 4 && tx > left) ctx.fillText(z.label, tx, ty);
+  }
+  ctx.restore();
+}
+function wireFvg(){
+  const el = $('nasTgFvg'); if (!el) return;
+  FVG.on = LS.get('nas_fvg_on', true) !== false;
+  el.checked = FVG.on;
+  el.onchange = () => { FVG.on = el.checked; LS.set('nas_fvg_on', FVG.on); FVG.key = ''; drawZones(); };
+}
+window.__AITD_FVG = { scan: fvgScan, get: () => FVG, cfg: FVG_CFG };
 window.__AITD_COACH = { scan: coachScan, scanTf, barsFor: coachBarsFor, get: () => COACH };
 
 /* ---------------- overlay: coach boxes, then Swing Finder and the 1.618 line on top ---------------- */
@@ -879,6 +1003,7 @@ function drawZones(){
   const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
   const paneW = chart.timeScale().width(), paneH = H - chart.timeScale().height();
   ctx.save(); ctx.beginPath(); ctx.rect(0,0,paneW,paneH); ctx.clip();
+  try { paintFvg(ctx, paneW, paneH); } catch (e) { console.error('fvg', e); }
   try { paintCoach(ctx, paneW, paneH); } catch (e) { if (!COACH.err){ COACH.err = String(e && e.stack || e); console.error('coach paint', e); } }
   if (NSW) NSW.paintBack();
   if (NSW) NSW.paintMarks(ctx, paneW, paneH);
@@ -915,7 +1040,7 @@ function setTF(tf){
 function start(){
   document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>setView(b.dataset.nview));
   document.querySelectorAll('#nasTfs button').forEach(b=>{ b.classList.toggle('active', b.dataset.tf===N.tf); b.onclick=()=>setTF(b.dataset.tf); });
-  wireCal(); wireTz(); wireLevels(); wireCoach(); initChart(); setView(N.view);
+  wireCal(); wireTz(); wireLevels(); wireCoach(); wireFvg(); initChart(); setView(N.view);
   // gold first: start NAS when the gold chart has painted, or after 1 s at most
   Promise.race([window.AITD_GOLD_READY || Promise.resolve(), new Promise(r=>setTimeout(r,1000))]).then(()=>{ loadFeed(); });
   setInterval(renderBadge, 2000);

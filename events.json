@@ -1,43 +1,43 @@
 {
- "generated_at": "2026-11-07T03:16:42+07:00",
+ "generated_at": "2026-11-09T11:59:14+07:00",
  "source": "ForexFactory (live)",
  "_format": "events: list of {title, country, impact, time (ISO with +07:00), forecast, previous}",
  "events": [
   {
-   "title": "Congressional Elections",
-   "title_en": "Congressional Elections",
+   "title": "Core CPI m/m",
+   "title_en": "Core CPI m/m",
    "country": "USD",
    "impact": "High",
-   "time": "2026-11-03T22:16:00+07:00",
-   "forecast": "",
-   "previous": ""
+   "time": "2026-11-10T20:30:00+07:00",
+   "forecast": "0.2%",
+   "previous": "0.3%"
   },
   {
-   "title": "Average Hourly Earnings m/m",
-   "title_en": "Average Hourly Earnings m/m",
+   "title": "CPI m/m",
+   "title_en": "CPI m/m",
    "country": "USD",
    "impact": "High",
-   "time": "2026-11-06T20:30:00+07:00",
+   "time": "2026-11-10T20:30:00+07:00",
    "forecast": "0.3%",
-   "previous": "0.1%"
+   "previous": "0.6%"
   },
   {
-   "title": "Non-Farm Payrolls",
-   "title_en": "Non-Farm Employment Change",
+   "title": "Core PPI m/m",
+   "title_en": "Core PPI m/m",
    "country": "USD",
    "impact": "High",
-   "time": "2026-11-06T20:30:00+07:00",
-   "forecast": "65K",
-   "previous": "29K"
+   "time": "2026-11-13T20:30:00+07:00",
+   "forecast": "0.3%",
+   "previous": "0.7%"
   },
   {
-   "title": "อัตราว่างงานสหรัฐ",
-   "title_en": "Unemployment Rate",
+   "title": "PPI m/m",
+   "title_en": "PPI m/m",
    "country": "USD",
    "impact": "High",
-   "time": "2026-11-06T20:30:00+07:00",
-   "forecast": "4.2%",
-   "previous": "4.2%"
+   "time": "2026-11-13T20:30:00+07:00",
+   "forecast": "0.4%",
+   "previous": "1.3%"
   }
  ]
 }

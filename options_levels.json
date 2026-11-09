@@ -2,64 +2,64 @@
  "gld": {
   "source": "Cboe delayed quotes GLD.json (SPDR Gold Shares ETF options; proxy, not CME)",
   "source_url": "https://cdn.cboe.com/api/global/delayed_quotes/options/GLD.json",
-  "quote_time": "2026-11-09T14:29:18-05:00",
-  "quote_time_th": "2026-11-10T02:29+07:00",
+  "quote_time": "2026-11-09T15:59:59-05:00",
+  "quote_time_th": "2026-11-10T03:59+07:00",
   "data_date": "2026-11-09",
   "oi_note": "OI = OCC open interest published by Cboe (positions as of the previous settlement)",
   "oi_chg_vs": "2026-11-06T15:59:59-05:00",
-  "iv30": 22.024,
+  "iv30": 22.599,
   "conversion": {
    "method": "level_spot = strike * spot / GLD",
-   "gld_price": 376.67,
-   "spot": 4110.47,
-   "spot_time": "2026-11-10T02:29+07:00",
+   "gld_price": 379.51,
+   "spot": 4141.56,
+   "spot_time": "2026-11-10T03:59+07:00",
    "spot_source": "OKX XAU-USD index 1m close",
-   "ratio": 10.91266
+   "ratio": 10.91291
   },
   "expiries": [
    {
-    "underlying": 376.67,
+    "underlying": 379.51,
     "window_pct": 10.0,
     "call_oi_total": 48832,
     "put_oi_total": 31492,
     "pc_oi_ratio": 0.645,
     "max_pain": {
      "strike": 371.0,
-     "level_spot": 4048.6
+     "level_spot": 4048.69
     },
     "call_walls": [
      {
       "type": "call",
       "strike": 385.0,
-      "level_spot": 4201.37,
+      "level_spot": 4201.47,
       "oi": 4186,
       "oi_chg": 359
      },
      {
       "type": "call",
       "strike": 395.0,
-      "level_spot": 4310.5,
+      "level_spot": 4310.6,
       "oi": 3906,
       "oi_chg": 332
      },
      {
       "type": "call",
       "strike": 390.0,
-      "level_spot": 4255.94,
+      "level_spot": 4256.04,
       "oi": 3871,
       "oi_chg": 1459
      },
      {
       "type": "call",
       "strike": 387.0,
-      "level_spot": 4223.2,
+      "level_spot": 4223.3,
       "oi": 2869,
       "oi_chg": 463
      },
      {
       "type": "call",
       "strike": 391.0,
-      "level_spot": 4266.85,
+      "level_spot": 4266.95,
       "oi": 2403,
       "oi_chg": 1394
      }
@@ -67,38 +67,38 @@
     "put_walls": [
      {
       "type": "put",
-      "strike": 340.0,
-      "level_spot": 3710.3,
-      "oi": 3795,
-      "oi_chg": 65
-     },
-     {
-      "type": "put",
       "strike": 360.0,
-      "level_spot": 3928.56,
+      "level_spot": 3928.65,
       "oi": 2986,
       "oi_chg": 1652
      },
      {
       "type": "put",
       "strike": 350.0,
-      "level_spot": 3819.43,
+      "level_spot": 3819.52,
       "oi": 2673,
       "oi_chg": 162
      },
      {
       "type": "put",
       "strike": 355.0,
-      "level_spot": 3873.99,
+      "level_spot": 3874.08,
       "oi": 2445,
       "oi_chg": 823
      },
      {
       "type": "put",
       "strike": 345.0,
-      "level_spot": 3764.87,
+      "level_spot": 3764.96,
       "oi": 2016,
       "oi_chg": 156
+     },
+     {
+      "type": "put",
+      "strike": 365.0,
+      "level_spot": 3983.21,
+      "oi": 967,
+      "oi_chg": 76
      }
     ],
     "top_any": {
@@ -136,90 +136,90 @@
     "kind": "front weekly",
     "expires_at_th": "2026-11-14T04:00+07:00",
     "key": {
-     "underlying": 376.67,
-     "spot_ref": 4110.47,
+     "underlying": 379.51,
+     "spot_ref": 4141.56,
      "pivot": {
       "strike": 371.0,
-      "level": 4048.6,
+      "level": 4048.69,
       "method": "max pain"
      },
      "max_oi": {
       "strike": 385.0,
-      "level": 4201.37,
+      "level": 4201.47,
       "oi": 4463
      },
      "call_wall": {
       "strike": 385.0,
-      "level": 4201.37,
+      "level": 4201.47,
       "oi": 4186
      },
      "put_wall": {
-      "strike": 340.0,
-      "level": 3710.3,
-      "oi": 3795
+      "strike": 360.0,
+      "level": 3928.65,
+      "oi": 2986
      },
      "sd1": {
-      "atm_iv": 0.2346,
-      "days": 4.06,
-      "move_underlying": 9.323,
-      "move": 101.74,
-      "upper": 4212.21,
-      "lower": 4008.73,
+      "atm_iv": 0.2478,
+      "days": 4.0,
+      "move_underlying": 9.845,
+      "move": 107.44,
+      "upper": 4249.0,
+      "lower": 4034.12,
       "formula": "underlying * ATM IV * sqrt(days/365), converted like the strikes"
      },
      "breakout": {
-      "level": 4201.37,
+      "level": 4201.47,
       "rule": "H1 close above the Call wall"
      },
      "breakdown": {
-      "level": 3710.3,
+      "level": 3928.65,
       "rule": "H1 close below the Put wall"
      }
     }
    },
    {
-    "underlying": 376.67,
+    "underlying": 379.51,
     "window_pct": 10.0,
     "call_oi_total": 662,
     "put_oi_total": 191,
     "pc_oi_ratio": 0.289,
     "max_pain": {
      "strike": 380.0,
-     "level_spot": 4146.81
+     "level_spot": 4146.91
     },
     "call_walls": [
      {
       "type": "call",
       "strike": 380.0,
-      "level_spot": 4146.81,
+      "level_spot": 4146.91,
       "oi": 419,
       "oi_chg": 1
      },
      {
       "type": "call",
       "strike": 400.0,
-      "level_spot": 4365.06,
+      "level_spot": 4365.17,
       "oi": 166,
       "oi_chg": 2
      },
      {
       "type": "call",
       "strike": 385.0,
-      "level_spot": 4201.37,
+      "level_spot": 4201.47,
       "oi": 34,
       "oi_chg": 11
      },
      {
       "type": "call",
       "strike": 390.0,
-      "level_spot": 4255.94,
+      "level_spot": 4256.04,
       "oi": 27,
       "oi_chg": 19
      },
      {
       "type": "call",
       "strike": 395.0,
-      "level_spot": 4310.5,
+      "level_spot": 4310.6,
       "oi": 6,
       "oi_chg": 1
      }
@@ -228,35 +228,35 @@
      {
       "type": "put",
       "strike": 360.0,
-      "level_spot": 3928.56,
+      "level_spot": 3928.65,
       "oi": 81,
       "oi_chg": 78
      },
      {
       "type": "put",
       "strike": 350.0,
-      "level_spot": 3819.43,
+      "level_spot": 3819.52,
       "oi": 72,
       "oi_chg": 72
      },
      {
       "type": "put",
       "strike": 380.0,
-      "level_spot": 4146.81,
+      "level_spot": 4146.91,
       "oi": 13,
       "oi_chg": 8
      },
      {
       "type": "put",
       "strike": 355.0,
-      "level_spot": 3873.99,
+      "level_spot": 3874.08,
       "oi": 11,
       "oi_chg": 1
      },
      {
       "type": "put",
       "strike": 370.0,
-      "level_spot": 4037.68,
+      "level_spot": 4037.78,
       "oi": 6,
       "oi_chg": 0
      }
@@ -296,49 +296,49 @@
     "kind": "monthly",
     "expires_at_th": "2026-11-20T04:00+07:00",
     "key": {
-     "underlying": 376.67,
-     "spot_ref": 4110.47,
+     "underlying": 379.51,
+     "spot_ref": 4141.56,
      "pivot": {
       "strike": 380.0,
-      "level": 4146.81,
+      "level": 4146.91,
       "method": "max pain"
      },
      "max_oi": {
       "strike": 380.0,
-      "level": 4146.81,
+      "level": 4146.91,
       "oi": 432
      },
      "call_wall": {
       "strike": 380.0,
-      "level": 4146.81,
+      "level": 4146.91,
       "oi": 419
      },
      "put_wall": {
       "strike": 360.0,
-      "level": 3928.56,
+      "level": 3928.65,
       "oi": 81
      },
      "sd1": {
-      "atm_iv": 0.2197,
-      "days": 10.06,
-      "move_underlying": 13.741,
-      "move": 149.95,
-      "upper": 4260.42,
-      "lower": 3960.52,
+      "atm_iv": 0.2311,
+      "days": 10.0,
+      "move_underlying": 14.517,
+      "move": 158.42,
+      "upper": 4299.98,
+      "lower": 3983.14,
       "formula": "underlying * ATM IV * sqrt(days/365), converted like the strikes"
      },
      "breakout": {
-      "level": 4146.81,
+      "level": 4146.91,
       "rule": "H1 close above the Call wall"
      },
      "breakdown": {
-      "level": 3928.56,
+      "level": 3928.65,
       "rule": "H1 close below the Put wall"
      }
     }
    }
   ],
-  "fetched_at": "2026-11-10T02:44:47+07:00",
+  "fetched_at": "2026-11-10T06:41:49+07:00",
   "stale": false
  },
  "shfe": {
@@ -491,71 +491,71 @@
   "fetched_at": "2026-11-10T00:47:40+07:00",
   "stale": false
  },
- "generated_at": "2026-11-10T02:44:52+07:00",
+ "generated_at": "2026-11-10T06:41:57+07:00",
  "_note": "Option open-interest levels from PROXY markets (GLD ETF options via Cboe; SHFE au options). Not CME/COMEX data, not trade signals. level_spot = strike converted to spot XAUUSD (gld, shfe) or to Skilling US100 points (qqq: QQQ options, strike * NDX/QQQ - 5).",
  "qqq": {
   "source": "Cboe delayed quotes QQQ.json (Invesco QQQ ETF options; proxy for Nasdaq-100, not CME/NDX futures options)",
   "source_url": "https://cdn.cboe.com/api/global/delayed_quotes/options/QQQ.json",
-  "quote_time": "2026-11-09T14:29:20-05:00",
-  "quote_time_th": "2026-11-10T02:29+07:00",
+  "quote_time": "2026-11-09T15:59:59-05:00",
+  "quote_time_th": "2026-11-10T03:59+07:00",
   "data_date": "2026-11-09",
   "oi_note": "OI = OCC open interest published by Cboe (positions as of the previous settlement)",
   "oi_chg_vs": "2026-11-06T15:59:59-05:00",
-  "iv30": 24.864,
+  "iv30": 24.628,
   "conversion": {
    "method": "level_spot (Skilling US100) = strike * NDX/QQQ + skilling_shift",
-   "qqq_price": 676.89,
-   "ndx_price": 27827.6934,
-   "ndx_time": "2026-11-09T14:29:24-05:00",
+   "qqq_price": 679.8,
+   "ndx_price": 27907.625,
+   "ndx_time": "2026-11-09T16:14:59-05:00",
    "ndx_source": "Cboe delayed quotes _NDX.json",
-   "ratio": 41.1111,
+   "ratio": 41.0527,
    "skilling_shift": -5.0,
    "note": "^NDX cash index -5 points = Skilling US100 CFD (as measured for the site's NAS chart)"
   },
   "expiries": [
    {
-    "underlying": 676.89,
+    "underlying": 679.8,
     "window_pct": 10.0,
     "call_oi_total": 248486,
     "put_oi_total": 261686,
     "pc_oi_ratio": 1.053,
     "max_pain": {
      "strike": 685.0,
-     "level_spot": 28156.1
+     "level_spot": 28116.1
     },
     "call_walls": [
      {
       "type": "call",
       "strike": 700.0,
-      "level_spot": 28772.77,
+      "level_spot": 28731.89,
       "oi": 18727,
       "oi_chg": 6273
      },
      {
       "type": "call",
       "strike": 710.0,
-      "level_spot": 29183.88,
+      "level_spot": 29142.42,
       "oi": 10999,
       "oi_chg": 462
      },
      {
       "type": "call",
       "strike": 725.0,
-      "level_spot": 29800.55,
+      "level_spot": 29758.21,
       "oi": 8296,
       "oi_chg": -891
      },
      {
       "type": "call",
       "strike": 675.0,
-      "level_spot": 27744.99,
+      "level_spot": 27705.57,
       "oi": 7037,
       "oi_chg": 3915
      },
      {
       "type": "call",
       "strike": 718.0,
-      "level_spot": 29512.77,
+      "level_spot": 29470.84,
       "oi": 7014,
       "oi_chg": 129
      }
@@ -564,35 +564,35 @@
      {
       "type": "put",
       "strike": 650.0,
-      "level_spot": 26717.22,
+      "level_spot": 26679.25,
       "oi": 49500,
       "oi_chg": -12138
      },
      {
       "type": "put",
       "strike": 685.0,
-      "level_spot": 28156.1,
+      "level_spot": 28116.1,
       "oi": 23993,
       "oi_chg": -363
      },
      {
       "type": "put",
       "strike": 690.0,
-      "level_spot": 28361.66,
+      "level_spot": 28321.36,
       "oi": 10593,
       "oi_chg": -122
      },
      {
       "type": "put",
       "strike": 660.0,
-      "level_spot": 27128.33,
+      "level_spot": 27089.78,
       "oi": 7659,
       "oi_chg": -234
      },
      {
       "type": "put",
       "strike": 645.0,
-      "level_spot": 26511.66,
+      "level_spot": 26473.99,
       "oi": 7617,
       "oi_chg": 450
      }
@@ -632,90 +632,90 @@
     "kind": "front weekly",
     "expires_at_th": "2026-11-14T04:00+07:00",
     "key": {
-     "underlying": 676.89,
-     "spot_ref": 27822.7,
+     "underlying": 679.8,
+     "spot_ref": 27902.6,
      "pivot": {
       "strike": 685.0,
-      "level": 28156.1,
+      "level": 28116.1,
       "method": "max pain"
      },
      "max_oi": {
       "strike": 650.0,
-      "level": 26717.2,
+      "level": 26679.3,
       "oi": 51334
      },
      "call_wall": {
       "strike": 700.0,
-      "level": 28772.8,
+      "level": 28731.9,
       "oi": 18727
      },
      "put_wall": {
       "strike": 650.0,
-      "level": 26717.2,
+      "level": 26679.3,
       "oi": 49500
      },
      "sd1": {
-      "atm_iv": 0.2971,
-      "days": 4.06,
-      "move_underlying": 21.218,
-      "move": 872.3,
-      "upper": 28695.0,
-      "lower": 26950.4,
+      "atm_iv": 0.293,
+      "days": 4.0,
+      "move_underlying": 20.851,
+      "move": 856.0,
+      "upper": 28758.6,
+      "lower": 27046.6,
       "formula": "underlying * ATM IV * sqrt(days/365), converted like the strikes"
      },
      "breakout": {
-      "level": 28772.8,
+      "level": 28731.9,
       "rule": "H1 close above the Call wall"
      },
      "breakdown": {
-      "level": 26717.2,
+      "level": 26679.3,
       "rule": "H1 close below the Put wall"
      }
     }
    },
    {
-    "underlying": 676.89,
+    "underlying": 679.8,
     "window_pct": 10.0,
     "call_oi_total": 7257,
     "put_oi_total": 4746,
     "pc_oi_ratio": 0.654,
     "max_pain": {
      "strike": 655.0,
-     "level_spot": 26922.77
+     "level_spot": 26884.52
     },
     "call_walls": [
      {
       "type": "call",
       "strike": 700.0,
-      "level_spot": 28772.77,
+      "level_spot": 28731.89,
       "oi": 1861,
       "oi_chg": 1440
      },
      {
       "type": "call",
       "strike": 690.0,
-      "level_spot": 28361.66,
+      "level_spot": 28321.36,
       "oi": 1582,
       "oi_chg": -162
      },
      {
       "type": "call",
       "strike": 680.0,
-      "level_spot": 27950.55,
+      "level_spot": 27910.84,
       "oi": 619,
       "oi_chg": 389
      },
      {
       "type": "call",
       "strike": 670.0,
-      "level_spot": 27539.44,
+      "level_spot": 27500.31,
       "oi": 580,
       "oi_chg": 32
      },
      {
       "type": "call",
       "strike": 650.0,
-      "level_spot": 26717.22,
+      "level_spot": 26679.25,
       "oi": 334,
       "oi_chg": 182
      }
@@ -724,35 +724,35 @@
      {
       "type": "put",
       "strike": 650.0,
-      "level_spot": 26717.22,
+      "level_spot": 26679.25,
       "oi": 650,
       "oi_chg": 452
      },
      {
       "type": "put",
       "strike": 620.0,
-      "level_spot": 25483.88,
+      "level_spot": 25447.67,
       "oi": 469,
       "oi_chg": -33
      },
      {
       "type": "put",
       "strike": 660.0,
-      "level_spot": 27128.33,
+      "level_spot": 27089.78,
       "oi": 414,
       "oi_chg": 334
      },
      {
       "type": "put",
       "strike": 655.0,
-      "level_spot": 26922.77,
+      "level_spot": 26884.52,
       "oi": 362,
       "oi_chg": 152
      },
      {
       "type": "put",
       "strike": 635.0,
-      "level_spot": 26100.55,
+      "level_spot": 26063.46,
       "oi": 341,
       "oi_chg": 233
      }
@@ -792,49 +792,49 @@
     "kind": "monthly",
     "expires_at_th": "2026-11-20T04:00+07:00",
     "key": {
-     "underlying": 676.89,
-     "spot_ref": 27822.7,
+     "underlying": 679.8,
+     "spot_ref": 27902.6,
      "pivot": {
       "strike": 655.0,
-      "level": 26922.8,
+      "level": 26884.5,
       "method": "max pain"
      },
      "max_oi": {
       "strike": 700.0,
-      "level": 28772.8,
+      "level": 28731.9,
       "oi": 1879
      },
      "call_wall": {
       "strike": 700.0,
-      "level": 28772.8,
+      "level": 28731.9,
       "oi": 1861
      },
      "put_wall": {
       "strike": 650.0,
-      "level": 26717.2,
+      "level": 26679.3,
       "oi": 650
      },
      "sd1": {
-      "atm_iv": 0.2772,
-      "days": 10.06,
-      "move_underlying": 31.155,
-      "move": 1280.8,
-      "upper": 29103.5,
-      "lower": 26541.9,
+      "atm_iv": 0.2738,
+      "days": 10.0,
+      "move_underlying": 30.808,
+      "move": 1264.8,
+      "upper": 29167.4,
+      "lower": 26637.9,
       "formula": "underlying * ATM IV * sqrt(days/365), converted like the strikes"
      },
      "breakout": {
-      "level": 28772.8,
+      "level": 28731.9,
       "rule": "H1 close above the Call wall"
      },
      "breakdown": {
-      "level": 26717.2,
+      "level": 26679.3,
       "rule": "H1 close below the Put wall"
      }
     }
    }
   ],
-  "fetched_at": "2026-11-10T02:44:52+07:00",
+  "fetched_at": "2026-11-10T06:41:57+07:00",
   "stale": false
  }
 }

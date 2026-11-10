@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-10T13:16:28+07:00",
+ "generated_at": "2026-11-10T22:26:32+07:00",
  "note": "หัวข้อข่าวและลิงก์จาก RSS สาธารณะเท่านั้น · หมวดและ ทองบวก/ทองลบ/กลาง ติดอัตโนมัติจากคำในหัวข้อ (keyword) ไม่ใช่บทวิเคราะห์",
  "sources": [
   {
@@ -7,7 +7,7 @@
    "name": "Google News (gold)",
    "ok": true,
    "parsed": 100,
-   "fresh": 35,
+   "fresh": 37,
    "used": 10
   },
   {
@@ -15,15 +15,15 @@
    "name": "Google News ไทย (ราคาทอง)",
    "ok": true,
    "parsed": 100,
-   "fresh": 80,
+   "fresh": 91,
    "used": 8
   },
   {
    "id": "gn_fed",
    "name": "Google News (Fed)",
    "ok": true,
-   "parsed": 31,
-   "fresh": 13,
+   "parsed": 54,
+   "fresh": 25,
    "used": 5
   },
   {
@@ -31,15 +31,15 @@
    "name": "Reuters (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 8,
+   "fresh": 13,
    "used": 5
   },
   {
    "id": "gn_kitco",
    "name": "Kitco (via Google News)",
    "ok": true,
-   "parsed": 59,
-   "fresh": 13,
+   "parsed": 71,
+   "fresh": 16,
    "used": 4
   },
   {
@@ -47,7 +47,7 @@
    "name": "FXStreet (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 52,
+   "fresh": 54,
    "used": 4
   },
   {
@@ -69,7 +69,7 @@
    "name": "investingLive (ForexLive) RSS",
    "ok": true,
    "parsed": 25,
-   "fresh": 4,
+   "fresh": 5,
    "used": 4
   },
   {
@@ -91,214 +91,34 @@
  ],
  "items": [
   {
-   "title": "US CPI preview: Wall Street sees cooler inflation but the Fed may not blink",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/news/us-cpi-preview-wall-street-sees-cooler-inflation-but-the-fed-may-not-blink/",
-   "published": "2026-11-10T12:40+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "เงินเฟ้อ"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "ราคาทองรูปพรรณวันนี้ พุ่งขนาดนี้ สายสะสมควรไปต่อหรือพอแค่นี้",
-   "source": "TrueID",
-   "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE5XcmdkbE9LajA2VzcxQVloSEZIYWxVd0Y5NVBKYVZNZEhEMnc4WGpEZ0lNWTJiUndYWGpRaEZpNUQ4TDJHSTRPVnRoeVktRDFKc3E2NHJR?oc=5",
-   "published": "2026-11-10T12:37+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ราคาทองไทย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "ราคาทองวันนี้ 10/11/69 เวลา 10.51 น.ปรับลง 100 บาท รูปพรรณขายออก 65,850 บาท",
-   "source": "สยามรัฐ",
-   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE9MU200djIwYklDV2ptY3dLMGY3ZGpyLWFDdjRQdWtRZk1oRVNKbVN3NTB4NzZUeURGQ3JZa0V5OVo0UjdYdzBmakFWRktFZw?oc=5",
-   "published": "2026-11-10T12:29+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ราคาทองไทย"
-   ],
-   "lean": "ทองลบ"
-  },
-  {
-   "title": "เดโมแครตยึดสภาคองเกรส 2 สภา ทรัมป์ชูอำนาจ Veto จับตาทองฟื้นทดสอบ 4,225 ดอลลาร์ | การเงินธนาคาร",
-   "source": "LINE TODAY",
-   "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE85QVpxUElvbm90ajRrRmRWeEk4Q2RjOGphak5wWmk2Mi1lUjRnbUcwMEhwTTR2Q19iUmx6SVZRVTlNRGZDcWhnU1ZYb2tpaDdkaS1zcUFn?oc=5",
-   "published": "2026-11-10T12:24+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold drifts lower as traders eye US CPI and dip-buying support",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxPV0puSlB2QU9SbnZZMzZxOEltSVB1QVI5dm55d0hkLWxZZXh5VGFiaDNyNVZxaWVCVlJNV1hTWnR0MkFOZFVvWWZnNFdHeFZUeUZIX3VQa1lybExnMzdnTzI0Qm5qTkc4dE95clJrSmV3UDBGZlBmZko3SXV0LWdvY3A1bEx4NEtmWm1TMm1NVWlWbHNBWFprWURlTTNDLXg2Sjc1Z0RxMDYxV1lKaC1wZ0ZqVVQ5ei1fMng4emRxMHhJT1BGUGM3TFFhSjRGQQ?oc=5",
-   "published": "2026-11-10T12:22+07:00",
+   "title": "Gold Price Forecast: Hot CPI and Waller Remarks Keep Pressure on XAUUSD",
+   "source": "FXEmpire",
+   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPRE1MRnpkWDhZdF9GdUVZNnFCSmRkTGcxLWgwZF9fYUU2cWlnNmFmWGxGQzIxTmNvaVdxRS1sXzBCbmNSVU5FRUw5VEo1LXhMZVBvdlVaNTNld3htajhRMUR4Nm9WcDY5NVRxOTNFcm5GOTNLdGZpQ0gxYlMydDl2Y29oMUdlU1M4S2UtWTNuU3FjWVBuZVFzZXZqbF9XMEExRWJla3FrMmNTZHJraDdYRXp4TDVEc2JSTE1oSVF3?oc=5",
+   "published": "2026-11-10T22:18+07:00",
    "feed": "gn_gold",
    "tags": [
     "เงินเฟ้อ",
     "เทคนิค/คาดการณ์"
    ],
-   "lean": "ทองลบ"
-  },
-  {
-   "title": "กระทรวงพาณิชย์ เผย เหตุแฮ็กระบบตู้แช่ยุโรป เป็นโอกาสดีส่งออกอาหารไทย",
-   "source": "ช่อง 7",
-   "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9xX2lrbnJ6dk56TmFWWW9Xdkt2T2hYOXpETEdiOWI5TVVHM1AxbWhwWVVaTEljdkN1eHU1b1VNanlGOGRKZWN1cUZCUQ?oc=5",
-   "published": "2026-11-10T12:22+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ทั่วไป"
-   ],
    "lean": "กลาง"
   },
   {
-   "title": "ทองคำจะไปต่อหรือพอแค่นี้? เปิดเป้าราคาปีหน้า 4,700 ดอลลาร์",
-   "source": "pptvhd36.com",
-   "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE9oMnNPRlM3UVhGbzJ4RTJRWGQ2cDVBc3lwNzB3QjdPOTg4eDBWSHdPbi02N3VpY25YSmtHaWRleXozc09QbEpCZE9uakFtM2s0bWRoX09pUjJpNnZOUUxzeEw1VGE4UQ?oc=5",
-   "published": "2026-11-10T11:53+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ดอลลาร์/บอนด์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "ราคาทองวันนี้ ครึ่งวันเช้า 10 พ.ย. 69 ลดลงรวม 50 บาท เช็กราคาทองล่าสุด",
-   "source": "Sanook",
-   "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE96Ny1LN2t6d3VhOHNoUl9fSzQzME1Ld3JvVWNyNGJwUnczQV9VUEhySGVWcG1VRVpyeVdDbzhQVGE1eW05QW9YaG9ZNmE?oc=5",
-   "published": "2026-11-10T11:33+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ราคาทองไทย"
-   ],
-   "lean": "ทองลบ"
-  },
-  {
-   "title": "$4,150 remains a tough nut to crack for Gold as US CPI report looms",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOa1FQY3ZLdGgyeG9uRmhBelBZV1AxcGo4VXVVYjdmYjZLR2VVWGhfSG80TW1xdWM1RUM5LVc2X0h5dnZveGQybTlCTlNpQ0lSZHVBMUhsbl8zOW91bXlOZFlOZ3RBYUstbjVPeklLM0o1QXdrVlZJVGtKNk43Y3U5bF93RVpWOWR5R25NdFZQRzM3d3pFT0IyekFkMEcyVENhWDY5ejZibXZPdmo3bGJhbVpGUQ?oc=5",
-   "published": "2026-11-10T11:28+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "เงินเฟ้อ"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "From AI Stocks To Gold – Has the Great Rotation Begun?",
+   "title": "Hot U.S. CPI and High Real Yields Keep Gold Under Pressure",
    "source": "FXEmpire",
-   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOazhNaWlMcF9jT2IzLUNUZ1o0RDQ0RGpEZXZheDJwb20zYmcxS2lMTy1PMXFLUXQ2bWhUZzZ5cGxrclBjbnNzM1puVm1pUGFrdWFrSThxcVpjcEp0bHFhb1Q4aXpiX2xINHNWNmxMeGFtc3FvWVQ2TjdLMHZWWUVENlJ1cXhJTHBUMUR6NFJZZVUwdGdhMWpaQXEzWml1R3QzQ2V1QQ?oc=5",
-   "published": "2026-11-10T11:22+07:00",
+   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPcFV4LU5oSWFQYlJQUVpMb0xkWFg4XzBQTTdDN3FBWTF2Vm9WVUpsSGZka2o1a2REQklSQUFQdThxb0dhVVgwSEZpRFE2RWtmYnpQQlkxWEhvcDFDVFhrSWpXdnBHWVI1czNLZXpRYjJNczZMbDV0OU9MNVZpazltNTQ4VWY5azJrY3lnSlk2VnJlRjFpb3o2NnRQNFd3MEVSc0R0RE8wTWZkYVg4?oc=5",
+   "published": "2026-11-10T22:17+07:00",
    "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold Futures : บล.โกลเบล็ก ราคาทองวันนี้ 4,110.84 $/ ทรอยออนซ์",
-   "source": "bangkokbiznews",
-   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9QM0hib0J1MlhSSWxmejZSM25vclNYV3B1bmxZbjFTVGZoYUFYdFEtQWU5UmMzNEhVY0dLX1l4WndFd1pqMnptbzJ6Mm1GcWxMRnYydnR4T2Y0WElqMThtZHlvOXg?oc=5",
-   "published": "2026-11-10T11:09+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ราคาทองไทย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "\"ฮั่วเซ่งเฮง\" ชี้ทองลุ้นทดสอบ 4,225 เหรียญ รับ \"เดโมแครต\" ยึดสภาคองเกรส กดดอลลาร์อ่อนค่า",
-   "source": "ข่าวหุ้นธุรกิจออนไลน์",
-   "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1ZZmJ6OUU2SGJtWjVuNTJFVk5nS3Y5N3N5RXZNRldjU1llWWQxSmdyVjlHSzlLNFREZVJsd1Bfc3VNbFNMWDBVNUJDZw?oc=5",
-   "published": "2026-11-10T10:58+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ดอลลาร์/บอนด์",
-    "ราคาทองไทย"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold edges lower as focus shifts to US inflation data",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNUUt5d0NsOEFXZzVGWU5qOFFwbGtuT0pyM3RMcTR3ZDRXYzFqV1NkM1VadUV0VzdNUFpZREVYLU1mdWFpSDE5V0w3Qlo5X1luTXVXRkZKNHQ1bXY1X0VCNHRienZVbnhQdE93UWFYRk41T0Fhd2tiQ2dpZzF2WEZmM0hVTFpjMVFzR2JhNlpWN0R5ZkFCY0JkRUVuYw?oc=5",
-   "published": "2026-11-10T10:31+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "เงินเฟ้อ"
-   ],
-   "lean": "ทองลบ"
-  },
-  {
-   "title": "US Dollar Index (DXY) flatlines near 101.70; awaits US CPI report amid Iran uncertainty",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxOSUI4OTJFRHJhbFNjcUNOMzlrb0l5RkYzUW1lR0ZCRTY0UDgtZUxLMmZqSGU2ZnlqQ05yWjVYREpMVXFheW9fQ2RTY05DREczUENwZzVpMW5vc0wtY216UXF5Sy1BT1dVdVZYUHVrYTRUYU53Ulk0dV83SFo3YlJ3N19Ta21zQUhTaUdueWs2MUV5anBJV1V5eXI5cndwYWRoTWFrSFRPV2o3ZDA3bFhJOHNFUkRONTllZjBSc3RvRDlCdFFU?oc=5",
-   "published": "2026-11-10T09:48+07:00",
-   "feed": "gn_fxstreet",
    "tags": [
     "เงินเฟ้อ",
-    "ดอลลาร์/บอนด์",
-    "ภูมิรัฐศาสตร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "New Zealand Dollar steadies as Iran talks fails to lift NZD/USD",
-   "source": "FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNZ2JUMWQ5bGpxY0NrdTdrakZ2c0ZpWlhXVjN5bGNwV3c1S1lzWWd4MGdybk13VExwbjExUnJ3VHU3TTVqYWd6Rzc4WGpwcXkxVzFMd3Z3UUpQWldUZHVXVXpCaVNlWUcyVk0tS0YwZ3lHclpjUkNmRG9jaEtpNzhHNHRnbzNpeG1MRjZtOElpN0tSc1lXU3FRZ3R4UExDYlZ1Z3hwQWo2NmdWdw?oc=5",
-   "published": "2026-11-10T09:25+07:00",
-   "feed": "gn_fxstreet",
-   "tags": [
-    "ดอลลาร์/บอนด์",
-    "ภูมิรัฐศาสตร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold (XAUUSD), Silver, Platinum Forecasts – Gold Gains Ground As Oil Tests New Lows",
-   "source": "FXEmpire",
-   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPbEFWXy1YUmhXdFVsT21Rc3JWUmJTTXJacG1ycU1PVUkyRUFlSFUyTHUtZm1fSmt6Uk1SdTY2dzYyYWg2TkVRYWJBM25RakxUdkNIVXl6VkszaHQ4SDV4eVNqNVdGZ2tqamttbWJOeG5zbE1MRmtJc2VmYTNQU1hDMmEwZEpOcmRwYnVKdjFBTFNsVzg3ckYxMlVUUFVzcHNnSm16WHZLZk0xaUNTMlpfVzBpU2dZWEFvTmxxYXEzUi11aURONU5j?oc=5",
-   "published": "2026-11-10T09:05+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Gold Rallies on Democratic Sweep, but Can It Last?",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxQZlRLLTNfM1RlTnJ3ajc0NFp3VW9kem1LQmNqUVBsZkd4WmZvbHZpdFhxREM0bnRJamh3ZFV5eWdCamFydmswRmRGYWhLQVAzdUhzakZSWnNPOHpsVTJJeEFlZUZvT2RfY2M0T1BCeGNHUTNFLXFFcDBsdEFHRHFybWZzMUktY1lMLXc?oc=5",
-   "published": "2026-11-10T08:53+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "ทองบวก"
-  },
-  {
-   "title": "Why Gold Miners Rose on Gold’s Down Day",
-   "source": "FXEmpire",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQUFBxa0JaQkRlV0RfaUFTU0tGVXU4V3JyTjVER2h6XzZFbkFWT2xCTkpINXZ1SW1KaEtJdWhZQXB0ZlZtbXpnTjEzWGpGQVRNX1JDUGtkZTg3eEgxX09CQ3lSODNCMVRFWjgzZXBHYjUwZmVMZkFRVDhUQUJ1aldlVnlodnhqOXZJUlNyZ2ZoSWdMOW8?oc=5",
-   "published": "2026-11-10T07:55+07:00",
-   "feed": "gn_gold",
-   "tags": [
-    "ทั่วไป"
+    "ดอลลาร์/บอนด์"
    ],
    "lean": "ทองลบ"
   },
   {
-   "title": "Fed rate hike may not be ‘one and done’ if AI boom fuels inflation",
-   "source": "TheStreet",
-   "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOYS01TlV1dHFyUXJKQ240UU1aMV9pYXphaEdfOHdFeVR4NU9hZ2dqdTd6VS1Vb1gtd2dQVENaZ0prNVR1QUVWdDdXMVBpZFFMTW9BbldfYjBWc3ROVGxSLWx4REZiblFiTGR6bHpnX3pyWFpBaWNHWGZtTjViUWdLamYzT3JpT2RINlFEaHVBUUJQOXhWQUJIQzVlRWQ?oc=5",
-   "published": "2026-11-10T07:47+07:00",
+   "title": "Traders raise odds of 50 bps Fed rate hike as CPI rise exceeds expectations",
+   "source": "The Economic Times",
+   "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxQcE5rWUlUVkM2VDhQSXJpc1V1WDJIaTFVMUVyRDhPcTlCUXdjMV9QX2swcWY0RXBTZkN0cDlDUXNHakNIYkdUaFFRTWphQk1iSzYtQ2lRVFh1Zkk5UWtyZDhHWGFGNm5pSGw4d3ZNV1pybXRCaDF1ZjhIbXAxMDFaRFI4YUVsdlNIVFQ0VUhYTWUzdjVrMk1Kbmg3QmRFX1FQYjByLUY3OTRGTDdWZ0w3SnNRY2ZfMDJxeTRRUjRaRlBtUERyN2tGNzBlWEpKdDFuajI4eGJFN1dwcXRxeUFuZWhfYmJEVkR0NTZVbmx3TEgzbVFMSGxuUdIB_gFBVV95cUxQazRnTVg3a213WlBNWlBkRjFMSUNObFkyaDVsaG53T2FiXzV5b0NmV2VEODhiYUpBb2pzb1BSVG5UanVLVHV5YWtmNEdkZ3BCNnc3T3h5cllGcFcyRDdua2pWUzFkU3A5T2ZPNWhWRVJWcUxwUWFkMzNXUjdiT2Y3VnZGSFVzeWFfYW9UeGl6V2Rpc2QyOWRxUnd1elE5WVJVbEc1RnVuanlpbGtsczZSVGRrYXlma21QZ0IwUWtBdUpmS3FqOVFYSHlRMlk1SVB5UXdyYmdSQ1NjbU9QMnhnOWZfYWl1RTRDOW1OZ1czenlVOGZ1VDRNUTNnNlpWUQ?oc=5",
+   "published": "2026-11-10T22:15+07:00",
    "feed": "gn_fed",
    "tags": [
     "Fed/ดอกเบี้ย",
@@ -307,10 +127,33 @@
    "lean": "ทองลบ"
   },
   {
-   "title": "What Does Kinross Gold (TSX:K) Class Action Mean For Its 2026 To 2028 Guidance?",
-   "source": "Yahoo Finance UK",
-   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5xV0drNGctLVl6RDVqdmhBal92anUtYnc2U3VuLVExM1VBNDI0cFZoYU8xZkxuZ2ZvQUI4RVhUa0NQeExjRS1aV1ROcEduLVhQR1o2anNveHgwTXB0ZzlaTEhzV2ZYWkkxQWZUYkprWHJFMVFHLXRtbmZrU3c?oc=5",
-   "published": "2026-11-10T07:15+07:00",
+   "title": "Gold, Silver Fall as Rate-Hike Betting Jumps on Strong Inflation Data",
+   "source": "BullionVault",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOT3E1cENvS0llMVhqSFJMNEJINTFEbkNINmFyV2ZwdUlYY3pVWUdtTG1iQnRXS1J5TllpNExsVDZjSDNmU3pPdUllUE5wdGVLcUxRc1QtajVtWWJYQ1Q3MWNBMWY4eGxzdHowVGR2c285MFcxM053Zmd3ZDM2UDhaMTZJaGdGZ1Y0aENlUHpWcVRuTG5FRXNwRk00TQ?oc=5",
+   "published": "2026-11-10T22:13+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "เงินเฟ้อ"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "Stock market today: Dow, S&P 500 slip after CPI data raises Fed rate-hike bets",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxQX3g4SF9zazNmOHU3U1IzeWVXQUJoY3VIWmVZZGRXc3B0alp1SU1Bdk1EQnJJMWJXdTNpQmowcDYyaUhHNHFRQm9xSHhLNnJVb0dtY1NWZFdqVDRyaVBKVDZuejBlWXRIQ3BhSU5sd0tXUUVuVl9CWHdLMy1ma3RFdEx0NEZjdVhoWXhGMFVyWTZzWDhKajBfRmxNMldzR1N1NVBJc2k5cFhkUTFZdTJqNF9ia3ZnQmpQZWppcWFOUmtINmhvVVFIWVAtdVc?oc=5",
+   "published": "2026-11-10T22:12+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "BC-Gold Futures",
+   "source": "Yahoo Finance Singapore",
+   "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE9BdXhXSzcydUZEbHU0YS1RSHV2c01wM0Q2dmU0bjl2aWFKTW9DZ0Rqb3JmbjZlRS1OV0Rlbm1VWHVsX1U4QkhFR013bUp3d01UYlNiN2MzOHNySVNnNVVlUnRrelNaa0NiWk9JcXV1RU9iUQ?oc=5",
+   "published": "2026-11-10T22:00+07:00",
    "feed": "gn_gold",
    "tags": [
     "ทั่วไป"
@@ -318,111 +161,276 @@
    "lean": "กลาง"
   },
   {
-   "title": "BlackRock: an AI spending slowdown in 2027 would hurt markets but could also lower yields",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/stock-market-update/blackrock-an-ai-spending-slowdown-in-2027-would-hurt-markets-but-could-also-lower-yields/",
-   "published": "2026-11-10T06:19+07:00",
-   "feed": "investinglive",
+   "title": "Fed's Waller plans to support at least a quarter-point rate hike in December",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNR3RjbDlfcXFBbHp0SVRSeHIzZHFTTnY5bjBuWGszTTMzUmxLUXNzRTFid29sbXV1emJSZWMwTEo4V2dWYjJ3TGlESmRlRzdFcDdQU3RxWi1QVEZrRlNBU0N3NG50WUNBWVdXbnZFS0RuVDNyRVdGWm1aRjFjWGRlRFRoTFhlbFMwQ1NjbTZMd2x0cnlHR0F4d2JNV3dKcHFOOE5TRFVsSlc5ekxoQ0E?oc=5",
+   "published": "2026-11-10T21:41+07:00",
+   "feed": "gn_reuters",
    "tags": [
+    "Fed/ดอกเบี้ย",
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "US Core CPI Rises by More Than Forecast, Supporting Fed Hike",
+   "source": "Bloomberg.com",
+   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQelNoMFNyY01hVzlXME5aeHpRMGpzd1NVc2pxVHlMNFFWYVdUSjdDMkZxdF9fS01fS0xxc3Z3bDN3R28tMlB5TlV2djZib0JZak84MExhcEV4emhRWGpoTURjcTAzOThSU3dqRWFMVEE3VDRjb1FTS1c1b09uU2lFMWlZdkZVWENsWjE4WVUyQTZxZ1pXTDhnTE90czBGb1E2T2o3RHk0ODkxUDZ5ZzVfdDl3?oc=5",
+   "published": "2026-11-10T21:31+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ",
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold, silver retreat as high core CPI lifts December Fed hike odds- Kitco AM Report",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNVFVQeklvWERhQ2FQMVNKaDhvRVN2dHNKQ1Bib0piZkZxMS1WaWhRVm1wRmpFUTJ6aXJxVXlHUHFfU2VPRW1VZ0RaZk1rZzh0Z2E5empNTVB4X3czTDBIcXVnOV9jVGJScHlQNGRscEZXazlwY1ZNVWVNWkhYMlAzWFEtRjNobEJUSWlJa0JrUmVXY3FpdGlPLWpobTdTY0poQjlSVkhFcl9YZWZyd0ZOb3lsWm9LdDJu?oc=5",
+   "published": "2026-11-10T21:20+07:00",
+   "feed": "gn_kitco",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "Australian Dollar falls below 0.6900 as hotter US CPI fuel Fed rate hike bets",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQT1l6TW5FSFA4WFRBaDVwUHc1bGF2Ny1lTzJ0NWpLOWlOWEMtXzI4VlhOZ0RZZzJaWXJhdlJTQXVoTmdkTFdXaDAzTUw3VWVkYklZcTlLckxJc1BRbktFSjFpV3lVMnlIUmF1SjJXSkd3SW5zbDJOOHhZckFfQzNGcWFPbmZhUU9TZkV1SHBsX1M2eThhWHVwRlZRMlUzNzVRaF9VUEl0ZXVmbU9DSmxkekdvbHo?oc=5",
+   "published": "2026-11-10T21:15+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ",
     "ดอลลาร์/บอนด์"
    ],
    "lean": "กลาง"
   },
   {
-   "title": "Morgan Stanley flags AI as a new risk for the Australian dollar after Democratic sweep",
+   "title": "US stocks slide, yields jump, USD higher after hotter-than-expected October CPI",
    "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/forex/morgan-stanley-flags-ai-as-a-new-risk-for-the-australian-dollar-after-democratic-sweep/",
-   "published": "2026-11-10T05:59+07:00",
+   "link": "https://investinglive.com/technical-analysis/us-stocks-slide-yields-jump-usd-higher-after-hotter-than-expected-october-cpi/",
+   "published": "2026-11-10T21:06+07:00",
    "feed": "investinglive",
    "tags": [
+    "เงินเฟ้อ",
+    "ดอลลาร์/บอนด์"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "Gold drops 2% as US CPI tops forecasts, strengthening December Fed rate hike bets",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNSWQtS2ZNS2hudkNkbHpxQ3RpYXkyTjh0bnRLVERfTk9Qci1lbGZmdzNJMUxKTVlyOFVjUFJhTTRoX2RXZGEyR25Id1RSdnhuSkpFaFpnOUNQNjkwSmJUX2ViaExjVDY1OXpMbFc4ZnZTQlk2QXVVZjlLems5LUlTZS1ZRDN0SC01WGtlOHlNUzF5YnRSX1J2NnA4c0x3eVNKc2RWVFZhbXA?oc=5",
+   "published": "2026-11-10T21:02+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ",
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "US Dollar Index (DXY) trims losses ahead of US inflation data",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQc1FleVFHUWl1VGRkQkVYZ1l6OFFrdkFxTHJ2Y2lXVlQ5LUM4Sjd4bHR2Ullubm52Zk1vZE9hc3BFMEQyMnpISHpXNy1FZU1VMzlKRUs4UTVjcXVPcS1NZ2NMNEJTR3RYZWVqbDJMTVpzM2o3VGRNNG9OWDBYQnpGLWZ3N2NkemV5ZUROMnhKakxxcjlYeGljRE5VYUUxWjBpUFJRTQ?oc=5",
+   "published": "2026-11-10T20:49+07:00",
+   "feed": "gn_fxstreet",
+   "tags": [
+    "เงินเฟ้อ",
     "ดอลลาร์/บอนด์"
    ],
    "lean": "กลาง"
+  },
+  {
+   "title": "Gold price, silver rate today: Why is gold rate down on Tuesday? Check latest bullion outlook",
+   "source": "The Economic Times",
+   "link": "https://news.google.com/rss/articles/CBMi-gFBVV95cUxPa3g1aTM5eFUwZ3VtSjdpTjV0R1hnM0lMazRGMlF3MGlQTXlFUVc1Z2t1NTFzeTlSMFY1YXlnV1BfamlLb2IyeTdNaElmZDFpd25xdW1EbXhERzlRZ20wbjdPZUZtMEhEUU1YMmZmWURZNjdwNjNYMTdLV3ZiaW5QeXFsVWlSeVBLZFpFdjlxdEM1WkpsMTdLQ3dsU2dIUTdXZU9NbEZEdVRGQWY1YmZ3TV9FUW5TWjRTdW11WkkwV0hWVl95b3RFanQxb0RmdVI1Sno5N0h3cG9qSm5BbG8zeFVEQmFhbklCV0FqYlZRRkx6Zkd0cWhoZXRR0gH_AUFVX3lxTE9HMHlOY2V1eEpxWFJUX0NlVlY0TFh5b1FBbEhaNENJbUo0aTFsN2IwRWZ0Q25FeUNETlRsYTh0M3N4ckVwQk10WU5JY0pZUmdkbFlGYmU4elIwalJuT0RkN3dweGNBQUREMG1XWk5Wakx2czdjT3JJbTBpVDVJVnJMbVJPblhTN0gtTUVHbHhaMDNqVDVIc3Z2NDFrQXBBd1duS3hIRVFrRmVac2lZRjZseW5VY2xhMjdUNHduMWxYbHpoTFZzSHpka3p1TWJrZmlOMUpZbUFfTXdlZEtoM0NhbUl4OHZpdTdtdTNtWDFCSkg3N2VXcUE3TEU4ZTA5TQ?oc=5",
+   "published": "2026-11-10T20:45+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "ราคาทองร่วงหลุด $4,100 ผวาเฟดขึ้นดอกเบี้ย 0.50% เดือนธ.ค.",
+   "source": "RYT9",
+   "link": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE8tVmNvTzU5THBQckZwaFRMY253emg5ZEs3ZElRbndGaG1aTXdLc0VZTzktQkhCVl81clNrNUxObk1ta0tXX1ViSjVn?oc=5",
+   "published": "2026-11-10T20:45+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "Gold prices down 2% on the day as US CPI rises more than expected",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPOV9mS1BKa1d2YmFyNkpBcmVzdzQwbF82bFh5RjRZSVcyeDZ0V1QyQ0xiSUY4SW9pQUZfbkpaWW1wbkVfb3pWcEY5bzFiX29VenI1X2hiQk02V00zSElkS015bDVxWkNJX3dFbjlMNWJVdVNMeGNzSWFlRFdlYzVqQ2Z0MHcybG1CUExJR3dOLVQ1Vm44ZExPWFBlYw?oc=5",
+   "published": "2026-11-10T20:30+07:00",
+   "feed": "gn_kitco",
+   "tags": [
+    "เงินเฟ้อ"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "25 basis points is the unanimous call for December Fed hike – Reuters poll",
+   "source": "FXStreet",
+   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNYjFXZmw5WjRNR3YtSWJ5WTNhNVF0YTdGNk95Y09BQU1rU2FFaXdvQTJOT2M2YUh0QlVwbDlOMGFobXFBcFpzNHpYSVVNRTdoTkc1aWFPTWw5OS15bEROM0llRlJ4ekpJcEtVcWt4anZJTmx3T0ZrNHB2cFF5SHk0WDJaMlpmbURZdEdDd1hqQ3JzRUhhVkhybmE3ckZhb2VNaUpnOFRlM0wtNjZvNnRKQUtyOFlKQQ?oc=5",
+   "published": "2026-11-10T20:26+07:00",
+   "feed": "gn_fxstreet",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold drops 1% on hawkish Fed comments ahead of US inflation data",
+   "source": "Kitco",
+   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOaERMamhvSVhOZU9hMzU2THhBLVBDSUVpQU5wcF9IWDFnUV84LTFWam9hRVBzUGUzTGx6MGVfNk5udlVwYnFVc2lBdTdsVC1UVnZkTmdfUFVBMEdVX0lhd2czT0lsTlRiRG1PYnVFRE9vZGo2RUtQaHpxaUJucmI2U2JJUXNuUW5FUVg4Nm5MSDBYNzI2RHBGNnFhblQzdVg5aWpOdjQ3ZG9HVEFT?oc=5",
+   "published": "2026-11-10T20:21+07:00",
+   "feed": "gn_kitco",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "ทิศทางทองวันนี้ 10 พ.ย.2569 พูดคุยกับ คุณวิโรสินี สดากร ชายน์นิ่งโกลด์",
+   "source": "goldaround.com",
+   "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQR1hRN2dRVFUtMzhHS3RwdmdPcjBmNjV6eFREWGxzX3J0SGRESHIzUFlkU0E0cXRYZzV5TzNoOHQwWmpJSkVzUlFUMUp0R3NxcExyYjlOT1FQMTV0dFpuYkFheVIwSWtGQVVsbm5XWUpDY2ZsZTQ4UWJKaFl2R1NUT1BhNHQ4QzAtUzdFQ19pTk9kdw?oc=5",
+   "published": "2026-11-10T20:19+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed to raise rates once more in December as inflation risks stay high: Reuters poll",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQaGgwYzFvYzY1cndpc3FZRGZjLXRQTFp0WlktcmQwS2d6T1VhVVRBWkdpclUxd3Bvd1A4bWZOendzNXdhdmdtTnJ6S3AxMVNJN0hUbnRDZEF0NHE5QWtOZFUxc2JuZm1qbklMRjBtb2xmWlVSWVdNckxNSFQ3cnZLeC1KU1lrb2lBTFNKN2J1Uy1OYmRSczRoQmZsZlBtaHZPYzdnM1NSZTR5ODdsbEVV?oc=5",
+   "published": "2026-11-10T20:14+07:00",
+   "feed": "gn_reuters",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "เงินเฟ้อ"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "สรุปแนวโน้มราคาทองคำและกลยุทธ์ลงทุนวันนี้ 10 พ.ย.2569",
+   "source": "GoldAround.com",
+   "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxOVnpaZDNhbFdpTEhQS0l6NWY4WGZ0QTQtS2N3a1N2ZXphNHZuVTZRMUFUeGlHMlMyX0xUTVBPOWFPQVNRclB4NGdTUmlobFZmSmRLQzRTQlFQUjlhbHV6VUdsWm1OSzJPTDdnenJ4UURUVXNwakpGdEhQWkc3QTYyQ1Q3S1JQWHgxVEE?oc=5",
+   "published": "2026-11-10T20:09+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "investingLive European news wrap: Fed's Waller floats case for 50 bps hike in December",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/news/investinglive-european-news-wrap-fed-s-waller-floats-case-for-50-bps-hike-in-december/",
+   "published": "2026-11-10T19:39+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold price today, Tuesday, November 10, 2026: Gold opens above $4,100 for the first time in three weeks",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMigwJBVV95cUxQTUs2ekJ6eldWUXZyUHlFNndxRGphaG4wSDY4UzdOUHhjbE1sQ1NEelZkdlFTbUsxV0xUZHhTUXRkYXpaRzBUNm55WFdoMGd4V1VaZHN1UFZwa2h4SmhybXVFaVZMRjVELVBaLWs2ZEpVYjhjVnIzcTY5VzBBWWhRUEFteGR5cXBvRl9pMzdFSmVNdFRPSnlFMDE2Q2NJRTlhU3ZCZzhhQjYzbzZGV2F3ZjBoRVRFLTBMN1I3WkZpSnVrVnM2LU9EdExhSlh4ZzVLYkFhOU1pUXpGT0loUTlSQWo1Ny13Ti04YUdkbW1BWXdGVjNQMW1EZ0piQmRWTUFzUmgw?oc=5",
+   "published": "2026-11-10T19:17+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Kinross Gold (TSX:K) Stock Looks Below Fair Value Despite Recent Caution",
+   "source": "Yahoo Finance Singapore",
+   "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE1zc0RmNjEyYl9aRXZSTEhYeTAzOVVld3dBQmItTTRsYlhzcTBHbDVtaVRRX3BTTTF6VTg5UWt2NzdfVzNRR1VGRGpNQ0h0dGV2ZDRqUWVteEJZLWhZV1VmMWJCUVRoOEhvd1Y1ODJpcmJEVWFKQV9SWlQyN1d3dw?oc=5",
+   "published": "2026-11-10T19:10+07:00",
+   "feed": "gn_gold",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "ทองคำชักกระตุก รอผงาดเหนือ $4,100 l วิเคราะห์กราฟทอง l ทิศทางทองมองอย่างเซียน Ep.191",
+   "source": "InterGold",
+   "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5GSmQ3X1pCTThCSDZmZWJyUkd4bGdkV0paaGhJbTlQVjk3VHdwb0ZKVV81bmFaQ0ZISEQ5dXNQV1lzb2lTRzdpQXNmbzI1RFhuMHFPR0VIT29BRnRnNVg4VjJDOEJIdnJUVjZGSmN1dw?oc=5",
+   "published": "2026-11-10T18:31+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "เทคนิค/คาดการณ์"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "ราคาทองวันนี้ 10 พ.ย. ปิดตลาดร่วง 450 บาท ทองแท่งขายออก 64,650 บาท",
+   "source": "The Bangkok Insight",
+   "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE5vdE9yWHFVWHFFbDVlTVNZdTBMcXV3TmtwbE5Jamdld183ZGd5M1V4bTJkbThuX1h3S2w3cEdKUm1qX2Rfd1kwVldVWUhyR2ZQelF0TXRRUFNEX3hYY3FCb0htcHBhX1hRblhsempqM3Q4ekM2TGxnVg?oc=5",
+   "published": "2026-11-10T17:57+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ราคาทองไทย"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "ราคาทองวันนี้ ปิดตลาด ล่าสุด 10 พ.ย. 69 ลดลงรวม 450 บาท",
+   "source": "Sanook",
+   "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTE1tLTlFOGxLcjdxU3l4MWZfUUFwR1NNeF9yYjdwZk02Ni0yVE8zX1UtUXZuMktxYTlVcUFiSEtfemI2eVBUQU1WYU9CWkE?oc=5",
+   "published": "2026-11-10T17:47+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ราคาทองไทย"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "ราคาทองวันนี้ (10 พ.ย.) ปิดร่วง 450 บาท ทองรูปพรรณขายออก 65,450.00 บาท | การเงินธนาคาร",
+   "source": "LINE TODAY",
+   "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE1FVUNRTjlfQzhpME04ajd5VzJaUWJzWllmMHJVRnNqQUdHT1JPSlpmMThfQU5yZExvaUNQdG5RdzZrMjkyY0thYkJXT2hUNWJoVG9SWjNB?oc=5",
+   "published": "2026-11-10T17:46+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ราคาทองไทย"
+   ],
+   "lean": "ทองลบ"
+  },
+  {
+   "title": "ทองคำผันผวนหนัก 19 ครั้ง! ดิ่งรวด 450 บาท ทองแท่งแตะ 64,650 บาท",
+   "source": "Thunhoon",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE50UDJ5Ukk3UFdWdVhRYXlTWkhuYjZkc1ZjVmZIR2dmR3dXWWlnR0s5b1BpTHZGRE83TTF4RE83dFVJSGJwc2FJUF9lVnBxMjdVTGc?oc=5",
+   "published": "2026-11-10T17:44+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "ทองลบ"
   },
   {
    "title": "Gold Spot Prices | Silver Prices | Platinum & Palladium",
    "source": "Kitco",
    "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE1UZW9OY3B0aUpxd0RPZEJjSHhJXzZzd1lZSTZyOHgtMU96OU1fVlpCcENYQ0R4Ylp3OTc5YzdtMzZsdVVJOWNHOEYzVEdZbkdrTHp5VGRR?oc=5",
-   "published": "2026-11-10T05:52+07:00",
+   "published": "2026-11-10T16:54+07:00",
    "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold chuffed, stocks stuffed",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE92dEFhUVRvVUxoa2FaLUFsYk1odFc1Qm5kcUQyXzY4dXJEbE52SkdpSlJFYlRka1hkNk11allRa2ZjRC16RlNISDdxVDk2TzRrTGZmOXpBVUYzSkxOcnpJNF9JaDcxZURmRV9XT203Q3dscFBKTHNr?oc=5",
-   "published": "2026-11-10T05:40+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Paraguay widens probe into collapsed digital bank and installs new central bank head",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQOS1BOVNiOG9QbVF1Z0wtbHdUcF9tRFhOcGxLZlpPQXVKX0FjM0k5MmhfRlZTa1Q2d3lDdXlCdW9tdm1yVEViLVM1aFdIY1R3YzBQcWUzUEF0TWZqc2lFWmd1UEFzcU9QTlZKcDVmYVV4UmFsdTVJbm9oZTY3d2otNUVuQmRUeUFUNXprRzByQXNuZWJ5YmlZV0hQRUtPUzhvQm5ieF9lOA?oc=5",
-   "published": "2026-11-10T05:36+07:00",
-   "feed": "gn_reuters",
-   "tags": [
-    "ธนาคารกลาง"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold reclaims long-term support. Silver challenges its triangle. What's next?",
-   "source": "Kitco",
-   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQa00zVlhNU3BFNkNfR0w2aXFNOFdqQjFENDg5VzJkdmtiTEVMYlQ5aURuSjR2eW9CWkduZWNub2lqc04xOHlZSGd2QXBsSkZMSWU3d3N2LWxYblVrUTdFaUdPYWZOS1ZwNFg0R0s0NFJXVlRVVDExdnpvXy0yV201Z05oOTZQT3k5UklFVG11azhYQlUzTVIwd3AteENsVGEyX1lvV0dRWkRxRG1za1FIQlgzM04?oc=5",
-   "published": "2026-11-10T05:34+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "เทคนิค/คาดการณ์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Goldman sees $1.5 trillion in AI debt over three years, warns supply weighs on credit",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/stock-market-update/goldman-sees-1-5-trillion-in-ai-debt-over-three-years-warns-supply-weighs-on-credit/",
-   "published": "2026-11-10T05:31+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "CPI Inflation Data: How the October Report Affects the Fed’s Next Rate Decision",
-   "source": "Barron's",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQb0dpUnNRSjlyNnVNVFJOSjlnLXBPOWFjdGVVNlVuZnM4ckJzRllBSEVPWkdxWTV5Ujl5MHMwa3piNmQtU3lta0xaTE1xNVJfdmdrVzFuS3MxRnBSbWZjSGNoMnA2THJ2NVBHUmVDM2s4UFJnNVNFb3pxcjRmMl9CdFMwRzVYc2l5RTJxSHpwLU8?oc=5",
-   "published": "2026-11-10T05:10+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "เงินเฟ้อ"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "YieldMax Gold Miners Option Income Strategy ETF (GDXY.N) | Stock Price & Latest News",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE5CcWliQkxmOC1HaUlCd1pxX2dYVDFDbTJrNF9YVF9qVVZFUVhxNjlZSU9yTEZ2M2l4MWo0UEcwbWh2SlkwbEMzRnFYd1FLeWc3QTRsZy03TE8?oc=5",
-   "published": "2026-11-10T04:41+07:00",
-   "feed": "gn_reuters",
-   "tags": [
-    "ETF/กองทุน"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "ไทยอย่าเฉย!น้ำมันดิ่ง$5-ทองบวก หลังทรัมป์แย้มไม่โจมตีอิหร่าน ดาวโจนส์พุ่งพันจุดแม้มีข่าวอื้อฉาว",
-   "source": "ผู้จัดการออนไลน์",
-   "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9pSEZHZFdqbzRiRjZuSkc2OFJVMHpyUHBiRURrV1hrZVBWd2hIYTdvRlphd296TzFaSVkwN3kxUVphWXRBWTNWQi1tRHJEYVR3blBsSk04Tkc1aXp1cXc?oc=5",
-   "published": "2026-11-10T04:35+07:00",
-   "feed": "gn_th",
    "tags": [
     "ทั่วไป"
    ],

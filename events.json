@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-16T22:01:45+07:00",
+ "generated_at": "2026-11-17T06:41:29+07:00",
  "source": "ForexFactory (live)",
  "_format": "events: list of {title, country, impact, time (ISO with +07:00), forecast, previous}",
  "events": [
@@ -27,7 +27,7 @@
    "country": "USD",
    "impact": "High",
    "time": "2026-11-17T20:30:00+07:00",
-   "forecast": "0.2%",
+   "forecast": "0.1%",
    "previous": "0.8%"
   },
   {

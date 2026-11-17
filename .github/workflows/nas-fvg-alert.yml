@@ -44,7 +44,6 @@ jobs:
       DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      STATE_FILE: ${{ runner.temp }}/nas-alert-state.json
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -53,6 +52,8 @@ jobs:
       - name: FVG logic matches the NAS page
         run: node nas_alert.js --self-test
       - name: Load dedupe state
+        env:
+          STATE_FILE: ${{ runner.temp }}/nas-alert-state.json
         run: |
           set -euo pipefail
           if err=$(git fetch origin refs/heads/nas-alert-state:refs/remotes/origin/nas-alert-state 2>&1); then
@@ -66,9 +67,13 @@ jobs:
           fi
           cp "$STATE_FILE" "$STATE_FILE.before"
       - name: Check zones and alert
+        env:
+          STATE_FILE: ${{ runner.temp }}/nas-alert-state.json
         run: node nas_alert.js
       - name: Save dedupe state
         if: success()
+        env:
+          STATE_FILE: ${{ runner.temp }}/nas-alert-state.json
         run: |
           set -euo pipefail
           if [ "$DRY_RUN" = "1" ]; then

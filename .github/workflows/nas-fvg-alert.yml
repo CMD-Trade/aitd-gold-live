@@ -1,0 +1,102 @@
+# NAS100 FVG / iFVG alert. No model in the loop: node nas_alert.js only.
+# Schedule is every 5 minutes all week. The script exits 0 without a message
+# when the market is closed (weekend and the 17:00–18:00 New York break) and
+# when TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing.
+# GitHub may start a cron a few minutes late, and a busy queue can skip a slot.
+name: NAS100 FVG alert
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print the Telegram text instead of sending"
+        type: boolean
+        default: false
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  self-test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: FVG logic matches the NAS page
+        run: node nas_alert.js --self-test
+
+  alert:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: nas-fvg-alert
+      cancel-in-progress: false
+    env:
+      # github.event.inputs is a string map on workflow_dispatch and absent on schedule.
+      DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      STATE_FILE: ${{ runner.temp }}/nas-alert-state.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: FVG logic matches the NAS page
+        run: node nas_alert.js --self-test
+      - name: Load dedupe state
+        run: |
+          set -euo pipefail
+          if err=$(git fetch origin refs/heads/nas-alert-state:refs/remotes/origin/nas-alert-state 2>&1); then
+            git show origin/nas-alert-state:state.json > "$STATE_FILE"
+          elif printf '%s\n' "$err" | grep -q "couldn't find remote ref"; then
+            echo "no dedupe branch yet"
+            printf '%s\n' '{"version":1,"zones":{}}' > "$STATE_FILE"
+          else
+            printf '%s\n' "$err" >&2
+            exit 1
+          fi
+          cp "$STATE_FILE" "$STATE_FILE.before"
+      - name: Check zones and alert
+        run: node nas_alert.js
+      - name: Save dedupe state
+        if: success()
+        run: |
+          set -euo pipefail
+          if [ "$DRY_RUN" = "1" ]; then
+            echo "dry-run: dedupe state not saved"
+            exit 0
+          fi
+          if cmp -s "$STATE_FILE" "$STATE_FILE.before"; then
+            echo "dedupe state unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          export GIT_AUTHOR_NAME="github-actions[bot]"
+          export GIT_AUTHOR_EMAIL="41898699+github-actions[bot]@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          blob=$(git hash-object -w "$STATE_FILE")
+          tree=$(printf '100644 blob %s\tstate.json\n' "$blob" | git mktree)
+          if git rev-parse --verify --quiet origin/nas-alert-state >/dev/null; then
+            parent=$(git rev-parse origin/nas-alert-state)
+            commit=$(git commit-tree "$tree" -p "$parent" -m "nas alert state: $(date -u +%Y-%m-%dT%H:%MZ)")
+          else
+            commit=$(git commit-tree "$tree" -m "nas alert state: $(date -u +%Y-%m-%dT%H:%MZ)")
+          fi
+          for i in 1 2 3; do
+            git push origin "$commit:nas-alert-state" && echo "saved dedupe state $commit" && exit 0
+            sleep 5
+            git fetch origin refs/heads/nas-alert-state:refs/remotes/origin/nas-alert-state || true
+          done
+          echo "could not push nas-alert-state" >&2
+          exit 1

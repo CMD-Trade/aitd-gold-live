@@ -140,7 +140,9 @@ const Feeds = {
 const ORDER = qs.get('nasfeed') && Feeds[qs.get('nasfeed')] ? [qs.get('nasfeed')] : ['hl','okxidx','bitget','perp'];
 
 /* ---------------- chart ---------------- */
-let chart, cs, stochChart, macdChart, stochK, stochD, macdMain, macdSig, stop = null;
+let chart, cs, oscChart, stochK, stochD, macdMain, macdSig, stop = null;
+let alignOsc = () => {};
+let oscHold = false;
 let bandSeries = [];                                    // {series, pack:'b1'|'b2'|'b3', part:'mid'|'up'|'dn'}
 let levelSeries = [];                                   // {series, which:'dn'|'up', level}
 const BB_LEN = 50, YEL = '#f5d742';
@@ -230,8 +232,13 @@ function macdInd(bars){                                 // EMA 12/26 of close; s
 }
 /* IND_END */
 function pts(bars, values){
+  // One point per candle, including warmup bars with no value, so this series shares the price chart's timestamps.
   const out = [];
-  for (let i = 0; i < bars.length; i++) if (values[i] != null && isFinite(values[i])) out.push({ time: bars[i].time, value: values[i] });
+  for (let i = 0; i < bars.length; i++){
+    const time = bars[i].time;
+    if (values[i] != null && isFinite(values[i])) out.push({ time, value: values[i] });
+    else out.push({ time });
+  }
   return out;
 }
 function plotSeries(list, data, full){
@@ -283,26 +290,68 @@ function initChart(){
     levelSeries.push({ series:s, which, level });
   };
   for (let v = 60; v <= 95; v += 5){ addLv('dn', -v/100, '#26a69a'); addLv('up', v/100, '#ef5350'); }
-  stochChart = LW.createChart($('nasStoch'), base);
-  macdChart = LW.createChart($('nasMacd'), base);
+  const oscBox = $('nasOscBox');
+  oscChart = LW.createChart($('nasOsc'), Object.assign({}, base, {
+    leftPriceScale:{ visible:true, borderColor:'#232937', minimumWidth:72, scaleMargins:{ top:0.1, bottom:0.1 } },
+    rightPriceScale:Object.assign({}, base.rightPriceScale, { scaleMargins:{ top:0.06, bottom:0.06 } }),
+  }));
   const sub = { priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false, lineWidth:1 };
-  stochK = stochChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#26a69a', lineStyle:dash }));
-  stochD = stochChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#ef5350', lineStyle:dash }));
-  for (const lv of [20, 80]) stochK.createPriceLine({ price:lv, color:'rgba(154,163,181,0.65)', lineWidth:1, lineStyle:dash, axisLabelVisible:true, title:'' });
-  macdMain = macdChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#26a69a', lineStyle:0 }));
-  macdSig = macdChart.addSeries(LW.LineSeries, Object.assign({}, sub, { color:'#ef5350', lineStyle:dash }));
-  let syncing = false;
-  // Sync by timestamp. Logical indexes differ: Stochastic/MACD omit warmup bars, and copying those indexes pulled the price chart off the latest candles.
-  const follow = (src, dsts) => src.timeScale().subscribeVisibleTimeRangeChange(range => {
-    if (syncing || !range) return;
-    syncing = true;
-    for (const d of dsts){ try { d.timeScale().setVisibleRange(range); } catch (e) {} }
-    syncing = false;
+  const macdAuto = (original) => {
+    const res = original ? original() : null;
+    const span = res && res.priceRange ? Math.max(Math.abs(res.priceRange.minValue), Math.abs(res.priceRange.maxValue)) : 1;
+    const m = Math.max(span, 0.5) * 1.15;
+    return { priceRange:{ minValue:-m, maxValue:m } };
+  };
+  const stochOpt = Object.assign({}, sub, {
+    priceScaleId:'right',
+    autoscaleInfoProvider: () => ({ priceRange:{ minValue:0, maxValue:100 } }),
   });
-  follow(chart, [stochChart, macdChart]);
+  const macdOpt = Object.assign({}, sub, { priceScaleId:'left', autoscaleInfoProvider:macdAuto });
+  stochK = oscChart.addSeries(LW.LineSeries, Object.assign({}, stochOpt, { color:'#26a69a', lineStyle:dash }));
+  stochD = oscChart.addSeries(LW.LineSeries, Object.assign({}, stochOpt, { color:'#ef5350', lineStyle:dash }));
+  for (const lv of [20, 80]) stochK.createPriceLine({ price:lv, color:'rgba(154,163,181,0.65)', lineWidth:1, lineStyle:dash, axisLabelVisible:true, title:'' });
+  macdMain = oscChart.addSeries(LW.LineSeries, Object.assign({}, macdOpt, { color:'#26a69a', lineStyle:0 }));
+  macdSig = oscChart.addSeries(LW.LineSeries, Object.assign({}, macdOpt, { color:'#ef5350', lineStyle:dash }));
+  macdMain.createPriceLine({ price:0, color:'rgba(154,163,181,0.45)', lineWidth:1, lineStyle:dash, axisLabelVisible:true, title:'' });
+  oscChart.priceScale('left').applyOptions({ visible:true });
+  let syncing = false;
+  const sameRange = (a, b) => a && b && Math.abs(a.from - b.from) < 1e-4 && Math.abs(a.to - b.to) < 1e-4;
+  // Both series carry every candle time (whitespace through the warmup), so a logical index is the same timestamp as on the price chart.
+  // Copying that range keeps the right-offset gap; setVisibleRange alone clamps to the last bar and shifts the pane.
+  const copyRange = (src, dst) => {
+    if (syncing || oscHold || !dst) return;
+    const logical = src.timeScale().getVisibleLogicalRange();
+    if (!logical || logical.from > logical.to) return;
+    if (sameRange(logical, dst.timeScale().getVisibleLogicalRange())) return;
+    syncing = true;
+    try { dst.timeScale().setVisibleLogicalRange(logical); } catch (e) {}
+    syncing = false;
+  };
+  let lastL = 0, lastR = 0;
+  alignOsc = () => {
+    const zone = $('nasZoneView');
+    if (!oscChart || !chart || syncing || !zone || zone.classList.contains('hidden')) return;
+    const lw = Math.max(72, Math.ceil(oscChart.priceScale('left').width() || 0));
+    const rw = Math.max(72, Math.ceil(chart.priceScale('right').width() || 0));
+    syncing = true;
+    try {
+      if (lw !== lastL){ lastL = lw; oscChart.priceScale('left').applyOptions({ minimumWidth:lw }); }
+      if (rw !== lastR){ lastR = rw; oscChart.priceScale('right').applyOptions({ minimumWidth:rw }); }
+      if (zone.style.marginLeft !== lw + 'px') zone.style.marginLeft = lw + 'px';
+      if (oscBox){ oscBox.style.setProperty('--osc-left', lw + 'px'); oscBox.style.setProperty('--osc-right', rw + 'px'); }
+    } finally { syncing = false; }
+    copyRange(chart, oscChart);
+  };
+  const follow = (src, dst) => {
+    const pull = () => copyRange(src, dst);
+    src.timeScale().subscribeVisibleTimeRangeChange(pull);
+    src.timeScale().subscribeVisibleLogicalRangeChange(pull);
+  };
+  follow(chart, oscChart);
   chart.timeScale().subscribeVisibleLogicalRangeChange(drawZones);
-  new ResizeObserver(()=>requestAnimationFrame(drawZones)).observe($('nasZoneView'));
+  new ResizeObserver(()=>requestAnimationFrame(()=>{ alignOsc(); drawZones(); })).observe($('nasZoneView'));
   setInterval(drawZones, 400);
+  requestAnimationFrame(alignOsc);
 }
 const adj = (b) => ({time:b.time + chartOff(), open:b.open, high:b.high, low:b.low, close:b.close});
 function indicatorPoints(data){
@@ -318,7 +367,11 @@ function paintIndicators(data, full){
   plotSeries(p.bands, data, full);
   plotSeries(p.levels, data, full);
   const put = (series, arr) => { if (full) series.setData(arr); else if (arr.length) series.update(arr[arr.length-1]); };
-  put(stochK, p.stochK); put(stochD, p.stochD); put(macdMain, p.macd); put(macdSig, p.macdS);
+  oscHold = true;
+  try {
+    put(stochK, p.stochK); put(stochD, p.stochD); put(macdMain, p.macd); put(macdSig, p.macdS);
+  } finally { oscHold = false; }
+  if (full) alignOsc();
 }
 function redraw(){
   const d = N.raw.map(adj); cs.setData(d); paintIndicators(d, true);

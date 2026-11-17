@@ -11,9 +11,16 @@
 .nas-tz button{background:#171c26;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:4px 8px;font:inherit;font-size:12px;cursor:pointer}
 .nas-tz button.active{color:var(--gold2);border-color:#3a4256;background:#262c3a}
 .nas-ind{display:flex;flex-direction:column;gap:4px;margin-top:6px}
-.nas-sub{position:relative;height:112px;border-radius:8px;overflow:hidden;background:#0d1016;border:1px solid var(--line)}
-.nas-sub-lab{position:absolute;left:8px;top:4px;z-index:2;font-size:11px;color:#9aa3b5;pointer-events:none}
+.nas-sub{position:relative;height:168px;border-radius:8px;overflow:hidden;background:#0d1016;border:1px solid var(--line)}
+.nas-sub-lab{position:absolute;left:calc(var(--osc-left, 72px) + 8px);right:calc(var(--osc-right, 72px) + 6px);top:4px;z-index:2;font-size:11px;color:#9aa3b5;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nas-sub .lw{position:absolute;inset:0}
+/* Left inset matches the MACD axis so the price plot lines up with the oscillator plot. The extra height is the second pane this one replaces. */
+#nasZoneView{margin-left:72px}
+#nasCard > .chart-wrap{height:calc(58vh + 60px);min-height:420px;max-height:700px}
+@media(max-width:520px){
+  .nas-sub{height:150px}
+  #nasCard > .chart-wrap{height:calc(62vh + 40px);min-height:400px}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -74,8 +81,7 @@
       <div class="legend"><span style="color:#f5d742" title="BB1: 50, deviation 1.1, Typical HLC/3">BB1 1.1</span><span style="color:#f5d742" title="BB2: 50, deviation 2, Typical HLC/3">BB2 2.0</span><span style="color:#f5d742" title="BB3: 50, deviation 2, Weighted HLCC/4">BB3 2.0</span><span style="color:#26a69a" title="ระดับลบของ BB2">ระดับ −</span><span style="color:#ef5350" title="ระดับบวกของ BB3">ระดับ +</span><span id="nasStatus"></span></div>
     </div>
     <div class="nas-ind" id="nasInd">
-      <div class="nas-sub"><span class="nas-sub-lab">Stochastic 14, 3, 3</span><div id="nasStoch" class="lw"></div></div>
-      <div class="nas-sub"><span class="nas-sub-lab">MACD 12, 26, 9</span><div id="nasMacd" class="lw"></div></div>
+      <div class="nas-sub" id="nasOscBox"><span class="nas-sub-lab">Stochastic 14,3,3 + MACD 12,26,9</span><div id="nasOsc" class="lw"></div></div>
     </div>
     <div class="chart-wrap hidden" id="nasTvView"><div id="nasTv" class="tvc"></div></div>
     <div class="swing-bar" id="nasSwingBar">

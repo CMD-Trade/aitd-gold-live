@@ -65,6 +65,19 @@ URL options: `?nastf=1|5|15|30|60|240`, `?nasvp=0|1`, `?nasvpp=today|asia|h24|we
 - `.github/workflows/update-news.yml`: `python3 news.py`, `python3 nas_news.py` and `python3 update_data.py --events-only` at :05 every hour 00–16 UTC Mon–Fri (07:05–23:05 Thai) + `workflow_dispatch`; commits `news.json` + `nas_news.json` + `events.json` if changed.
 GitHub may start scheduled runs several minutes late. All scripts are stdlib-only and need no secrets beyond the default `GITHUB_TOKEN` (`contents: write`).
 
+## NAS100 FVG alert
+`.github/workflows/nas-fvg-alert.yml` runs `node nas_alert.js` every 5 minutes, plus **Actions → NAS100 FVG alert → Run workflow**. Nothing in that run calls a model. It loads `fvgScan` and `FVG_CFG` from `js/nas.js`, and the candles, the New York session filter, and the H4/D1 aggregation from the same functions the NAS page uses. Primary feed is Hyperliquid XYZ100, then OKX US100-USDT index, Bitget NDX100, OKX perp. Offset is 0, which is the chart before “ปรับให้ตรง MT5”.
+
+A Thai Telegram message goes out when price is inside an active FVG or iFVG, or within that timeframe’s proximity of the nearer edge. M1 and M5 only during US cash (09:30–16:00 America/New_York: 21:30–04:00 Thai in winter, 20:30–03:00 Thai in summer). M15, M30, H1, H4 and D1 run for the whole open. The script prints one line and exits 0 on the weekend and on the 17:00–18:00 New York break (05:00–06:00 Thai in winter, 04:00–05:00 Thai in summer), and when `TELEGRAM_BOT_TOKEN` or `TELEGRAM_CHAT_ID` is missing. It never sends a “no setup” message.
+
+Each zone on each timeframe alerts once. The record is `state.json` on branch `nas-alert-state` (not `main`, so Pages does not rebuild). Proximity, which timeframes are on, and the session window are in `nas_alert.config.js`.
+
+```
+DRY_RUN=1 node nas_alert.js          # print the message, do not send
+node nas_alert.js --self-test        # the scanner still matches js/nas.js
+```
+The workflow’s “Print the Telegram text instead of sending” box is the same dry run. GitHub can start the 5-minute cron late, or skip a slot when the queue is busy.
+
 ## Daily update
 ```
 python3 update_data.py            # writes zones.json, events.json, candles_seed.json (+ options_levels.json)

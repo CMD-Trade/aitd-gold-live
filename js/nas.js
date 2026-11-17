@@ -919,7 +919,8 @@ function hexA(hex, a){
   return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
 }
 
-/* Fair Value Gap [Tradeuminati] — closed bars only. Settings are easy to change. */
+/* Fair Value Gap [Tradeuminati] — closed bars only. Settings are easy to change.
+   nas_alert.js loads FVG_CFG and the fvgScan between FVG_START and FVG_END. Keep both. */
 const FVG_CFG = { maxActiveFvgVisible: 3, maxIFvgVisible: 1, extendBars: 5, showIFvg: true };
 const FVG = { on: true, key: '', res: null };
 /* FVG_START */

@@ -499,7 +499,9 @@
    }
   ],
   "fetched_at": "2026-11-20T01:10:40+07:00",
-  "stale": false
+  "stale": true,
+  "error": "https://cdn.cboe.com/api/global/delayed_quotes/options/GLD.json: HTTP Error 403: Forbidden",
+  "failed_at": "2026-11-20T05:34:33+07:00"
  },
  "shfe": {
   "source": "Shanghai Futures Exchange daily option data (au gold options; proxy, not CME)",
@@ -651,7 +653,7 @@
   "fetched_at": "2026-11-19T23:45:17+07:00",
   "stale": false
  },
- "generated_at": "2026-11-20T01:10:49+07:00",
+ "generated_at": "2026-11-20T05:34:53+07:00",
  "_note": "Option open-interest levels from PROXY markets (GLD ETF options via Cboe; SHFE au options). Not CME/COMEX data, not trade signals. level_spot = strike converted to spot XAUUSD (gld, shfe) or to Skilling US100 points (qqq: QQQ options, strike * NDX/QQQ - 5).",
  "qqq": {
   "source": "Cboe delayed quotes QQQ.json (Invesco QQQ ETF options; proxy for Nasdaq-100, not CME/NDX futures options)",
@@ -1155,6 +1157,8 @@
    }
   ],
   "fetched_at": "2026-11-20T01:10:49+07:00",
-  "stale": false
+  "stale": true,
+  "error": "https://cdn.cboe.com/api/global/delayed_quotes/options/QQQ.json: HTTP Error 403: Forbidden",
+  "failed_at": "2026-11-20T05:34:53+07:00"
  }
 }

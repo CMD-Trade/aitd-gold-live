@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-18T23:15:03+07:00",
+ "generated_at": "2026-11-19T13:17:59+07:00",
  "source": "ForexFactory (live)",
  "_format": "events: list of {title, country, impact, time (ISO with +07:00), forecast, previous}",
  "events": [

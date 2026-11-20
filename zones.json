@@ -1,75 +1,75 @@
 {
- "date": "2026-11-19",
+ "date": "2026-11-20",
  "auto": true,
  "source": "อัตโนมัติ: OKX XAU-USD spot index H1 (public REST) — High/Low เมื่อวาน, Pivot, เอเชีย, swing H1/H4, เลขกลม",
- "price_at_build": 3737.53,
- "price_time": "19/11 12:38",
+ "price_at_build": 3527.69,
+ "price_time": "20/11 12:26",
  "zones": [
   {
    "zone": [
-    3764.5,
-    3768.5
-   ],
-   "type": "pivot",
-   "score": 3.5,
-   "note": "Pivot รายวัน 3767.62 · Low เอเชีย 3765.26"
-  },
-  {
-   "zone": [
-    3756.5,
-    3759.5
+    3574.0,
+    3579.5
    ],
    "type": "resistance",
-   "score": 2,
-   "note": "H1 swing high 3757.81 (19/11 08:00) · H1 swing low 3758.15 (18/11 15:00)"
+   "score": 1.5,
+   "note": "S1 3578.71 · เลขกลม 3575"
   },
   {
    "zone": [
-    3742.0,
-    3745.0
+    3548.5,
+    3551.5
    ],
    "type": "resistance",
-   "score": 1,
-   "note": "H1 swing low 3743.43 (18/11 19:00)"
+   "score": 0.3,
+   "note": "เลขกลม 3550"
   },
   {
    "zone": [
-    3719.0,
-    3722.0
+    3523.5,
+    3526.5
    ],
    "type": "support",
-   "score": 4,
-   "note": "Low เมื่อวาน 3720.36 · H1 swing low 3720.36 (19/11 03:00)"
+   "score": 0.3,
+   "note": "เลขกลม 3525"
   },
   {
    "zone": [
-    3692.5,
-    3695.5
+    3514.5,
+    3517.5
    ],
    "type": "support",
    "score": 2,
-   "note": "Low สัปดาห์นี้ 3694.19"
+   "note": "Low สัปดาห์นี้ 3516.12"
+  },
+  {
+   "zone": [
+    3498.5,
+    3501.5
+   ],
+   "type": "support",
+   "score": 0.6,
+   "note": "เลขกลม 3500"
   }
  ],
  "prev_day": {
-  "high": 3857.18,
-  "low": 3720.36,
-  "close": 3725.32
+  "high": 3757.81,
+  "low": 3621.16,
+  "close": 3625.81
  },
  "week": {
   "high": 3901.26,
-  "low": 3694.19
+  "low": 3516.12
  },
  "pivot": {
-  "P": 3767.62,
-  "R1": 3814.88,
-  "S1": 3678.06
+  "P": 3668.26,
+  "R1": 3715.36,
+  "S1": 3578.71
  },
  "asia": {
-  "high": 3849.12,
-  "low": 3765.26
+  "high": 3757.81,
+  "low": 3694.19
  },
- "bias": "H1 ใต้ EMA50 (3789) · Daily ใต้ EMA20 (3965) — อัตโนมัติจากราคา ไม่ใช่สัญญาณ",
- "generated_at": "2026-11-19T12:38:52+07:00",
+ "bias": "H1 ใต้ EMA50 (3699) · Daily ใต้ EMA20 (3933) — อัตโนมัติจากราคา ไม่ใช่สัญญาณ",
+ "generated_at": "2026-11-20T12:26:57+07:00",
  "_format": "zones: list of {zone:[low,high], type: resistance|pivot|support, note, score}. prev_day/week: {high,low[,close]}. Prices = spot XAUUSD (OKX index)."
 }

@@ -505,149 +505,149 @@
  },
  "shfe": {
   "source": "Shanghai Futures Exchange daily option data (au gold options; proxy, not CME)",
-  "source_url": "https://www.shfe.com.cn/data/tradedata/option/dailydata/kx20261125.dat",
-  "data_date": "2026-11-25",
-  "exchange_update": "20261125 15:22:44",
+  "source_url": "https://www.shfe.com.cn/data/tradedata/option/dailydata/kx20261126.dat",
+  "data_date": "2026-11-26",
+  "exchange_update": "20261126 15:25:41",
   "oi_note": "OI at the SHFE day-session close (15:00 Beijing = 14:00 Thai); oi_chg = official change vs previous day",
   "conversion": {
    "method": "level_spot = strike(CNY/g) * spot / au_futures_close(CNY/g)",
-   "spot": 3516.41,
-   "spot_time": "2026-11-25T13:59+07:00",
+   "spot": 3569.67,
+   "spot_time": "2026-11-26T13:59+07:00",
    "spot_source": "OKX XAU-USD index 1m close at 15:00 Beijing",
-   "usdcny": 6.6757,
-   "usdcny_source": "ECB via frankfurter.dev (2026-11-25)",
+   "usdcny": 6.6602,
+   "usdcny_source": "ECB via frankfurter.dev (2026-11-26)",
    "grams_per_oz": 31.1034768,
    "series": {
     "2701": {
      "au_future": "au2701",
-     "au_close_cny_g": 756.44,
-     "au_settle_cny_g": 767.86,
-     "au_close_usd_oz": 3524.41,
-     "premium_usd_oz_vs_spot": 8.0,
-     "ratio": 4.64863
+     "au_close_cny_g": 766.34,
+     "au_settle_cny_g": 755.18,
+     "au_close_usd_oz": 3578.85,
+     "premium_usd_oz_vs_spot": 9.18,
+     "ratio": 4.65808
     },
     "2702": {
      "au_future": "au2702",
-     "au_close_cny_g": 757.4,
-     "au_settle_cny_g": 768.96,
-     "au_close_usd_oz": 3528.88,
-     "premium_usd_oz_vs_spot": 12.47,
-     "ratio": 4.64274
+     "au_close_cny_g": 767.62,
+     "au_settle_cny_g": 756.32,
+     "au_close_usd_oz": 3584.82,
+     "premium_usd_oz_vs_spot": 15.15,
+     "ratio": 4.65031
     }
    }
   },
   "expiries": [
    {
-    "underlying": 756.44,
+    "underlying": 766.34,
     "window_pct": 10.0,
-    "call_oi_total": 10483,
-    "put_oi_total": 10428,
-    "pc_oi_ratio": 0.995,
+    "call_oi_total": 13334,
+    "put_oi_total": 11366,
+    "pc_oi_ratio": 0.852,
     "max_pain": {
-     "strike": 784.0,
-     "level_spot": 3644.53
+     "strike": 768.0,
+     "level_spot": 3577.4
     },
     "call_walls": [
      {
       "type": "call",
       "strike": 800.0,
-      "level_spot": 3718.9,
-      "oi": 838,
-      "oi_chg": 600
-     },
-     {
-      "type": "call",
-      "strike": 784.0,
-      "level_spot": 3644.53,
-      "oi": 195,
-      "oi_chg": 100
+      "level_spot": 3726.46,
+      "oi": 1026,
+      "oi_chg": 188
      },
      {
       "type": "call",
       "strike": 832.0,
-      "level_spot": 3867.66,
-      "oi": 182,
-      "oi_chg": 34
+      "level_spot": 3875.52,
+      "oi": 385,
+      "oi_chg": 203
      },
      {
       "type": "call",
       "strike": 760.0,
-      "level_spot": 3532.96,
-      "oi": 138,
-      "oi_chg": 107
+      "level_spot": 3540.14,
+      "oi": 258,
+      "oi_chg": 120
      },
      {
       "type": "call",
-      "strike": 824.0,
-      "level_spot": 3830.47,
-      "oi": 109,
-      "oi_chg": 62
+      "strike": 840.0,
+      "level_spot": 3912.78,
+      "oi": 251,
+      "oi_chg": 74
+     },
+     {
+      "type": "call",
+      "strike": 768.0,
+      "level_spot": 3577.4,
+      "oi": 235,
+      "oi_chg": 160
      }
     ],
     "put_walls": [
      {
       "type": "put",
       "strike": 704.0,
-      "level_spot": 3272.64,
-      "oi": 1807,
-      "oi_chg": 1095
-     },
-     {
-      "type": "put",
-      "strike": 752.0,
-      "level_spot": 3495.77,
-      "oi": 952,
-      "oi_chg": 729
+      "level_spot": 3279.29,
+      "oi": 1801,
+      "oi_chg": -6
      },
      {
       "type": "put",
       "strike": 760.0,
-      "level_spot": 3532.96,
-      "oi": 437,
-      "oi_chg": 329
+      "level_spot": 3540.14,
+      "oi": 491,
+      "oi_chg": 54
      },
      {
       "type": "put",
-      "strike": 688.0,
-      "level_spot": 3198.26,
-      "oi": 276,
-      "oi_chg": 129
+      "strike": 752.0,
+      "level_spot": 3502.87,
+      "oi": 472,
+      "oi_chg": -480
      },
      {
       "type": "put",
       "strike": 720.0,
-      "level_spot": 3347.01,
-      "oi": 256,
-      "oi_chg": 147
+      "level_spot": 3353.81,
+      "oi": 315,
+      "oi_chg": 59
+     },
+     {
+      "type": "put",
+      "strike": 736.0,
+      "level_spot": 3428.34,
+      "oi": 311,
+      "oi_chg": 98
      }
     ],
     "top_any": {
      "call": [
       [
        1000.0,
-       2508
+       2561
       ],
       [
        856.0,
-       1388
+       1754
       ],
       [
        888.0,
-       1176
+       1720
       ]
      ],
      "put": [
       [
        608.0,
-       2548
+       2698
       ],
       [
        704.0,
-       1807
+       1801
       ],
       [
        632.0,
-       1008
+       1107
       ]
      ]
     },
@@ -658,116 +658,116 @@
     "expires_at_th": "2026-12-25T14:00+07:00"
    },
    {
-    "underlying": 757.4,
+    "underlying": 767.62,
     "window_pct": 10.0,
-    "call_oi_total": 19369,
-    "put_oi_total": 9876,
-    "pc_oi_ratio": 0.51,
+    "call_oi_total": 20977,
+    "put_oi_total": 10275,
+    "pc_oi_ratio": 0.49,
     "max_pain": {
      "strike": 800.0,
-     "level_spot": 3714.19
+     "level_spot": 3720.25
     },
     "call_walls": [
      {
       "type": "call",
       "strike": 800.0,
-      "level_spot": 3714.19,
-      "oi": 2515,
-      "oi_chg": -7
+      "level_spot": 3720.25,
+      "oi": 2761,
+      "oi_chg": 246
+     },
+     {
+      "type": "call",
+      "strike": 840.0,
+      "level_spot": 3906.26,
+      "oi": 1276,
+      "oi_chg": 378
      },
      {
       "type": "call",
       "strike": 760.0,
-      "level_spot": 3528.48,
-      "oi": 880,
-      "oi_chg": 9
+      "level_spot": 3534.23,
+      "oi": 936,
+      "oi_chg": 56
      },
      {
       "type": "call",
       "strike": 720.0,
-      "level_spot": 3342.77,
-      "oi": 566,
-      "oi_chg": 173
-     },
-     {
-      "type": "call",
-      "strike": 816.0,
-      "level_spot": 3788.47,
-      "oi": 158,
-      "oi_chg": 22
+      "level_spot": 3348.22,
+      "oi": 353,
+      "oi_chg": -213
      },
      {
       "type": "call",
       "strike": 808.0,
-      "level_spot": 3751.33,
-      "oi": 151,
-      "oi_chg": 17
+      "level_spot": 3757.45,
+      "oi": 208,
+      "oi_chg": 57
      }
     ],
     "put_walls": [
      {
       "type": "put",
       "strike": 800.0,
-      "level_spot": 3714.19,
-      "oi": 1348,
-      "oi_chg": -20
+      "level_spot": 3720.25,
+      "oi": 1285,
+      "oi_chg": -63
      },
      {
       "type": "put",
       "strike": 760.0,
-      "level_spot": 3528.48,
-      "oi": 1138,
-      "oi_chg": 25
+      "level_spot": 3534.23,
+      "oi": 1019,
+      "oi_chg": -119
      },
      {
       "type": "put",
       "strike": 720.0,
-      "level_spot": 3342.77,
-      "oi": 866,
-      "oi_chg": 212
+      "level_spot": 3348.22,
+      "oi": 828,
+      "oi_chg": -38
      },
      {
       "type": "put",
       "strike": 736.0,
-      "level_spot": 3417.06,
-      "oi": 400,
-      "oi_chg": 15
+      "level_spot": 3422.63,
+      "oi": 517,
+      "oi_chg": 117
      },
      {
       "type": "put",
-      "strike": 752.0,
-      "level_spot": 3491.34,
-      "oi": 388,
-      "oi_chg": 13
+      "strike": 744.0,
+      "level_spot": 3459.83,
+      "oi": 390,
+      "oi_chg": 42
      }
     ],
     "top_any": {
      "call": [
       [
        1000.0,
-       3655
+       3817
       ],
       [
        800.0,
-       2515
+       2761
       ],
       [
-       1232.0,
-       1076
+       880.0,
+       1331
       ]
      ],
      "put": [
       [
        800.0,
-       1348
+       1285
       ],
       [
        760.0,
-       1138
+       1019
       ],
       [
        720.0,
-       866
+       828
       ]
      ]
     },
@@ -778,10 +778,10 @@
     "expires_at_th": "2027-01-25T14:00+07:00"
    }
   ],
-  "fetched_at": "2026-11-26T01:10:13+07:00",
+  "fetched_at": "2026-11-27T00:52:53+07:00",
   "stale": false
  },
- "generated_at": "2026-11-26T01:10:26+07:00",
+ "generated_at": "2026-11-27T00:53:05+07:00",
  "_note": "Option open-interest levels from PROXY markets (GLD ETF options via Cboe; SHFE au options). Not CME/COMEX data, not trade signals. level_spot = strike converted to spot XAUUSD (gld, shfe) or to Skilling US100 points (qqq: QQQ options, strike * NDX/QQQ - 5).",
  "qqq": {
   "source": "Cboe delayed quotes QQQ.json (Invesco QQQ ETF options; proxy for Nasdaq-100, not CME/NDX futures options)",

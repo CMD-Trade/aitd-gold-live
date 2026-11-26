@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-26T01:28:35+07:00",
+ "generated_at": "2026-11-26T14:10:21+07:00",
  "note": "หัวข้อข่าวและลิงก์จาก RSS สาธารณะเท่านั้น · หมวดและ NASบวก/NASลบ/กลาง ติดอัตโนมัติจากคำในหัวข้อ (keyword) ไม่ใช่บทวิเคราะห์",
  "sources": [
   {
@@ -7,15 +7,15 @@
    "name": "Google News (Nasdaq)",
    "ok": true,
    "parsed": 100,
-   "fresh": 41,
+   "fresh": 49,
    "used": 10
   },
   {
    "id": "gn_th",
    "name": "Google News ไทย (แนสแด็ก)",
    "ok": true,
-   "parsed": 42,
-   "fresh": 41,
+   "parsed": 41,
+   "fresh": 37,
    "used": 6
   },
   {
@@ -23,15 +23,15 @@
    "name": "Google News (megacap tech)",
    "ok": true,
    "parsed": 100,
-   "fresh": 44,
+   "fresh": 45,
    "used": 6
   },
   {
    "id": "gn_fed",
    "name": "Google News (Fed)",
    "ok": true,
-   "parsed": 100,
-   "fresh": 39,
+   "parsed": 62,
+   "fresh": 31,
    "used": 5
   },
   {
@@ -39,7 +39,7 @@
    "name": "Reuters markets (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 28,
+   "fresh": 26,
    "used": 5
   },
   {
@@ -47,7 +47,7 @@
    "name": "CNBC (via Google News)",
    "ok": true,
    "parsed": 100,
-   "fresh": 62,
+   "fresh": 58,
    "used": 4
   },
   {
@@ -55,7 +55,7 @@
    "name": "investingLive (ForexLive) RSS",
    "ok": true,
    "parsed": 25,
-   "fresh": 10,
+   "fresh": 12,
    "used": 4
   },
   {
@@ -69,189 +69,55 @@
  ],
  "items": [
   {
-   "title": "AI stock rout deepens, with Anthropic hitting $74",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNMmNMM0doWElDVk9BdjNGZnJHakNCUFg1blQzSlk0eW9zeVduV3ZKcEtJd0hpUkxDMVhnRE9rY1lLUzF1eENZaFh0SUNKbmRjanN3YWtZakZud2RYUnlSRkk5b1RZT2VfbFJPXzhZVEVyYnFnRHBwYVlGdFQzaEt2Z2VjaGVXWUE0Qmd5bjZYandmR2M2QXBSY2tKem80OGNlSzh3?oc=5",
-   "published": "2026-11-26T01:01+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "POET Stock Drops Amid Tech Weakness and AI Concerns",
-   "source": "Benzinga",
-   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPdm9rM0xFUHdFeF9SVkhiSldVUEZ6UTZwRWRJNkg0QUk3YnlGQW5LMnFzWjdlQ0JHeFNKYWdORzNWeFZ4TTNyaVZ4eVRCaFA1QVZDZWRHU3dubGxBcmZBQUljMnJzdUk2ck1vM2tYVy1aRjNLczlUMGJieHBscDloUTJzWjZVN2VjRExXVHV4NHc3TXBLLTkyN0lNSkJPVWgwMUUwdVQtR2w4LTQ5YlRxcEJn?oc=5",
-   "published": "2026-11-26T01:00+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "Stocks Swoon as AI Fears Spur Rush to Treasuries: Markets Wrap",
-   "source": "Bloomberg.com",
-   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPWjE4Zm9DOUxVdmFFaTlaQVJMWHFaVEVGVy1JcTNEcEc3bnhET2xfaGNCdFlpbXkwS210Tkx0d3JVUWVzbzA4amhwWU1FWGxLd2E0YUJBY1lOOUNlVmlwNF83b3Bqc2dqaWVMTzUwSGFfYWNJVDZwXzh5TGp5YUZaTzZoa0dZenZfalhyelF0UUZwbllhOEZIbWNGc1V3OHQxWlhfV3ZoeGdKRURCS3dTVEFSRnk?oc=5",
-   "published": "2026-11-26T00:58+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "หุ้นเทค/AI",
-    "บอนด์/ดอลลาร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Nasdaq 100 Drops 2.5% on AI Credit Fears, Nvidia Sinks 7%: Stock Market Today",
-   "source": "Benzinga",
-   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQN0x2RXFpWTUwd3pGNG1yNHFad3QxVy1tYzkwWXFSdUsyVGRLYVBidTZCSENObDVzNV9IWklqSTM0QVhxdUg5eHpmYWJQVGY1NWFvYy0yaC12aEFYc3pfTHZoR1FGOWRjb25ESmNPejJ6UVE1bXplU0hmbENuOGZWVHNJR0JOcEdRbzFNVWNMRk1rNDJnSllDS0huV1Rzb3IyQ2I4YWlwOEJJU2FFQWUxeXdZNWc5amFwU19tdkxzcEk1dW9PS0tV?oc=5",
-   "published": "2026-11-26T00:57+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "Nasdaq sinks about 4% as AI rout, fresh Trump tariffs spook Wall St",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNdUdBTGhVT2V5cDcydUZMX2NTdTkxVDBJSHdCMUgwNXBibGhQc28zdktpLXA2dGVUYzRzV3hpMld1U29KempSNUswd2dNYVdITlFxV2NycEkwbnlpZkdPSDNicVRKM3NCU2l0M0hoWU13UTZkbTAtX2JFempxaUtFbjdTZGMxT2lXM2g3dkR4cy1UYnVfZ09kOWpTNGxtUEZZOTRPaXhENlZ6OGt2ZF94d0RCVjdOSldfc0E?oc=5",
-   "published": "2026-11-26T00:49+07:00",
-   "feed": "gn_nas",
-   "tags": [
-    "หุ้นเทค/AI",
-    "ภูมิรัฐศาสตร์"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "This Is When AI’s Circular Deals Bite Back",
-   "source": "Bloomberg.com",
-   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxPazBUcktOb0ZhZW9nOGpPM2FVdEFreHJpWjFCS2JSU1c3WWFxZ2t0VXVOcDV1Z3BzNlJlY2R5a0c5SHBKMHg5cWw3M3k1UGJBcEg0SS16SGdXUWEzLWFjQTBhS2JFSTFnQkJJa2c2UjB6OUVaSjVVWTJiRGhaQjM4dTh5ZHZSemNSZ0R4VklyNUpnNTlhb1hBa0hXT1ZNQm1mOTgtRDIwQy11Y0pzRTkyMktRZnNjbXdjOWE4?oc=5",
-   "published": "2026-11-26T00:35+07:00",
-   "feed": "gn_tech",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Inflation gets worse. Now the Fed has no choice but to raise U.S. interest rates.",
-   "source": "MarketWatch",
-   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOLXEwWmxfQlloLXRNcENFN0UwSmFNV0Z1VW9aMzNSeGU3ajdlUVlVNUdKMGNDZTk1a3RjNVJ3ZkNyWXQ3YUN1dEZCMmV5allEUDNVd2FoSnBINFRiYTdXTFh4ajFtNm5HUjVBVmJIT3YwYnlzS3lnMUFycDdwSlpRRlRqV01ZMlpmRGZZb0xVOEF2Y2FrdVlMeGVuNWxJZjlaQWZMV2YzTlVmTkpZQmJCRFRfSlU5azVt?oc=5",
-   "published": "2026-11-26T00:31+07:00",
+   "title": "Fed rate hike bets strengthen as strong growth fuels inflation",
+   "source": "The Economic Times",
+   "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxNUjJ0UV95OFBFMFJQU2RLZTZabXYySlVYWWJUUHdobHdLMVdqOUpSWk45RlRvNEdiN0JiV3paV0dFUDJHaUs4dHU5d1dPNjhYUDVyeTd3WXVicU9FdE1jdWhGN3ppNU4tZXhrNEdhMjFab1cwWUE5VHJuNUtPWnZPOWdvVTk4YWRseHFPbUZtLXdqUVR5MUVuZ2VJd2VlZ1pWNi0wc0ZDdmE1aXFrSmkxbmpOUEJGa2E1am03RDRSSlpCSjNIQ2tPSG45NnBTMTZHcWd4bTBqOW9EN0wydWRCMW13ZjU3cGvSAewBQVVfeXFMUFkxd0R5Sk1HNEdLX19pS3pyeGRqM19yMjZDLWQxbTVEbDJUaGd5enpGQlk0ZTBIcHhyaEM5UjdIMVVnQktXTnM3NHppYVRmWk1NaEt3N3FialJZWERSQVpKYnZtWGRmUl84WkQyS2tnZkpWdmtkeWxVWHlqemNjQUVLamwwSmF1OVI2ZjB0TG1zX0xlMFpoRjJqX0pXX25TWEdLUVNZWDlEeWFXY2JuZ3RDTy04ZDRNakpXOTFPSUNWUk9LV0lNLVZ2dHIyUXRnakEyS0Rya0tHaDRqaTMzTDAyVFMwZzlkNWNxUTU?oc=5",
+   "published": "2026-11-26T13:23+07:00",
    "feed": "gn_fed",
    "tags": [
     "Fed/ดอกเบี้ย",
     "เงินเฟ้อ"
    ],
-   "lean": "กลาง"
+   "lean": "NASลบ"
   },
   {
-   "title": "Nebius Stock’s Death Cross Signals Trouble for Its Once-Hot AI Growth Story",
+   "title": "Blue Gold Stock Plunges 19% After Hours: What's Happening?",
    "source": "Benzinga",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxPa2NDN1o5X1lYdElvenUzQU1jODdnTEtGX0VfWDV0STR1UlpOSUxqT0hkcE4wa1VPNmF1WnY1YmVHNE9NX3FuNVFQRm5VUlJBcFF5a2VhWmJXWEc2UnZlQnFZdGhsSlZnc3FQeE0zZVk0clluejZmb0F3cW9BVXJnYWFVY0VTQ1JFTW9hWlpMdnZUUjg?oc=5",
-   "published": "2026-11-26T00:25+07:00",
-   "feed": "gn_tech",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "UK stocks fall as banks, miners track Wall Street selloff",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOTW1VcFBpakVFWW8xQ3dPdGNtZFRQRGJuX2tmOTVZOHBsa2hvQ3hkNHMwVmJvNmo1eHlxd0xkV2xDSFpuSGZqX2hUMWxQUV9xdVl5WTNfOXFRYnRYRGlKcF9xajludy1FQjY3R1dFT2pjYkEyXzRnYkd5amRiSDA4QkZyeFR3N0NKUGZsbDV2SW0xS085Qzl4bHdFSW1HNEVrX0hvbE5HUmo1QQ?oc=5",
-   "published": "2026-11-26T00:20+07:00",
-   "feed": "gn_kitco",
+   "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNQ2FBbWJnOF9JUjlzNDg1dlJJM0Jfb2pZaW1VMmlKb1Z2c29CdDdxTUthZTh6SmdEbEV4M2NyVjc0emVuUzh2cjZYWC0wT3hOd09ZYTJTNlRlcy1vTVBhZDRUbi1uQVlXNUZwQzU4TldSN2JsRU9GVEs1WW1lRk5xNVNScUtqUl9jVUE2VWpjVUMxSmhFTk5EQkUySHM5WHR5UTVOclU3a3l3UWFTWXA2OQ?oc=5",
+   "published": "2026-11-26T13:12+07:00",
+   "feed": "gn_nas",
    "tags": [
     "ทั่วไป"
    ],
    "lean": "NASลบ"
   },
   {
-   "title": "Michael Burry’s Nvidia Calls Just Doubled — And He Already Plans to Short It",
+   "title": "Healthcare Triangle Stock Plunges After Hours: What's Happening?",
    "source": "Benzinga",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxORFdIQktuelZRejl1WGltRmV6bFAyT0RSb2tWUFp2QnlodWNZU1ByTVRjZDg0clg1RlcxQVZsempCczRLTTVhemgwRy02eFUxUEZwNlhGa0F1S3hMNk1KNEJwZTFfSVZTYmhwaUVaT18yeWhFVFd4OUh2S084YU9tLVRxeWR1SGgwb184YjRwVGE2dUpRaXgwbQ?oc=5",
-   "published": "2026-11-26T00:19+07:00",
-   "feed": "gn_tech",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Alphabet stock plunges as Google walks away from a big Australian news deal",
-   "source": "TradingView",
-   "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNRHppYVF4UlRjVERuWnA5WUNMVTNTUVJNNWY5Q2RzZmZUNGJXNFZ3SW5XdkJ4cXZORFdxbEZ2R1dSN3BrVGhtcENqUC12bm9fNGlueE50S3BiNDNDdHZId1FmQjZ1Rkx0MnFiMVpZYndnQmsybEQ4Rnk2RlZiay0tdmdJd3JKVi1aVmpkQ2V4M2VrcW4xbGpHUDNPWkhEcmxlVW04OGRwUTRRaUNxclNMUjFiVEhnQ1lnZ1JhNnZ6clVIbWV0clZ3U1hzNDJDWFVC?oc=5",
-   "published": "2026-11-26T00:14+07:00",
-   "feed": "gn_tech",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "European stocks close lower as the Nasdaq 100 sheds nearly 4%.",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/stocks/european-stocks-close-lower-as-the-nasdaq-100-sheds-nearly-4/",
-   "published": "2026-11-26T00:12+07:00",
-   "feed": "investinglive",
+   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQOVZkbzFoZTA5SVpValQ2ZUw2MEEzUENtbEtjVDhuU18ycWJxNThfX1lYOXlfZEk2T1pPMVBpTl9zengwSk5sVi1YQ2p2MnVtMkVQTE4zLTlIbnJ0YnY4aE4wUGVYUXJ0UU9Bc1MydExIRS1mUXlra1U2ckY2eE9MSVEwLVA1ZmRkRWxiSllBWGs4OUFLLU9QWjNTdWtidm03X2F0NEUybGw1OGl6M2pMb19LSUp5NzZXYkE?oc=5",
+   "published": "2026-11-26T12:45+07:00",
+   "feed": "gn_nas",
    "tags": [
     "ทั่วไป"
    ],
    "lean": "NASลบ"
   },
   {
-   "title": "Nvidia leads tech sell-off as Huang comeback rally fizzles and AI concerns return",
-   "source": "CNBC",
-   "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE1MS01wSHJ0d1J3eDhpZk1OYUk4ZWpWanhRYkU1OGhtV3lhODJib3hxOGkzNUJNVjdBVHN3U3NwOHZVcTBLa3I4cm5fVl9tak9OSHhPTlVxUEhGcHJuYjZYN3BwVC1RUzFmN2F1ZFhvSERxenPSAXhBVV95cUxNMk9GalFIT19DZThwZ3hGd3BjVkh2TGQtOGVOdkFoUjZjZnBURm0tTFBhb29nX3ppX0w5Y0xLV3p2S25QekdRVlRrcHo4OXlYaEFmYVNPY25JeFNpNldQbHprSkpmUVNBS0JvMmw1VkxtV0ViMnI4aWU?oc=5",
-   "published": "2026-11-26T00:10+07:00",
-   "feed": "gn_cnbc",
+   "title": "Nexus Advanced Technologies (NXAT) Stock Jumps Over 27% After Hours as Company Names New Co-CEO",
+   "source": "Benzinga",
+   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQTmlYVEdrbmFXUWlIbUhlYUxxZVBKR1kwZktNUWROQU1pRmVoSE1aMDdtTDJHYzQ2cHpaMGNyRVNXdWdrdjZldnRtaGwzWGszTkdlN1hYTmtsMnJyWEJrMjBrZmRteGdvajNabDVsVTEyV2RrYmREa3U3TjFiaHlYVk9NY2ZJbkRnNXFlaWp4S2w4RmNJckNURHQ5OEtDWmU0SWh0RE5PaHlpWmFiTWllYklmNm9BeUpUZkJr?oc=5",
+   "published": "2026-11-26T12:32+07:00",
+   "feed": "gn_nas",
    "tags": [
     "หุ้นเทค/AI"
    ],
-   "lean": "NASลบ"
+   "lean": "NASบวก"
   },
   {
-   "title": "หุ้นสหรัฐฯ ดิ่งลงอีกครั้ง, Nasdaq ร่วงลงกว่า 4% ระหว่างวัน ใกล้แตะระดับต่ำสุดของสัปดาห์ที่แล้ว: อะไรคือสาเหตุที่ทำให้ตลาดหุ้นร่วงลง?",
-   "source": "TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxOcGJQdk5qeUxHRmtNY1RHc2JrOTd0Yk9FOWdoUndRRDdjUWNmYk9OR1V5LU1WMGEtTmRUdllXdXBNRGV2TmhQZ3pYeXZiZ25hRnZzNHZFZnprbUcwc203cV82Wm0zbGMzMGJQQjl2U3gwNWF4X3dqYmN0S3ZqOVpkY1JuSVRmbXRCcjBMcDJlcmhYc3dmVkhnc2laSk5zOU54ZTlEaC1oNnlwbE9QT243cUE3WmJVUVNsbWo4?oc=5",
-   "published": "2026-11-25T23:56+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "US finds no evidence China directed executive to spy on Nvidia CEO, WSJ reports",
-   "source": "Reuters",
-   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNb1ZBby1iVDJnTmJwX3hDYWJpU2lxTUdLTHdlWHFqRHJUcmtTOWFuQkFRTlUyZTJBcGdNMWR3N3d1YlJIV05kWk1mU21JSDZmSVpZR1BlanpqRzFXSkg3NkxkeElWcHM0Q2Y4eFJKb3Fha29XakxYNFJ4cXExZHo4MFVDOHdDbENrQWs0d0lqQ3Z5cEVDRVBQR1hNNWZxSmhiUll4NFg1amZlU01oWm9fN2hkUFBBNkdKT21v?oc=5",
-   "published": "2026-11-25T23:54+07:00",
-   "feed": "gn_kitco",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "US treasury sells $44 billion of 7-year notes at a high yield of 4.708%",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/news/us-treasury-sells-44-billion-of-70-or-notes-at-a-high-yield-of-4-708/",
-   "published": "2026-11-25T23:54+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "บอนด์/ดอลลาร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold Hits Near 15-Month Lows, Silver Crashes Below $40 Amid Fed Hike Fears – All Eyes On The Fed Rate Decision",
-   "source": "TradingView",
-   "link": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxPdlktRlRYb3BCcmFxRDFSQ25rUGExS1d1ZW9OQmZ6LVE2VG1RdzJOZzlxd0poV29xUTEtVnY0SXVIQVpTbWlGUHNQY1pvVEhBenczN2M0RVpJM2QzUmNEZFZoSVZRakpacmd6MjhFRzFfSFFKWUhTM0F4N3pFT01JaVk1aV9MSFUyM0s0WGcyYVQ3ZnZ4M2tDaG1Vd1EtakJwTW1QVDlUVWRVQ3g4bEJiZTlQRUdadi02RGQ1ZWNWSGVVV1ItVXVVSWM3LV84YVc4VWU5ZFRSbVZnQUY4RWNrZGNIRGI3ZFRQZFZzaEhXNElIOHRWdHAyTll1OA?oc=5",
-   "published": "2026-11-25T23:38+07:00",
+   "title": "A Fed tightening to allow subsequent loosening",
+   "source": "Financial Times",
+   "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBoMmVIOXlodnl2ZVg0SjJsc3VFVXA1S3o1a3JVNXhsSHJRUExyZlVjajZ4aVIwNWMyZWZia2RjSXFjeDBuMmljOEZVbUF6aTh3UkhNZXVBdVZId3JpbVRfRTlvb2RqNFlsSGg4MjVBTVU?oc=5",
+   "published": "2026-11-26T12:30+07:00",
    "feed": "gn_fed",
    "tags": [
     "Fed/ดอกเบี้ย"
@@ -259,149 +125,282 @@
    "lean": "กลาง"
   },
   {
-   "title": "Michael Burry sells remaining Nasdaq 100 puts, says portfolio is long",
+   "title": "investingLive Asia-Pacific market news: Asia stocks extend rebound",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/news/investinglive-asia-pacific-market-news-asia-stocks-extend-rebound/",
+   "published": "2026-11-26T12:11+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "NASบวก"
+  },
+  {
+   "title": "Asian Stocks Rise as Dip Buyers Stabilize AI Trade: Markets Wrap",
+   "source": "Bloomberg.com",
+   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPeEQtTUQwY0ZyTEpubU1fOUV6eVQzR2llam9uaF9UUnQ5LVNvcWJFT0dRYW9NRHM2cDQtYkpaOF9rS1ZuVE8zaDhmYWk0S1IzdU1sOER5aWJLOTQteFZFTjRkMUJwUTdta0ZnemNITTBEa1VVb1c1MGJkUnZoMFRKNDZjM1d6SDBqZ1g2NDZTenZfSEZK?oc=5",
+   "published": "2026-11-26T12:02+07:00",
+   "feed": "gn_nas",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "NASบวก"
+  },
+  {
+   "title": "Gold steadies after hitting over one-year low; Fed outlook in focus",
+   "source": "CNBC",
+   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNS2RGZHQ2cnNGQUVwT25tM2lrZFZkUDMwdXpSWWpkSmljWFpFZGh1dWl3WUwwZ2Ricy1hd2lsSVRRazdmeW1OdXFycllzcmJ2NWxQdEQtMmZRN2pBUjJaTFMtZXlJOHVXNHBDWmdzc09jQmk5YnhQQU0wUmx4cEtVOFl3SVTSAYoBQVVfeXFMTjVWQXJNNzhKbnh3SkxiV1VhbGtUQ1BrYTJfMnJ3Qnl4WVkxMjMwQVAxSHhtSkRWZ2E5TEpIZV96Vm9jRjhKQUV2ZVd2WHd4dmlMTzlxVW9UQWJQSWl4dlNUbFR5VGl5V0EwMURrSndKS3MyOVpwNGdGVzd3eno4TVpBb2tZY0xmNDBR?oc=5",
+   "published": "2026-11-26T11:45+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "งบบริษัท"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Nvidia Reportedly Sold Top Chips to Chinese-Owned US Firms - NVIDIA (NASDAQ:NVDA)",
+   "source": "Benzinga",
+   "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQXzNjeDU1X1RUMmRpc1o2VkgxejRBRjJfR08yV0xOZXdXblJIeV9INVhyTS0xUFlvRDhwUkQxZ1ZQRzJBMVV0MGgycjJESmlFV0luRGFGSk1VVjNDWnNTNm0xWDdIRW03V0dXN1dSUGFuNGpaNWFVdkU1R2Y2NnpzMlBPOHpiaU1wd0IzVUxhazYxaE1FcmVyWGllcEw1SFVoTTBrMy1RT1NVbm9mdUNyVDJGR1FlVU81VFViTTFucG1SUFNYcl9rZFdUUmU3Zw?oc=5",
+   "published": "2026-11-26T11:22+07:00",
+   "feed": "gn_tech",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "My Nvidia stock analysis shows bulls are better than what most seem to think",
+   "source": "investingLive",
+   "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNaTdSdWtvbVpvUC1nVXhoT0ZMaWtTX3VwY2M2TG1VN0E4eE5FaC13dGJvcVRxZW9Ea3hBcEQ2bV9FVlcwa3NUZVhUemtJT1c2dGpSOHN4S3lZVXFQSTdOenM4Y2JTZDRKS2VrNGhjSGVyQnlqQ2MycEpnanZ5aEFnd29lbk5zczVubnRYelBzcDExeGI2bHVISHdFYldRTFZOelVxZWZkSERZQzhhd3BZ?oc=5",
+   "published": "2026-11-26T10:53+07:00",
+   "feed": "gn_tech",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Michael Burry Says He’s Shorting The Market’s ‘Generals’ As Apple Flashes A Warning Last Seen In 2002",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxONHVZVlpaaXpoMjBmR2ZBdFlDMzF2ejVpRFR3bDd5MWtSR0N3ZFloaFFOTFlxWUMwN2ZoSENVN2VaMEpsQm1YSHB0ZnYxTG5WUVhjeTBnQkZ1TE9tRlZWZlZHbnYwdWN3MkNDcHFfc1Vycl9FTHVpSVVmREY3dzQwaUw3MXhwRk1vN3QtZzVVMTdYZFFDUTFCTE10Q243SC1Z?oc=5",
+   "published": "2026-11-26T10:44+07:00",
+   "feed": "gn_tech",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Gold ticks up after hitting 15-month low; Fed outlook in focus",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNczNWcXJNQVFwUEZ5UjlTc1o0ZFE5NVFYZzA2eTJURHRsMmRMRmc1LTZ1TWszbFYyN05QRHRiQ1VIb1ZxUE9pTUs5WDVya1M0WFJEQ3lCN3J0T3h4bndfa1NyZFB4VFFaby1NWVdRRlFZeGlKdDNnYkRZN0c0eFZQY3VSWS11NW9SbUdndElMZk9oNk1kd0haVWh0Rl9VcTA1MDg1REE1cHZXWk14Umc?oc=5",
+   "published": "2026-11-26T10:39+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย",
+    "งบบริษัท"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Cathie Wood Buys More SpaceX Amid Tesla Merger Talks — Ron Baron Says SpaceX Could Make $50B A Year From One Data Center",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPVFZkVVYyYnVfcTgyWDQyRkxpU1Zzb1g0aTlTMG1fSjlwR2lpMkEzTHNUQkp3Q0JvZEU0dHlvX1dhcTVMTEllckxXcXdGeVFMdG5PNno2RkFZT05kYzhpRHJ2R0N4dWFyM19oUjR2WnNxLXZWVXJVYmdGRWcxbFdDX0FISDJBMlpGckJzbUY1R2Q2WUtIQVN1OA?oc=5",
+   "published": "2026-11-26T10:32+07:00",
+   "feed": "gn_tech",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Dow, S&P 500, Nasdaq Futures Edge Higher As Tech Rebounds After Selloff: DIS, VRTX, DE, CHTR In Focus",
+   "source": "TradingView",
+   "link": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxNSVNyM2hLaWRkcy1pZFRBMTBIQzd4MjlZbE10Q3dTREVhcU5JRjk3ZnFmMjdYMHo1dENuT1FlVmNxWVdnc1FoWWp3UXo3ME1qcXRyeGlIZjJ5aVg3NS1ZUjZ3akZJRUFVSEFZS0VLMTlLaDI0M3lpR2xBbWRtQ1pVMTZvSGtWSmx4N0dOc1lSc191eDFhcDM2SV9yeENsOW9tNHdKUkZSajlTTzNWMThXQVVNN3R3Yml2MHRFVVFSUG9qeFMxVy1Oekx0ODl4cHlfZTM1WnV6ajd5aVBhYzQ4TEtwR0pvRXF3am5TdQ?oc=5",
+   "published": "2026-11-26T10:14+07:00",
+   "feed": "gn_nas",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "NASบวก"
+  },
+  {
+   "title": "K-beauty stocks rally as Korean brands top Amazon bestseller lists globally ahead of Black Friday",
+   "source": "CNBC",
+   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNcWU1cHd4NWROZDBiOHBHbHhpczBFMEZZUWJsQ3k0ZEE1Q1ZXajRnOWRpOGJwOFhsLWtBVllOS3pNa0NIaGhxMjF4S2Q0eVB0di11WUxCRHA4RGFYcjNYSm5wTmdwbWdVajE3N1ZiMkw1aHRUN0ROQlRNRE4ycDVoMVdKWdIBiAFBVV95cUxQS0swbm5FeFdHdk5nTFFjdi1ESHBfQjFZSDZDWV9fMi1KeHZwaWFGM0RwNnFYNWRCcTVZWF9yOE9BUjZiYzZaYzdnbzlUWThGeUZjbUFKSmxIamhpZU9TdGlqdWtaeEVpNFJMbC1DbzF3VG9BckxFTHVJTGc5Qmo5dVcwNDVVU1Vf?oc=5",
+   "published": "2026-11-26T10:09+07:00",
+   "feed": "gn_cnbc",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "NASบวก"
+  },
+  {
+   "title": "‘Trump Put’ Protects Nvidia Growth Through 2028, Says Gary Black as NVDA Stock Trades at Cheapest Valuation in 10 Years",
+   "source": "TradingView",
+   "link": "https://news.google.com/rss/articles/CBMihgJBVV95cUxPTU0wbzJ6NERHVXotQkh3Sm01UFp3S1NQeDh0TzFQTVZKU2tJQXZvRzdwc3ctSHRhUlBkTnRYWFM5eGxpcVcxbC1GX0psWmpJQS15TFk4S0NHTEFXQUZYQ3dMOURaME0zM1VJemdtUmFMU19xUEE3U0dDMGlSdkhFWGNhSDdTeEFqRWtXYzc0SXlmNXluWUhXdllyMndqV3dmZDhKVjBiTS1SVXhILUpQVmtUOUxTY1gzMEh2OG1BQVNSRjhkcXlEdkQ1ZFVtbURsc3ltakxEcmFBSmlNdFcyUHJramNrRDJhVTBvald3bmI5OFVqVHBGVWZZSEhLc0xpdnJnWDdn?oc=5",
+   "published": "2026-11-26T10:06+07:00",
+   "feed": "gn_tech",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Asian tech stocks jump as bargain buyers boost battered AI trade",
+   "source": "Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQT3ZFNnYxamp4RElmYnNmcTB2X0pIZEhxV29uSW8tQkliVmZHVERQNElNUjJjYklkU2g2ME5GSWRLOEdsUTROdHhvRFFXX3phY1otc0hscmozVDNGdjhad0xqekltZTlON1dnNVFLSmEtbnZCbEE5Yk9VWXlSNVFMZ21FdjRldUlIR0RPVXVJYW1QS0xadW9PYzBxMA?oc=5",
+   "published": "2026-11-26T10:03+07:00",
+   "feed": "gn_nas",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "NASบวก"
+  },
+  {
+   "title": "S&P warns Nvidia credit rating could be cut over 'rising' management and governance risk",
+   "source": "CNBC",
+   "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE51YVJtVWRQVW9UQ2F0TmcyYnRIY1o3eTdTX1pPamJjRWlod2stNjhCRnIwdndsRm4zTkdWR1NSblpacElZSUdVcmc3ZlB5WDdUNk02VHRid19Nak83VjVVYmlhcVlwZ3BUQVg4RXB3V2N5UU9v0gF6QVVfeXFMT05JRkhHVWFocEE4YlFWMHpMb29MZzJSa2NpX1VuSVNtSGxJbkpsLXEtbHBocEh4Zk1NQVlmMVdFd1FNX0FhT0dRUFJ5dGo0aGozelJMY3VYVDNhUmRzR1pkVzViaUdRc1RxU19xWWstT2xtMDNELW9oaHc?oc=5",
+   "published": "2026-11-26T09:57+07:00",
+   "feed": "gn_cnbc",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "S&P puts Nvidia's AA rating on watch for a possible cut, as Moody's holds steady",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/stocks/s-p-puts-nvidia-s-aa-rating-on-watch-for-a-possible-cut-as-moody-s-holds-steady/",
+   "published": "2026-11-26T09:23+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "‘Your booth is waiting’: Denny’s welcomes Jensen Huang back as Nvidia CEO",
+   "source": "CNBC",
+   "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5XLUdDX1cxTnFzZl95T2dMX0lKR2VPY0xNZkpQby1qbGR6M0xWYkJNc2pCNGhNZWNvZWQzM2lSazRPcDh2bk1hdnE4QjdTRFhaZUVQVElNQzdNb3NEaEJrdjJyY3ZGeXNPcUx0dVNQcETSAXZBVV95cUxObktpNGV4RWJzSEZJV2thdzUwTTZVaFB4NER2VTJrQlRoQXl4MS1OcU5wdzBtdDJmYVpSYm9zU2R5SS1rTjIxQ3Y1eVJGSU1tMlhPY25OWHVkSi0yVGt6b3lNNjRMSFlZb2tJSUdHSVJtTC01VXJ3?oc=5",
+   "published": "2026-11-26T09:15+07:00",
+   "feed": "gn_cnbc",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "ดาวโจนส์ปิดบวก 161 จุด หุ้น AI ปรับลง",
+   "source": "Hoonsmart",
+   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE0xMTVsT3lrQkNYd3JtM0EyNUJqOG5QY0JHTkRqdTk1dFF2WTBGOUNzX1pFWjFYNU0xUkszZENJTjNUNzlqaDNJaWZqdXZ3Zw?oc=5",
+   "published": "2026-11-26T08:59+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Fed Rate Hike Odds Hit 98%, But Eric Jackson Says It’s Time To Cut – Robin Brooks Warns Of ‘Full Meltdown’",
+   "source": "TradingView",
+   "link": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxQMlJGRVRLLURIeFdQX3R2c0tObTJadEpiaHlQa1NXNGRtZVRWTV9zTGRwbWtpcDJhT1ExbS1seUdUM1lIaVpjYTlkcWdvbDZvNVo1SDhsOXpmeTRwaG5oWlRXdTVsRmQwMkVpNVliX1JxLVZpb2VfNU9ZaWpURjUxdVZhVmpYeHdXTEFlQ0wwOGJDVEg4Tng4NU5xZE9POGF0UGQxeHp4S2owR0RXczJxZFhkNUkzY1dIYmJMMmxqNWd3ZHMySlZ4Uko0X3UydndOd0FhbV91NUl2YTMwSGVlcmpLTlBGN1ZNby1ueU0yQTlfZzQ?oc=5",
+   "published": "2026-11-26T08:43+07:00",
+   "feed": "gn_fed",
+   "tags": [
+    "Fed/ดอกเบี้ย"
+   ],
+   "lean": "NASลบ"
+  },
+  {
+   "title": "ดาวโจนส์พลิกบวก! ฟื้นจากร่วงกว่า 1,100 จุด ขณะที่หุ้น AI ฉุด Nasdaq–S&P 500",
+   "source": "วารสารการเงินธนาคาร",
+   "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFA3VGdXTk5pY01yNVJTR3p5cVBEUmVvWkNmeHpJM3pWMVFaNGZoaXRDQWVGMFAxUVJfNFlvTkhWdGZqbXI0a3ZNU2VIYXFYWWY2STdoZQ?oc=5",
+   "published": "2026-11-26T08:38+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "Stocks rally in Asia, US tariffs not as dire as feared",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPUWRTQ2N0czgwTVhPdVhvZDUzeDNDRUJ6cFd0MWx1N05aSTJHaUlOdTQ5X2xieEVueHJ3VTRrb0ppNEtzbFVBRm1fU3VvV0xpMWVlUWg3c0NvWXJxS2ZabkwwejhwenhCVmhYRUdweUwwdHhTTWd1bTh2QlR1dFpvVDFHVQ?oc=5",
+   "published": "2026-11-26T08:35+07:00",
+   "feed": "gn_kitco",
+   "tags": [
+    "ภูมิรัฐศาสตร์"
+   ],
+   "lean": "NASบวก"
+  },
+  {
+   "title": "ตลาดหุ้นสหรัฐฯ ผันผวน S&P 500 ปิดลบ รับแรงกดดันภาษีรอบใหม่",
+   "source": "Head Topics",
+   "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9NRW5rZGZTUmc4cVE0R0Jmc0ZtcThzQ09PT0J1TDNUZm84eG5mcy1qM3VneVNkWFUxblRYYXNJTTlsTVpweEpIZWFLTkxiS19OVVN3YnZhUVQxQjhoOWpIWi15Q3dSaDJHUmludXdn?oc=5",
+   "published": "2026-11-26T08:31+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "‘ดาวโจนส์’ ปิดบวกกว่า 100 จุด รับแรงช้อนซื้อ ก่อนหยุดวันขอบคุณพระเจ้า",
+   "source": "The Bangkok Insight",
+   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9ROUFSdE0tR0V0dTFLWVBZQXNuMFR0cVRlMnJkUG9taVFreTJpZmxqZHh5TkJKdDI4YWhvbG9sQ3FUaktYeEl3OXB2ZEJqRllCSzJiYUh5MVM3RUNaUno5WU9ySWlSRGVrNEhRVUV5TnY0Qmc4ZWc?oc=5",
+   "published": "2026-11-26T08:29+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "The RBA's three 'stars' are fuzzier than they look: what it means for AUD and stocks",
+   "source": "investingLive (ForexLive) RSS",
+   "link": "https://investinglive.com/education/the-rba-s-three-stars-are-fuzzier-than-they-look-what-it-means-for-aud-and-stocks/",
+   "published": "2026-11-26T08:16+07:00",
+   "feed": "investinglive",
+   "tags": [
+    "ทั่วไป"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "“ดาวโจนส์” พลิกปิดบวก 164 จุด สวนหุ้นเทคร่วง ผวาภาษีทรัมป์–เงินเฟ้อเร่งตัว",
+   "source": "ข่าวหุ้นธุรกิจออนไลน์",
+   "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9veGU0YWpETlpEMTdtdVZ4TVFoQ01zZDVST0VyQ2pmc01VNlUzb2h2dHdZZktHQmx4Y21DSjdBUDlUUVIzTllWMWRvMEtjdDhIRzRN?oc=5",
+   "published": "2026-11-26T08:06+07:00",
+   "feed": "gn_th",
+   "tags": [
+    "เงินเฟ้อ",
+    "หุ้นเทค/AI"
+   ],
+   "lean": "กลาง"
+  },
+  {
+   "title": "AI stock rout deepens but damage is limited by afternoon bounce",
+   "source": "Reuters",
+   "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNMmNMM0doWElDVk9BdjNGZnJHakNCUFg1blQzSlk0eW9zeVduV3ZKcEtJd0hpUkxDMVhnRE9rY1lLUzF1eENZaFh0SUNKbmRjanN3YWtZakZud2RYUnlSRkk5b1RZT2VfbFJPXzhZVEVyYnFnRHBwYVlGdFQzaEt2Z2VjaGVXWUE0Qmd5bjZYandmR2M2QXBSY2tKem80OGNlSzh3?oc=5",
+   "published": "2026-11-26T06:39+07:00",
+   "feed": "gn_kitco",
+   "tags": [
+    "หุ้นเทค/AI"
+   ],
+   "lean": "NASลบ"
+  },
+  {
+   "title": "Soluna Holdings receives Nasdaq notice on minimum bid price, to be removed from Russell indexes",
    "source": "Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxPVjI3QWFPSFFva0N2dEUyWFVCaVR4c0FLaXF5YkxmZktVOUJINHBJa3BmTzdkX1NrcHh4THhMdVhtS2p2bjlhQW05aHpNNTBpLXNkQl9BNjEtY01EVmpGaEYwZm1kbWhwNzZVZzBNclc4OGtEbFdld1JJNzhhZnlQc1RnWGMwWmJPUDJMdEhpZXVncDd2TnJnOXN5NVRRY2EzZmRHV1pLU0gzVHJBUkY4MS11VXBQNllGR2xsU1hpZkJ6QkE?oc=5",
-   "published": "2026-11-25T23:37+07:00",
+   "link": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxNWWE2TkVlN0dDemxPTGNkX2NBMUZGS09GTEdQZklhcnEzVlpjY0tUZU0welNnLU54R1dTR0ZhSjFjQmpldEx6VUF6cjQ3emY5Zl9ob2gxMy1rcTNtc0V1Q1RodnBCcG5TZlZXcXdGOXNmZDJkVE9CdFVEQ1NGNGU2bDdYbzBMLVJUNDdUMnVPd1ZXcDlTaFd6NnI3bFVhckFWUTdwc2tXb1NXZ1FJS1RmalIzY3ZHZzJtejF2LUxYOFJXeG9TVGtwRXV2TGtLRTJBcFkwalNfWEtnVGZpU2x0T0hXQVc?oc=5",
+   "published": "2026-11-26T06:05+07:00",
    "feed": "gn_nas",
    "tags": [
     "ทั่วไป"
    ],
    "lean": "กลาง"
-  },
-  {
-   "title": "‘ดาวโจนส์’ พุ่งกว่า 1,500 จุด ‘แนสแด็ก’ พุ่ง 6.91% รับข่าว ‘เจนเซน หวง’ หวนคืนเก้าอี้ซีอีโอ ‘เอ็นวิเดีย’",
-   "source": "LINE TODAY",
-   "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBXQWN6Y0tTVS13WkdXZF9YZW5Gd0FwMHAzeHU5VFpTc185QUhmOTR3OWdFX01Ia3BrLXpYbzhMRklYdFQ1SXFoRy1fb3F2SGtLUUpRcTZR?oc=5",
-   "published": "2026-11-25T23:32+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "NASบวก"
-  },
-  {
-   "title": "These low-volatility stocks are shining in November as markets shudder",
-   "source": "CNBC",
-   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE9DTU5nV0M2aENmRVVZbnlWeE1GLW5ZeTc4aXlKRnBNWjBmQ0k1Z0RudWVQVDhoU0FMMnlTbkJrOEVZNk16SnZIdFVfb0x6c3hHQ1ZYQzBNQ2gzY2JacFREY1RuWHE1RXBqbVJxWm1Dd3JhS2lrdjBtWHJqUzY?oc=5",
-   "published": "2026-11-25T22:57+07:00",
-   "feed": "gn_cnbc",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Gold is sitting on the edge of support at $3,425 despite lower yields",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/commodities/gold-is-sitting-on-the-edge-of-support-at-3-425-despite-lower-yields/",
-   "published": "2026-11-25T22:47+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "บอนด์/ดอลลาร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "JPMorgan says the S&P 500 will rise to 8,200 next year because of the AI supercycle",
-   "source": "CNBC",
-   "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTE55Um5QLWE5Q0ZaeGtydm9MS2syWmdJclFXQlZIbXVaQl9jQldHSjdvMVdnMHljVnlnZ2tCN0NBcEVDQ1l5NmE5NFROZ1VKMkRtYmFuLXhWaXBUX1loYk1OaG1UMml6cmh3Zlk2NlhXN1Y1MFk?oc=5",
-   "published": "2026-11-25T22:46+07:00",
-   "feed": "gn_cnbc",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASบวก"
-  },
-  {
-   "title": "ดาวโจนส์/S&P 500/Nasdaq ทรุดหนัก กังวลภาษีทรัมป์, แรงขายหุ้นเทคฯ : อินโฟเควสท์",
-   "source": "สำนักข่าวอินโฟเควสท์",
-   "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1hWUNXSERwWnJHbDZOMk5SaEpHQmdEWlJZNUlpNUR5VVVfaFlBMDdQU2dXZXE0U19jSFh6WWxWVEFmWG84YWtNQU1HRl9SREYx?oc=5",
-   "published": "2026-11-25T22:44+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "Gold slides below $3,500 amid Fed rate hike expectations, AI stock rout By Investing.com",
-   "source": "Investing.com India",
-   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNcm1OdkFBNy1JQy0wYkFRdE93MUxHaVVUMGhIU0xWQTl0b19LejRqbWZEbm1JT2tsVVI4ZVdiR2dwMmFxUUtfdFhKZDJ2d2kzN1JLMFVja25JY0lsbm5PRkRMRmFGM2lOT20weFI2a1AzNFdRd0hWMExyT1R4TExZQ1R3LV9xYURnVExnelVwWGxVNVo1UFUxVDJTcUJSQlpKRVRjMS1ndklPYzBQLXQ5eFF5ZnBXWl9SSDJnWA?oc=5",
-   "published": "2026-11-25T22:30+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "Wealthy investors seek tax savings from municipal bonds as yields remain elevated",
-   "source": "CNBC",
-   "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQQ3Rxd3VtODRPcTRJejFFSDczMHE5ejhUbFdLUlhrV1EtamJRaFI2d3JNeldHeDN2WWZBYjBXdHNVbkF0dTUwaDYxSGRfMWlxNFZCZ2xQUmk3dXJSbi0zZ1FkLVl4bDNDbU9jMmpLOFQwYnRoUF8wS0txd3U1ZWgtdHVRRXZzOUtZZ2g0V1owaHFQbUgtRktR0gGcAUFVX3lxTFBWMnJTMjBGakZWV0VyRzhuRGxIVU9FTGNWRUJHWTBKYkptdVpUQ19wSExkaThmVk1HdDB2Umo2MlQ0d3JEcHN4WEpsZnRCOXZDcjFNd0JmSVRITTlXd0owUUpmVFd6dUVQMkRQX1lsNW4zZTJGY1QzOXRJajZrN19hYzl4dXhiSllDdW42YnRTS1YzLTd1VXlwWFllaA?oc=5",
-   "published": "2026-11-25T22:00+07:00",
-   "feed": "gn_cnbc",
-   "tags": [
-    "บอนด์/ดอลลาร์"
-   ],
-   "lean": "กลาง"
-  },
-  {
-   "title": "Bitcoin is following the stocks lower. What are the charts telling traders now?",
-   "source": "investingLive (ForexLive) RSS",
-   "link": "https://investinglive.com/cryptocurrency/bitcoin-is-following-the-stocks-lower-what-are-the-charts-telling-traders-now/",
-   "published": "2026-11-25T21:58+07:00",
-   "feed": "investinglive",
-   "tags": [
-    "ทั่วไป"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "Fed's favored inflation gauge heats up, solidifying a rate hike in December, with more likely next year",
-   "source": "Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxORm0xSVIwQnh1VWlKTkZqdFZuZFl0S2JqRDA3STBBd3pkOG9ZMnZKZGl4OG9Qa3RXYXUzUG9vWnJWRzVrNHB0Rk1oTm9QVWV1QzdSSkVTU1B4bUNCVXZPLXhfS0RCck1jN2NRSHVMWjRURmI2N0hCX1dsRG5FRzZjZWdRYV9TWWI2dzVtVDl4TklwYVh1Rm9wUTduOHlkRUdXYm9xMkV5OG9wdW1nenBBRlpiQXd3ckh3V3ZUd1lmS0J3cS01WUN4eXFSLWpMWjNVTzFQc2xQaW5wQVFKUENmLVE1ZFp3Q1JMUG1MeGM5Y3FpZkFUeDk4?oc=5",
-   "published": "2026-11-25T21:47+07:00",
-   "feed": "gn_fed",
-   "tags": [
-    "Fed/ดอกเบี้ย",
-    "เงินเฟ้อ"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "ดาวโจนส์ฟิวเจอร์ส ร่วงกว่า 680 จุด แรงเทขายหุ้น AI ปะทุอีกระลอก Nvidia–Anthropic นำตลาดดิ่ง",
-   "source": "LINE TODAY",
-   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNSFJ4TGF5WnNLM01vM2VsT0hucE9iZ0dyV2psR2w1Q0FiTEh2T1RjTkhTMjBkV0p2OGNUM09KVk9MY2tCNFM3S1Q2X0pOTzRZLVcyUlc2Z0JRZVVzOTE2aXZRWmVhWVNsUDdzZmY2ZHRuVmVUeDJIeDVCMkdMc20zQw?oc=5",
-   "published": "2026-11-25T20:43+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "ดาวโจนส์ฟิวเจอร์/S&P 500/Nasdaq ร่วงหนัก กังวลภาษีทรัมป์, แรงขายหุ้นเทคฯ",
-   "source": "RYT9",
-   "link": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE9WenZxaUVCdkRlNGtHU0NucHpsY2pfN1d0LTc1aEtsRmQ3TzktMjdqekNUU0xKaHRtTUxGbjE3dTNyZmE5T3hTcjBR?oc=5",
-   "published": "2026-11-25T19:37+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
-  },
-  {
-   "title": "“ดาวฟิวเจอร์” ร่วงกว่า 500 จุด! แรงขายหุ้นเทคฯ-หวั่นสหรัฐรีดภาษี 16 คู่ค้า",
-   "source": "ข่าวหุ้นธุรกิจออนไลน์",
-   "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE5xOFlYbXB0bjdYUktRR1JGNUdfTUh2VzFUanNiZ25rNzg3RldYYlpFeFAtNjdmWGViQnBZN2VrZWpWV3hNNHk1dHJTQQ?oc=5",
-   "published": "2026-11-25T19:15+07:00",
-   "feed": "gn_th",
-   "tags": [
-    "หุ้นเทค/AI"
-   ],
-   "lean": "NASลบ"
   }
  ],
  "_format": "items: {title (original), source, link, published (ISO +07:00), feed, tags[Thai], lean: NASบวก|NASลบ|กลาง}"
